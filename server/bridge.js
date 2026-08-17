@@ -335,6 +335,11 @@ end tell`;
     targetUrl = reqUrl.searchParams.get('url');
   }
 
+  // Handle 404 fallbacks for private server legacy trainer files
+  if (pathname.endsWith('/tutorial.swf')) {
+    targetUrl = targetUrl.replace(/\/tutorial\.swf/i, '/ui/spain/swf/Trainer.swf');
+  }
+
   if (targetUrl) {
     try {
       const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
@@ -351,13 +356,15 @@ end tell`;
         }
 
         // Universal XML Rewriter: replaces any https://domain.com/path with http://localhost:8081/host/domain.com/path
-        const rewrittenXml = xmlContent.replace(
-          /value=["'](https?:\/\/([^"'\/]+)([^"']*))["']/gi,
-          (match, fullUrl, host, restPath) => {
-            if (fullUrl.startsWith(`http://localhost:${HTTP_PORT}`)) return match;
-            return `value="http://localhost:${HTTP_PORT}/host/${host}${restPath}"`;
-          }
-        );
+        let rewrittenXml = xmlContent
+          .replace(/<TRAINER_PATH\s+value=["']tutorial\.swf["']\s*\/>/gi, '<TRAINER_PATH value="ui/spain/swf/Trainer.swf" />')
+          .replace(
+            /value=["'](https?:\/\/([^"'\/]+)([^"']*))["']/gi,
+            (match, fullUrl, host, restPath) => {
+              if (fullUrl.startsWith(`http://localhost:${HTTP_PORT}`)) return match;
+              return `value="http://localhost:${HTTP_PORT}/host/${host}${restPath}"`;
+            }
+          );
 
         res.writeHead(200, {
           'Content-Type': 'application/xml; charset=utf-8',
