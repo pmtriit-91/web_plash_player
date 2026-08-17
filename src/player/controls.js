@@ -197,28 +197,31 @@ export class PlayerControls {
       }
     });
 
-    // 9. 1-Click Sync Zing Gunny Session from Chrome
+    // 9. 1-Click Universal Gunny Session Sync from Chrome
     if (this.btnSyncZing) {
       this.btnSyncZing.addEventListener('click', async () => {
         this.btnSyncZing.disabled = true;
-        this.btnSyncZing.textContent = '⏳ Đang đồng bộ từ Chrome...';
-        this.logBridge('[Sync] Đang truy vấn phiên đăng nhập Gunny từ tab Chrome...');
+        this.btnSyncZing.textContent = '⏳ Đang dò tìm tab Gunny...';
+        this.logBridge('[Sync] Đang truy vấn phiên đăng nhập Gunny từ trình duyệt Chrome...');
 
         try {
-          const res = await fetch('http://localhost:8081/sync-zing-session?sid=737');
+          const res = await fetch('http://localhost:8081/sync-gunny-session');
           const data = await res.json();
 
           if (data.ok && data.swfUrl) {
-            this.showToast(`🎉 Đồng bộ thành công Máy chủ ${data.serverId}! Đang nạp game...`);
-            this.logBridge(`[Sync] Đã trích xuất SWF: ${data.swfUrl}`, 'success');
-            this.logBridge(`[Sync] Đã xác thực User kufa91 (Server ${data.serverId})`, 'success');
+            const serverName = data.serverType === 'zing' ? `Zing Server ${data.serverId}` : new URL(data.serverUrl).hostname;
+            const userName = (data.flashvars && data.flashvars.user) ? data.flashvars.user : 'Player';
 
-            if (data.flashvars) {
+            this.showToast(`🎉 Đồng bộ thành công ${serverName}! (${userName})`);
+            this.logBridge(`[Sync] Đã trích xuất SWF: ${data.swfUrl}`, 'success');
+            this.logBridge(`[Sync] Máy chủ: ${serverName} | Tài khoản: ${userName}`, 'success');
+
+            if (data.flashvars && Object.keys(data.flashvars).length > 0) {
               this.inputFlashvars.value = JSON.stringify(data.flashvars, null, 2);
             }
 
             const proxiedUrl = data.proxiedSwfUrl || this.bridge.getProxiedUrl(data.swfUrl);
-            await this.runGame(proxiedUrl, { flashvars: data.flashvars || {} });
+            await this.runGame(proxiedUrl, { flashvars: data.flashvars || {}, baseUrl: data.baseUrl });
           } else {
             this.showToast(`⚠️ ${data.error || 'Không thể đồng bộ. Hãy chắc chắn tab Gunny đang mở.'}`, 5000);
             this.logBridge(`[Sync Error] ${data.error}`, 'error');
@@ -228,7 +231,7 @@ export class PlayerControls {
           this.logBridge(`[Sync Error] ${e.message}`, 'error');
         } finally {
           this.btnSyncZing.disabled = false;
-          this.btnSyncZing.textContent = '⚡ Đồng bộ & Vào Game Ngay (Gà Cầu Duyên)';
+          this.btnSyncZing.textContent = '⚡ Đồng bộ & Vào Game Ngay';
         }
       });
     }
