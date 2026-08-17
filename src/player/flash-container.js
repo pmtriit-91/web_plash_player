@@ -75,34 +75,31 @@ export class FlashContainer {
         typewriter: ['Courier New', 'monospace']
       },
       socketProxy: [
-        {
-          host: '15.235.193.106',
-          proxyUrl: this.options.bridgeWsUrl
-        },
-        {
-          host: '123gn.net',
-          proxyUrl: this.options.bridgeWsUrl
-        },
-        {
-          host: '127.0.0.1',
-          proxyUrl: this.options.bridgeWsUrl
-        },
-        {
-          host: 'localhost',
-          proxyUrl: this.options.bridgeWsUrl
-        },
-        {
-          host: 's737.gn.zing.vn',
-          proxyUrl: this.options.bridgeWsUrl
-        },
-        {
-          host: 'quest737.gn.zing.vn',
-          proxyUrl: this.options.bridgeWsUrl
-        },
-        {
-          host: 'gunny.vcdn.vn',
-          proxyUrl: this.options.bridgeWsUrl
-        }
+        // 123gn.net Game Server
+        { host: '15.235.193.106', port: 25565, proxyUrl: this.options.bridgeWsUrl },
+        { host: '15.235.193.106', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: '15.235.193.106', port: 9201, proxyUrl: this.options.bridgeWsUrl },
+        { host: '15.235.193.106', port: 9208, proxyUrl: this.options.bridgeWsUrl },
+        { host: '123gn.net', port: 25565, proxyUrl: this.options.bridgeWsUrl },
+        { host: '123gn.net', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: '123gn.net', port: 9201, proxyUrl: this.options.bridgeWsUrl },
+
+        // Zing Gunny Game Servers
+        { host: 's737.gn.zing.vn', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: 's737.gn.zing.vn', port: 9201, proxyUrl: this.options.bridgeWsUrl },
+        { host: 's737.gn.zing.vn', port: 9208, proxyUrl: this.options.bridgeWsUrl },
+        { host: 's737.gn.zing.vn', port: 25565, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'quest737.gn.zing.vn', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'quest737.gn.zing.vn', port: 9201, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'gunny.vcdn.vn', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+
+        // Local Dev & Generic Servers
+        { host: '127.0.0.1', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: '127.0.0.1', port: 9201, proxyUrl: this.options.bridgeWsUrl },
+        { host: '127.0.0.1', port: 25565, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'localhost', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'localhost', port: 9201, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'localhost', port: 25565, proxyUrl: this.options.bridgeWsUrl }
       ]
     };
 
