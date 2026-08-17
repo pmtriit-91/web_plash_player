@@ -1,9 +1,10 @@
 /**
- * Gunny & Flash Games WebSocket-to-TCP Proxy Bridge + Asset CORS Proxy
+ * Gunny & Flash Games WebSocket-to-TCP Proxy Bridge + Smart Asset & CORS Proxy
  * Universal Agent OS - Web Flash Player Engine
  */
 
 import http from 'http';
+import https from 'https';
 import net from 'net';
 import { URL } from 'url';
 import { WebSocketServer, WebSocket } from 'ws';
@@ -11,7 +12,46 @@ import { WebSocketServer, WebSocket } from 'ws';
 const HTTP_PORT = process.env.BRIDGE_HTTP_PORT || 8081;
 const WS_PORT = process.env.BRIDGE_WS_PORT || 8080;
 
-// 1. HTTP Server for Status & CORS Asset Proxy
+/**
+ * Helper to fetch a URL following HTTP redirects
+ */
+async function fetchWithRedirects(targetUrl, maxRedirects = 5, customHeaders = {}) {
+  let currentUrl = targetUrl;
+  let redirects = 0;
+
+  while (redirects < maxRedirects) {
+    const parsed = new URL(currentUrl);
+    const isHttps = parsed.protocol === 'https:';
+    const httpModule = isHttps ? https : http;
+
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': '*/*',
+      'Referer': `${parsed.protocol}//${parsed.host}/`,
+      ...customHeaders
+    };
+
+    const res = await new Promise((resolve, reject) => {
+      const req = httpModule.request(currentUrl, { method: 'GET', headers }, (res) => {
+        resolve(res);
+      });
+      req.on('error', reject);
+      req.end();
+    });
+
+    if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+      currentUrl = new URL(res.headers.location, currentUrl).toString();
+      redirects++;
+      continue;
+    }
+
+    return { response: res, finalUrl: currentUrl };
+  }
+
+  throw new Error('Too many redirects');
+}
+
+// 1. HTTP Server for Status, Smart Inspector, and CORS Proxy
 const server = http.createServer(async (req, res) => {
   // Add universal CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -32,10 +72,128 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify({
       status: 'active',
       service: 'Web Flash Player Network Bridge',
-      version: '1.0.0',
+      version: '1.1.0',
       wsPort: WS_PORT,
       uptime: process.uptime()
     }, null, 2));
+    return;
+  }
+
+  // Smart URL Inspector: /inspect-url?url=...
+  if (reqUrl.pathname === '/inspect-url') {
+    const targetUrl = reqUrl.searchParams.get('url');
+    if (!targetUrl) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Missing "url" query parameter' }));
+      return;
+    }
+
+    try {
+      const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
+      const contentType = (proxyRes.headers['content-type'] || '').toLowerCase();
+
+      // Collect data chunks
+      const chunks = [];
+      for await (const chunk of proxyRes) {
+        chunks.push(chunk);
+        // Limit initial inspection buffer to 1MB
+        if (chunks.reduce((acc, c) => acc + c.length, 0) > 1024 * 1024) break;
+      }
+      const buffer = Buffer.concat(chunks);
+
+      // Check if it's a binary SWF (magic bytes: FWS, CWS, ZWS)
+      const magic = buffer.subarray(0, 3).toString('ascii');
+      const isSwfBinary = magic === 'FWS' || magic === 'CWS' || magic === 'ZWS' || contentType.includes('shockwave-flash');
+
+      if (isSwfBinary) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          ok: true,
+          type: 'swf',
+          finalUrl,
+          swfUrl: finalUrl,
+          flashvars: {}
+        }));
+        return;
+      }
+
+      // If it's HTML, parse it for SWF files & Flashvars
+      const htmlText = buffer.toString('utf-8');
+      
+      // Check if it redirected to a login page (like Zing ID login)
+      const isLoginPage = finalUrl.includes('login') || 
+                          finalUrl.includes('id.zing.vn') || 
+                          htmlText.includes('name="password"') || 
+                          htmlText.includes('id="login"') ||
+                          htmlText.includes('dang-nhap') ||
+                          htmlText.includes('id-levelup');
+
+      // Search for SWF URLs in the HTML
+      const swfRegex = /(?:src|data|movie|value)=["']([^"']+\.swf(?:\?[^"']*)?)["']/gi;
+      const swfObjectRegex = /swfobject\.embedSWF\s*\(\s*["']([^"']+)["']/gi;
+      
+      const foundSwfs = [];
+      let match;
+      while ((match = swfRegex.exec(htmlText)) !== null) {
+        foundSwfs.push(match[1]);
+      }
+      while ((match = swfObjectRegex.exec(htmlText)) !== null) {
+        foundSwfs.push(match[1]);
+      }
+
+      // Search for flashvars in HTML / JS scripts
+      const flashvarsRegex = /flashvars\s*[:=]\s*["']([^"']+)["']/i;
+      const flashvarsObjRegex = /flashvars\s*[:=]\s*({[\s\S]*?})/i;
+      let extractedFlashvars = {};
+
+      const fvMatch = flashvarsRegex.exec(htmlText);
+      if (fvMatch) {
+        const params = new URLSearchParams(fvMatch[1]);
+        for (const [k, v] of params.entries()) {
+          extractedFlashvars[k] = v;
+        }
+      }
+
+      if (foundSwfs.length > 0) {
+        const rawSwf = foundSwfs[0];
+        const resolvedSwfUrl = new URL(rawSwf, finalUrl).toString();
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          ok: true,
+          type: 'html_with_flash',
+          finalUrl,
+          swfUrl: resolvedSwfUrl,
+          allFoundSwfs: foundSwfs.map(s => new URL(s, finalUrl).toString()),
+          flashvars: extractedFlashvars,
+          message: 'Đã tìm thấy tệp Flash (.swf) nhúng trong trang web!'
+        }));
+        return;
+      }
+
+      if (isLoginPage) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          ok: false,
+          type: 'login_required',
+          finalUrl,
+          message: 'Trang web này yêu cầu Đăng nhập tài khoản (Zing ID/Session Cookie). Không thể tải trực tiếp nếu chưa đăng nhập. Vui lòng đăng nhập trên trình duyệt để lấy link Loading.swf và flashvars trực tiếp!'
+        }));
+        return;
+      }
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        ok: false,
+        type: 'html_no_flash',
+        finalUrl,
+        message: 'Trang web không chứa tệp Flash (.SWF) nào hoặc tệp yêu cầu quyền truy cập đặc biệt.'
+      }));
+
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: err.message }));
+    }
     return;
   }
 
@@ -49,26 +207,20 @@ const server = http.createServer(async (req, res) => {
     }
 
     try {
-      const parsedTarget = new URL(targetUrl);
-      const isHttps = parsedTarget.protocol === 'https:';
-      const httpModule = isHttps ? await import('https') : await import('http');
+      const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
 
-      const proxyReq = httpModule.get(targetUrl, (proxyRes) => {
-        res.writeHead(proxyRes.statusCode || 200, {
-          'Content-Type': proxyRes.headers['content-type'] || 'application/octet-stream',
-          'Access-Control-Allow-Origin': '*',
-          'Cache-Control': 'public, max-age=86400'
-        });
-        proxyRes.pipe(res);
+      res.writeHead(proxyRes.statusCode || 200, {
+        'Content-Type': proxyRes.headers['content-type'] || 'application/octet-stream',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Expose-Headers': '*',
+        'Cache-Control': 'public, max-age=86400',
+        'X-Final-Url': finalUrl
       });
 
-      proxyReq.on('error', (err) => {
-        res.writeHead(502, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Proxy request failed', details: err.message }));
-      });
+      proxyRes.pipe(res);
     } catch (err) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Invalid URL', details: err.message }));
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Proxy request failed', details: err.message }));
     }
     return;
   }

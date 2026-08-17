@@ -5,12 +5,33 @@
 
 export const GAME_PRESETS = [
   {
+    id: 'alien-hominid',
+    name: 'Alien Hominid (Kinh điển)',
+    category: 'Action Arcade Game',
+    description: 'Game bắn súng Flash kinh điển nổi tiếng thế giới. Thử nghiệm đồ họa 60 FPS, âm thanh và bàn phím (A, S, Phím mũi tên).',
+    swfUrl: '/samples/alien_hominid.swf',
+    flashvars: {},
+    width: 800,
+    height: 600,
+    aspectRatio: '4:3'
+  },
+  {
+    id: 'flyguy-game',
+    name: 'FlyGuy (Phiêu lưu)',
+    category: 'Adventure / Interactive',
+    description: 'Game phiêu lưu tương tác âm nhạc và hiệu ứng vector Flash mượt mà.',
+    swfUrl: '/samples/flyguy.swf',
+    flashvars: {},
+    width: 800,
+    height: 600,
+    aspectRatio: '4:3'
+  },
+  {
     id: 'gunny-local',
-    name: 'Gunny DDTank (Local / Private Server)',
-    category: 'MMORPG / Turn-based Shooter',
+    name: 'Gunny DDTank (Cấu hình Server)',
+    category: 'MMORPG / Gunny DDTank',
     description: 'Cấu hình kết nối Game Server Gunny qua WebSocket-to-TCP Bridge (AVM2 / ActionScript 3.0).',
-    swfUrl: 'http://localhost:8081/proxy?url=https://raw.githubusercontent.com/pmtriit-91/web_plash_player/main/sample-assets/gunny_demo.swf',
-    fallbackSwf: 'https://raw.githubusercontent.com/pmtriit-91/web_plash_player/main/sample-assets/gunny_demo.swf',
+    swfUrl: 'http://localhost:8081/proxy?url=http://127.0.0.1/resource/Loading.swf',
     isGunny: true,
     serverConfig: {
       host: '127.0.0.1',
@@ -31,22 +52,11 @@ export const GAME_PRESETS = [
     aspectRatio: '5:3'
   },
   {
-    id: 'as3-benchmark',
-    name: 'ActionScript 3.0 Physics & Vector Benchmark',
-    category: 'Benchmark Engine',
-    description: 'Thử nghiệm hiệu năng AVM2, WebGL rendering và tính toán vật lý đa đối tượng.',
-    swfUrl: 'https://raw.githubusercontent.com/ruffle-rs/ruffle/master/web/packages/demo/public/assets/as3_ball.swf',
-    flashvars: {},
-    width: 800,
-    height: 600,
-    aspectRatio: '4:3'
-  },
-  {
-    id: 'retro-classic',
-    name: 'Retro Flash Arcade Demo',
-    category: 'Arcade / Retro',
-    description: 'Trò chơi Flash kinh điển thử nghiệm âm thanh, bàn phím và đồ họa vector 60 FPS.',
-    swfUrl: 'https://raw.githubusercontent.com/ruffle-rs/ruffle/master/web/packages/demo/public/assets/as2_pacman.swf',
+    id: 'logo-anim',
+    name: 'Flash Vector & Animation Demo',
+    category: 'Vector Graphics',
+    description: 'Trình diễn hiệu ứng đồ họa Vector và WebGL shader của WebAssembly Flash Engine.',
+    swfUrl: '/samples/logo-anim.swf',
     flashvars: {},
     width: 800,
     height: 600,

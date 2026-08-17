@@ -144,21 +144,56 @@ export class PlayerControls {
       }
     });
 
-    // 8. Direct URL Loader
-    this.btnLoadUrl.addEventListener('click', () => {
+    // 8. Direct URL Loader with Smart Inspector
+    this.btnLoadUrl.addEventListener('click', async () => {
       const rawUrl = this.inputSwfUrl.value.trim();
       if (!rawUrl) {
-        this.showToast('Vui lòng nhập đường dẫn URL của file SWF!');
+        this.showToast('Vui lòng nhập đường dẫn URL của file SWF hoặc trang game!');
         return;
       }
 
-      let finalUrl = rawUrl;
-      if (this.checkCorsProxy.checked) {
-        finalUrl = this.bridge.getProxiedUrl(rawUrl);
-      }
+      this.btnLoadUrl.disabled = true;
+      this.btnLoadUrl.innerHTML = '<span>Đang phân tích URL...</span>';
 
-      this.showToast(`Đang tải SWF từ URL...`);
-      this.runGame(finalUrl, { flashvars: this.getParsedFlashvars() });
+      try {
+        // Inspect URL via Bridge Inspector
+        const inspectRes = await fetch(`http://localhost:8081/inspect-url?url=${encodeURIComponent(rawUrl)}`);
+        if (inspectRes.ok) {
+          const info = await inspectRes.json();
+
+          if (info.type === 'swf') {
+            this.showToast('Đã phát hiện tệp SWF trực tiếp. Đang tải game...');
+            const targetUrl = this.checkCorsProxy.checked ? this.bridge.getProxiedUrl(info.swfUrl) : info.swfUrl;
+            await this.runGame(targetUrl, { flashvars: this.getParsedFlashvars() });
+          } else if (info.type === 'html_with_flash') {
+            this.showToast(`Phát hiện Flash game trong trang! Đang nạp: ${info.swfUrl.split('/').pop()}`);
+            if (info.flashvars && Object.keys(info.flashvars).length > 0) {
+              this.inputFlashvars.value = JSON.stringify(info.flashvars, null, 2);
+            }
+            const targetUrl = this.checkCorsProxy.checked ? this.bridge.getProxiedUrl(info.swfUrl) : info.swfUrl;
+            await this.runGame(targetUrl, { flashvars: info.flashvars || this.getParsedFlashvars() });
+          } else if (info.type === 'login_required') {
+            this.showToast(`⚠️ Yêu cầu Đăng nhập: ${info.message}`, 6000);
+            alert(`⚠️ CẢNH BÁO XÁC THỰC (LOGIN REQUIRED):\n\nĐường dẫn "${rawUrl}" là trang xác thực/đăng nhập của Zing ID (yêu cầu Cookie đăng nhập của tài khoản).\n\n👉 Để chơi Gunny Zing trên Web Player:\n1. Mở game trên trình duyệt và đăng nhập tài khoản Zing.\n2. Nhấn F12 (Network) -> Tìm tệp "Loading.swf" và copy đường link trực tiếp cùng Flashvars (user, key, v, config).\n3. Dán link Loading.swf vào Web Flash Player để chơi mượt mà!`);
+          } else {
+            this.showToast(`⚠️ ${info.message || 'Không tìm thấy tệp Flash (.swf)'}`, 5000);
+          }
+        } else {
+          // Fallback direct load
+          const targetUrl = this.checkCorsProxy.checked ? this.bridge.getProxiedUrl(rawUrl) : rawUrl;
+          await this.runGame(targetUrl, { flashvars: this.getParsedFlashvars() });
+        }
+      } catch (err) {
+        this.showToast(`Lỗi phân tích link: ${err.message}`);
+      } finally {
+        this.btnLoadUrl.disabled = false;
+        this.btnLoadUrl.innerHTML = `
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Tải & Chạy Game
+        `;
+      }
     });
 
     // 9. Gunny Launch Button
