@@ -262,6 +262,16 @@ export class PlayerControls {
         this.fpsCounter.textContent = `${fps} FPS`;
       }
     });
+
+    // 11. Prevent default browser scrolling on Game Keys (Space, Arrows) during gameplay
+    window.addEventListener('keydown', (e) => {
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') return;
+
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code) && this.player.isLoaded) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   }
 
   loadLocalFile(file) {
