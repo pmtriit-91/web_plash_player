@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "domain": "lifecycle",
+  "public_facade": "_tools/agent_os_lifecycle.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/agent_os_lifecycle.py",
+      "owner": "lifecycle",
+      "role": "public-compatibility-engine-and-cli",
+      "depends_on": ["_tools/lifecycle/shared.py", "_tools/lifecycle/release_tree.py", "_tools/lifecycle/core_validation.py", "_tools/lifecycle/binding_validation.py", "_tools/lifecycle/health.py", "_tools/lifecycle/update_planning.py", "_tools/lifecycle/update_transaction.py", "_tools/lifecycle/builders.py"],
+      "focused_shard": "_tools/lifecycle/test_shared.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/shared.py",
+      "owner": "lifecycle-shared-foundation",
+      "role": "json-hash-time-git-output-and-release-contract-primitives",
+      "depends_on": [],
+      "focused_shard": "_tools/lifecycle/test_shared.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/release_tree.py",
+      "owner": "lifecycle-release-tree",
+      "role": "release-inventory-manifest-and-provenance",
+      "depends_on": ["_tools/lifecycle/shared.py", "_tools/agent_os_paths.py"],
+      "focused_shard": "_tools/lifecycle/test_release_tree.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/core_validation.py",
+      "owner": "lifecycle-core-validation",
+      "role": "vendor-skill-and-core-manifest-validation",
+      "depends_on": ["_tools/lifecycle/release_tree.py", "_tools/lifecycle/shared.py"],
+      "focused_shard": "_tools/lifecycle/test_core_validation.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/binding_validation.py",
+      "owner": "lifecycle-binding-validation",
+      "role": "project-binding-and-adapter-fingerprint-validation",
+      "depends_on": ["_tools/lifecycle/shared.py"],
+      "focused_shard": "_tools/lifecycle/test_binding_validation.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/health.py",
+      "owner": "lifecycle-health-orchestration",
+      "role": "core-adapter-bridge-and-genesis-health-orchestration",
+      "depends_on": ["_tools/lifecycle/core_validation.py", "_tools/lifecycle/binding_validation.py", "_tools/agent_os_genesis.py", "_tools/agent_os_genesis_transactions.py"],
+      "focused_shard": "_tools/lifecycle/test_health.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/update_planning.py",
+      "owner": "lifecycle-update-planning",
+      "role": "protected-application-inventory-dirty-paths-and-read-only-update-plan",
+      "depends_on": ["_tools/lifecycle/release_tree.py", "_tools/lifecycle/shared.py"],
+      "focused_shard": "_tools/lifecycle/test_update_planning.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/test_update_planner_integration.py",
+      "owner": "lifecycle-update-planner-integration-proof",
+      "role": "integration-test-shard",
+      "depends_on": ["_tools/agent_os_lifecycle.py"],
+      "focused_shard": "_tools/lifecycle/test_update_planner_integration.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/update_transaction.py",
+      "owner": "lifecycle-update-transaction",
+      "role": "update-backup-apply-rollback-and-recovery",
+      "depends_on": ["_tools/lifecycle/shared.py", "_tools/lifecycle/update_planning.py", "_tools/agent_os_paths.py"],
+      "focused_shard": "_tools/lifecycle/test_update_transaction.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/test_update_transaction_integration.py",
+      "owner": "lifecycle-update-transaction-integration-proof",
+      "role": "integration-test-shard",
+      "depends_on": ["_tools/agent_os_lifecycle.py"],
+      "focused_shard": "_tools/lifecycle/test_update_transaction_integration.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/builders.py",
+      "owner": "lifecycle-builders-cli",
+      "role": "manifest-fingerprint-builders-and-cli-dispatch",
+      "depends_on": ["_tools/lifecycle/shared.py", "_tools/lifecycle/release_tree.py", "_tools/lifecycle/core_validation.py", "_tools/lifecycle/binding_validation.py", "_tools/lifecycle/health.py", "_tools/lifecycle/update_planning.py", "_tools/lifecycle/update_transaction.py"],
+      "focused_shard": "_tools/lifecycle/test_builders.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/test_release_manifest_provenance.py",
+      "owner": "lifecycle-release-manifest-provenance-integration-proof",
+      "role": "integration-test-shard",
+      "depends_on": ["_tools/agent_os_lifecycle.py"],
+      "focused_shard": "_tools/lifecycle/test_release_manifest_provenance.py"
+    },
+    {
+      "entrypoint": "_tools/lifecycle/test_committed_whitespace.py",
+      "owner": "lifecycle-committed-range-whitespace-assurance",
+      "role": "manual-ci-committed-range-whitespace-regression-proof",
+      "depends_on": ["_tools/check-committed-whitespace.py"],
+      "focused_shard": "_tools/lifecycle/test_committed_whitespace.py"
+    }
+  ]
+}

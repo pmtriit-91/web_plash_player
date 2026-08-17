@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/settings.schema.json",
+  "title": "Universal Agent OS Project Settings",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "default_mode", "automation", "connectors", "budgets"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "project_id": { "type": "string", "minLength": 1 },
+    "default_mode": { "enum": ["FAST", "STANDARD", "DEEP"] },
+    "automation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discovery", "activation_requires_approval", "background_daemon", "auto_commit", "auto_push"],
+      "properties": {
+        "discovery": { "enum": ["event-driven-and-manual", "manual-only", "disabled"] },
+        "activation_requires_approval": { "const": true },
+        "background_daemon": { "const": false },
+        "auto_commit": { "const": false },
+        "auto_push": { "const": false }
+      }
+    },
+    "connectors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["github", "notebooklm", "mcp-skill-index"],
+      "properties": {
+        "github": { "enum": ["optional", "disabled"] },
+        "notebooklm": { "enum": ["optional", "disabled"] },
+        "mcp-skill-index": { "enum": ["optional", "disabled"] }
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_candidates_per_scan", "max_snapshot_bytes", "plan_expiry_seconds"],
+      "properties": {
+        "max_candidates_per_scan": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "max_snapshot_bytes": { "type": "integer", "minimum": 1024, "maximum": 104857600 },
+        "plan_expiry_seconds": { "type": "integer", "minimum": 60, "maximum": 3600 }
+      }
+    },
+    "capability_overrides": {
+      "type": "object",
+      "additionalProperties": { "enum": ["automatic", "manual-only", "disabled"] }
+    }
+  }
+}

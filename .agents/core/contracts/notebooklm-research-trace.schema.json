@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/notebooklm-research-trace.schema.json",
+  "title": "Universal Agent OS NotebookLM research trace",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "mode",
+    "capability_id",
+    "intent",
+    "read_only",
+    "events",
+    "expected_outcome"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$" },
+    "mode": { "enum": ["fixture", "live"] },
+    "capability_id": { "const": "notebooklm_research" },
+    "intent": { "type": "string", "minLength": 3, "maxLength": 500 },
+    "read_only": { "type": "boolean" },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sequence", "operation", "result"],
+        "properties": {
+          "sequence": { "type": "integer", "minimum": 1 },
+          "operation": {
+            "enum": [
+              "server_info",
+              "ask_interface_choice",
+              "select_existing_notebook",
+              "select_sources",
+              "notebook_query",
+              "studio_status",
+              "download_artifact",
+              "download_all_artifacts",
+              "external_mutation",
+              "handoff"
+            ]
+          },
+          "result": { "enum": ["success", "failed", "not-called"] },
+          "interface": { "enum": ["mcp", "cli", "browser", "none"] },
+          "source_refs": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "conversation_ref": { "type": "string", "minLength": 1 },
+          "artifact_ref": { "type": "string", "minLength": 1 },
+          "derived_from_artifact": { "type": "boolean" },
+          "user_intent": { "enum": ["none", "implicit", "explicit"] },
+          "reason": { "type": "string", "minLength": 1 },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "notebook": { "type": "boolean" },
+              "sources": { "type": "boolean" },
+              "conversation": { "type": "boolean" },
+              "artifact": { "type": "boolean" }
+            }
+          },
+          "notes": { "type": "string", "maxLength": 500 }
+        }
+      }
+    },
+    "expected_outcome": { "enum": ["pass", "fail"] },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+    }
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/continuity-archive-manifest.schema.json",
+  "title": "Universal Agent OS continuity archive manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "archive_id",
+    "project_id",
+    "created_at",
+    "source_git_head",
+    "binding_sha256",
+    "adapter_fingerprint_sha256",
+    "retention_policy_sha256",
+    "catalog_sha256",
+    "reference_ids",
+    "entries",
+    "summary",
+    "entry_count",
+    "total_bytes",
+    "inventory_sha256",
+    "raw_conversation_stored",
+    "prompt_stored",
+    "chain_of_thought_stored",
+    "secret_stored",
+    "source_deleted",
+    "commit_created",
+    "push_performed",
+    "content_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "archive_id": {"type": "string", "pattern": "^continuity-archive-[0-9a-f]{24}$"},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "created_at": {"type": "string", "format": "date-time"},
+    "source_git_head": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "binding_sha256": {"$ref": "#/$defs/sha256"},
+    "adapter_fingerprint_sha256": {"$ref": "#/$defs/sha256"},
+    "retention_policy_sha256": {"$ref": "#/$defs/sha256"},
+    "catalog_sha256": {"$ref": "#/$defs/sha256"},
+    "reference_ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2048,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 128}
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2048,
+      "items": {"$ref": "#/$defs/archiveEntry"}
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference_count",
+        "entry_count",
+        "total_bytes",
+        "retention_classes",
+        "predecessors",
+        "successors",
+        "holds",
+        "inventory_sha256",
+        "source_deleted"
+      ],
+      "properties": {
+        "reference_count": {"type": "integer", "minimum": 1, "maximum": 2048},
+        "entry_count": {"type": "integer", "minimum": 1, "maximum": 2048},
+        "total_bytes": {"type": "integer", "minimum": 0, "maximum": 67108864},
+        "retention_classes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["critical-history", "operational", "evidence", "advisory"]}
+        },
+        "predecessors": {
+          "type": "array",
+          "maxItems": 2048,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reference_id", "predecessor_reference_ids"],
+            "properties": {
+              "reference_id": {"type": "string", "minLength": 1, "maxLength": 128},
+              "predecessor_reference_ids": {
+                "type": "array",
+                "maxItems": 2048,
+                "uniqueItems": true,
+                "items": {"type": "string", "minLength": 1, "maxLength": 128}
+              }
+            }
+          }
+        },
+        "successors": {
+          "type": "array",
+          "maxItems": 2048,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reference_id", "successor_reference_ids"],
+            "properties": {
+              "reference_id": {"type": "string", "minLength": 1, "maxLength": 128},
+              "successor_reference_ids": {
+                "type": "array",
+                "maxItems": 2048,
+                "uniqueItems": true,
+                "items": {"type": "string", "minLength": 1, "maxLength": 128}
+              }
+            }
+          }
+        },
+        "holds": {
+          "type": "array",
+          "maxItems": 2048,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reference_id", "hold_reasons"],
+            "properties": {
+              "reference_id": {"type": "string", "minLength": 1, "maxLength": 128},
+              "hold_reasons": {
+                "type": "array",
+                "maxItems": 6,
+                "uniqueItems": true,
+                "items": {"type": "string", "minLength": 1, "maxLength": 128}
+              }
+            }
+          }
+        },
+        "inventory_sha256": {"$ref": "#/$defs/sha256"},
+        "source_deleted": {"const": false}
+      }
+    },
+    "entry_count": {"type": "integer", "minimum": 1, "maximum": 2048},
+    "total_bytes": {"type": "integer", "minimum": 0, "maximum": 67108864},
+    "inventory_sha256": {"$ref": "#/$defs/sha256"},
+    "raw_conversation_stored": {"const": false},
+    "prompt_stored": {"const": false},
+    "chain_of_thought_stored": {"const": false},
+    "secret_stored": {"const": false},
+    "source_deleted": {"const": false},
+    "commit_created": {"const": false},
+    "push_performed": {"const": false},
+    "content_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "archiveEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entry_id",
+        "reference_id",
+        "canonical_path",
+        "storage_path",
+        "bytes",
+        "sha256",
+        "retention_class",
+        "privacy_class"
+      ],
+      "properties": {
+        "entry_id": {"type": "string", "pattern": "^continuity-entry-[0-9a-f]{24}$"},
+        "reference_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "canonical_path": {"type": "string", "minLength": 1, "maxLength": 512},
+        "storage_path": {"type": "string", "pattern": "^files/continuity-entry-[0-9a-f]{24}\\.bin$"},
+        "bytes": {"type": "integer", "minimum": 0, "maximum": 8388608},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "retention_class": {"enum": ["critical-history", "operational", "evidence", "advisory"]},
+        "privacy_class": {"enum": ["public-metadata", "project-internal"]}
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "domain": "portable-paths",
+  "public_facade": "_tools/portable_paths/test_portable_paths.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/portable_paths/test_portable_paths.py",
+      "owner": "portable-paths-aggregate-acceptance",
+      "role": "canonical-twelve-case-portable-path-safety-aggregate",
+      "depends_on": [
+        "_tools/portable_paths/test_lexical_policy.py",
+        "_tools/portable_paths/test_filesystem_checkout.py"
+      ],
+      "focused_shard": "_tools/portable_paths/test_portable_paths.py"
+    },
+    {
+      "entrypoint": "_tools/portable_paths/test_lexical_policy.py",
+      "owner": "portable-paths-lexical-acceptance",
+      "role": "lexical-traversal-reserved-character-and-collision-contracts",
+      "depends_on": ["_tools/agent_os_paths.py"],
+      "focused_shard": "_tools/portable_paths/test_lexical_policy.py"
+    },
+    {
+      "entrypoint": "_tools/portable_paths/test_filesystem_checkout.py",
+      "owner": "portable-paths-filesystem-checkout-acceptance",
+      "role": "safe-join-containment-and-vendor-windows-checkout-contracts",
+      "depends_on": ["_tools/agent_os_paths.py"],
+      "focused_shard": "_tools/portable_paths/test_filesystem_checkout.py"
+    }
+  ]
+}

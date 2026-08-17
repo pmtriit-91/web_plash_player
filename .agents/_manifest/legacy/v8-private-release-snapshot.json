@@ -1,0 +1,16 @@
+{
+  "schema": "agent-os-private-release/v1",
+  "version": "8.0.7",
+  "label": "mcp-enforcement-trace-evals",
+  "created_at_utc": "2026-06-29T09:46:16.440842+00:00",
+  "manifest_independent": true,
+  "file_count": 587,
+  "aggregate_sha256": "a022943fb8165a613392e182bd8f0853f742aa53f3acd951869b582c685dd517",
+  "excluded_files": [
+    "_manifest/current-files-sha256.json",
+    "_manifest/private-release-snapshot.json",
+    "_telemetry/session-log.jsonl",
+    "_telemetry/trace-log.jsonl"
+  ],
+  "notes": "Private Agent OS release snapshot. Safe to keep outside public Git history."
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/base-release-manifest.schema.json",
+  "title": "Universal Agent OS Base Release Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "agent_os_version",
+    "release_id",
+    "created_at",
+    "hash_algorithm",
+    "provenance",
+    "excluded_scopes",
+    "entries"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "agent_os_version": { "type": "string" },
+    "release_id": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "hash_algorithm": { "const": "sha256" },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "source_locator", "source_commit", "created_from_repository_head"],
+      "properties": {
+        "status": { "enum": ["working-baseline", "verified-release"] },
+        "source_locator": { "type": ["string", "null"] },
+        "source_commit": { "type": ["string", "null"] },
+        "created_from_repository_head": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "verified-release" } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "source_locator": { "type": "string", "minLength": 1 },
+              "source_commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+              "created_from_repository_head": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{40}$"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "source_commit": { "type": "null" },
+              "created_from_repository_head": {
+                "type": ["string", "null"],
+                "pattern": "^[a-f0-9]{40}$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "excluded_scopes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "vendor_lock": { "type": "string" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "type", "sha256"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "type": { "enum": ["file", "symlink"] },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "target": { "type": "string" },
+          "target_within_release": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

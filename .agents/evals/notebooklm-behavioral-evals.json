@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "contract": "core/contracts/notebooklm-research-trace.schema.json",
+  "cases": [
+    {
+      "schema_version": 1,
+      "id": "direct-research-studio-follow-up",
+      "mode": "fixture",
+      "capability_id": "notebooklm_research",
+      "intent": "Research an existing notebook and follow a Studio branch without export.",
+      "read_only": true,
+      "events": [
+        { "sequence": 1, "operation": "server_info", "interface": "mcp", "result": "success" },
+        { "sequence": 2, "operation": "select_existing_notebook", "interface": "mcp", "result": "success" },
+        { "sequence": 3, "operation": "select_sources", "interface": "mcp", "source_refs": ["source-a", "source-b"], "result": "success" },
+        { "sequence": 4, "operation": "notebook_query", "interface": "mcp", "source_refs": ["source-a", "source-b"], "conversation_ref": "conversation-a", "result": "success" },
+        { "sequence": 5, "operation": "studio_status", "interface": "mcp", "artifact_ref": "mind-map-a", "result": "success" },
+        { "sequence": 6, "operation": "notebook_query", "interface": "mcp", "source_refs": ["source-a", "source-b"], "conversation_ref": "conversation-a", "artifact_ref": "mind-map-a", "derived_from_artifact": true, "result": "success" },
+        { "sequence": 7, "operation": "handoff", "interface": "none", "provenance": { "notebook": true, "sources": true, "conversation": true, "artifact": true }, "result": "success" }
+      ],
+      "expected_outcome": "pass"
+    },
+    {
+      "schema_version": 1,
+      "id": "missing-explicit-source-scope",
+      "mode": "fixture",
+      "capability_id": "notebooklm_research",
+      "intent": "Query without selecting the smallest relevant sources.",
+      "read_only": true,
+      "events": [
+        { "sequence": 1, "operation": "server_info", "interface": "mcp", "result": "success" },
+        { "sequence": 2, "operation": "select_existing_notebook", "interface": "mcp", "result": "success" },
+        { "sequence": 3, "operation": "notebook_query", "interface": "mcp", "conversation_ref": "conversation-a", "result": "success" }
+      ],
+      "expected_outcome": "fail"
+    },
+    {
+      "schema_version": 1,
+      "id": "conversation-continuity-broken",
+      "mode": "fixture",
+      "capability_id": "notebooklm_research",
+      "intent": "Follow up on one line of inquiry but discard its conversation context.",
+      "read_only": true,
+      "events": [
+        { "sequence": 1, "operation": "server_info", "interface": "mcp", "result": "success" },
+        { "sequence": 2, "operation": "select_existing_notebook", "interface": "mcp", "result": "success" },
+        { "sequence": 3, "operation": "select_sources", "interface": "mcp", "source_refs": ["source-a"], "result": "success" },
+        { "sequence": 4, "operation": "notebook_query", "interface": "mcp", "source_refs": ["source-a"], "conversation_ref": "conversation-a", "result": "success" },
+        { "sequence": 5, "operation": "studio_status", "interface": "mcp", "artifact_ref": "report-a", "result": "success" },
+        { "sequence": 6, "operation": "notebook_query", "interface": "mcp", "source_refs": ["source-a"], "conversation_ref": "conversation-b", "artifact_ref": "report-a", "derived_from_artifact": true, "result": "success" }
+      ],
+      "expected_outcome": "fail"
+    },
+    {
+      "schema_version": 1,
+      "id": "host-guide-asks-interface-choice",
+      "mode": "fixture",
+      "capability_id": "notebooklm_research",
+      "intent": "Use NotebookLM when MCP and CLI are both installed.",
+      "read_only": true,
+      "events": [
+        { "sequence": 1, "operation": "ask_interface_choice", "interface": "none", "reason": "both MCP and CLI are installed", "result": "success" }
+      ],
+      "expected_outcome": "fail"
+    },
+    {
+      "schema_version": 1,
+      "id": "convenience-bulk-download",
+      "mode": "fixture",
+      "capability_id": "notebooklm_research",
+      "intent": "Download everything for routine reading convenience.",
+      "read_only": false,
+      "events": [
+        { "sequence": 1, "operation": "server_info", "interface": "mcp", "result": "success" },
+        { "sequence": 2, "operation": "select_existing_notebook", "interface": "mcp", "result": "success" },
+        { "sequence": 3, "operation": "download_all_artifacts", "interface": "mcp", "user_intent": "implicit", "reason": "local reading convenience", "result": "success" }
+      ],
+      "expected_outcome": "fail"
+    },
+    {
+      "schema_version": 1,
+      "id": "targeted-visual-inspection-export",
+      "mode": "fixture",
+      "capability_id": "notebooklm_research",
+      "intent": "Inspect one exact visual artifact after the user explicitly requests a local deliverable.",
+      "read_only": false,
+      "events": [
+        { "sequence": 1, "operation": "server_info", "interface": "mcp", "result": "success" },
+        { "sequence": 2, "operation": "select_existing_notebook", "interface": "mcp", "result": "success" },
+        { "sequence": 3, "operation": "select_sources", "interface": "mcp", "source_refs": ["source-a"], "result": "success" },
+        { "sequence": 4, "operation": "notebook_query", "interface": "mcp", "source_refs": ["source-a"], "conversation_ref": "conversation-a", "result": "success" },
+        { "sequence": 5, "operation": "studio_status", "interface": "mcp", "artifact_ref": "slide-deck-a", "result": "success" },
+        { "sequence": 6, "operation": "notebook_query", "interface": "mcp", "source_refs": ["source-a"], "conversation_ref": "conversation-a", "artifact_ref": "slide-deck-a", "derived_from_artifact": true, "result": "success" },
+        { "sequence": 7, "operation": "download_artifact", "interface": "mcp", "artifact_ref": "slide-deck-a", "user_intent": "explicit", "reason": "exact-visual-inspection", "result": "success" },
+        { "sequence": 8, "operation": "handoff", "interface": "none", "provenance": { "notebook": true, "sources": true, "conversation": true, "artifact": true }, "result": "success" }
+      ],
+      "expected_outcome": "pass"
+    },
+    {
+      "schema_version": 1,
+      "id": "mutation-inside-read-only-research",
+      "mode": "fixture",
+      "capability_id": "notebooklm_research",
+      "intent": "Read an existing notebook without changing it.",
+      "read_only": true,
+      "events": [
+        { "sequence": 1, "operation": "server_info", "interface": "mcp", "result": "success" },
+        { "sequence": 2, "operation": "select_existing_notebook", "interface": "mcp", "result": "success" },
+        { "sequence": 3, "operation": "external_mutation", "interface": "mcp", "user_intent": "none", "reason": "agent convenience", "result": "success" }
+      ],
+      "expected_outcome": "fail"
+    }
+  ]
+}

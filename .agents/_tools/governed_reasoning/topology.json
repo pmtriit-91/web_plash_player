@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "domain": "governed-reasoning",
+  "public_facade": "_tools/agent_os_cli.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/governed_reasoning/contracts.py",
+      "owner": "governed-reasoning-contracts",
+      "role": "bounded-artifact-schema-and-content-hash-validation",
+      "depends_on": ["core/contracts/governed-reasoning-request.schema.json", "core/contracts/governed-plan-receipt.schema.json", "core/contracts/governed-challenge-receipt.schema.json", "core/contracts/governed-decision-receipt.schema.json", "core/contracts/governed-reasoning-policy.schema.json"],
+      "focused_shard": "_tools/governed_reasoning/test_schema_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/governed_reasoning/authority.py",
+      "owner": "governed-reasoning-authority",
+      "role": "binding-genesis-intent-approval-policy-and-transaction-gate-composition",
+      "depends_on": ["_tools/agent_os_genesis.py", "_tools/agent_os_genesis_transactions.py", "_tools/governed_reasoning/contracts.py", "_tools/lifecycle/binding_validation.py"],
+      "focused_shard": "_tools/governed_reasoning/test_authority.py"
+    },
+    {
+      "entrypoint": "_tools/governed_reasoning/planning.py",
+      "owner": "governed-reasoning-plan-normalization",
+      "role": "bounded-goal-option-evidence-and-plan-normalization",
+      "depends_on": ["_tools/governed_reasoning/authority.py", "_tools/governed_reasoning/contracts.py"],
+      "focused_shard": "_tools/governed_reasoning/test_planning.py"
+    },
+    {
+      "entrypoint": "_tools/governed_reasoning/challenge.py",
+      "owner": "governed-reasoning-challenge-normalization",
+      "role": "critic-correlation-counterexample-finding-and-remediation-disclosure",
+      "depends_on": ["_tools/governed_reasoning/contracts.py", "_tools/governed_reasoning/planning.py"],
+      "focused_shard": "_tools/governed_reasoning/test_challenge.py"
+    },
+    {
+      "entrypoint": "_tools/governed_reasoning/policy.py",
+      "owner": "governed-reasoning-disposition-policy",
+      "role": "restrictive-stop-retry-and-escalation-metric-composition",
+      "depends_on": ["_tools/governed_reasoning/contracts.py"],
+      "focused_shard": "_tools/governed_reasoning/test_policy.py"
+    },
+    {
+      "entrypoint": "_tools/governed_reasoning/decision.py",
+      "owner": "governed-reasoning-decision-normalization",
+      "role": "deterministic-ranking-rejection-rationale-and-governed-selection",
+      "depends_on": ["_tools/governed_reasoning/authority.py", "_tools/governed_reasoning/challenge.py", "_tools/governed_reasoning/contracts.py", "_tools/governed_reasoning/planning.py", "_tools/governed_reasoning/policy.py"],
+      "focused_shard": "_tools/governed_reasoning/test_decision.py"
+    },
+    {
+      "entrypoint": "_tools/governed_reasoning/receipts.py",
+      "owner": "governed-reasoning-receipt-integrity",
+      "role": "immutable-receipt-sealing-graph-validation-and-supersession",
+      "depends_on": ["_tools/governed_reasoning/contracts.py"],
+      "focused_shard": "_tools/governed_reasoning/test_receipts.py"
+    },
+    {
+      "entrypoint": "_tools/governed_reasoning/transactions.py",
+      "owner": "governed-reasoning-receipt-transactions",
+      "role": "guarded-plan-lock-backup-atomic-apply-and-terminal-receipt",
+      "depends_on": ["_tools/agent_os_transaction_lock.py", "_tools/governed_reasoning/contracts.py", "_tools/governed_reasoning/receipts.py"],
+      "focused_shard": "_tools/governed_reasoning/test_transactions.py"
+    },
+    {
+      "entrypoint": "_tools/governed_reasoning/service.py",
+      "owner": "governed-reasoning-service-boundary",
+      "role": "canonical-adapter-neutral-validation-normalization-transaction-and-recovery-service",
+      "depends_on": ["_tools/governed_reasoning/authority.py", "_tools/governed_reasoning/challenge.py", "_tools/governed_reasoning/contracts.py", "_tools/governed_reasoning/decision.py", "_tools/governed_reasoning/planning.py", "_tools/governed_reasoning/recovery.py", "_tools/governed_reasoning/transactions.py"],
+      "focused_shard": "_tools/governed_reasoning/test_service.py"
+    },
+    {
+      "entrypoint": "_tools/governed_reasoning/recovery.py",
+      "owner": "governed-reasoning-transaction-recovery",
+      "role": "interrupted-create-journal-recovery-with-immutable-terminal-receipts",
+      "depends_on": ["_tools/agent_os_transaction_lock.py", "_tools/governed_reasoning/contracts.py", "_tools/governed_reasoning/receipts.py", "_tools/governed_reasoning/transactions.py"],
+      "focused_shard": "_tools/governed_reasoning/test_recovery.py"
+    }
+  ]
+}

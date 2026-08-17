@@ -1,0 +1,4 @@
+interface:
+  display_name: "Constitution First"
+  short_description: "Align major work with mission and user value"
+  default_prompt: "Use $constitution-first to check this proposal against its primary user, mission, and success criteria."

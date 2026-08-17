@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "domain": "continuity-transactions",
+  "public_facade": "_tools/agent_os_continuity_transactions.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/continuity_transactions/test_lock_contracts.py",
+      "owner": "continuity-transactions-lock-acceptance",
+      "role": "stable-shared-lock-adoption-corrupt-metadata-and-rollback-release-contracts",
+      "depends_on": [
+        "_tools/agent_os_continuity_transactions.py",
+        "_tools/continuity_transactions/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_lock_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/test_repair_tamper_contracts.py",
+      "owner": "continuity-transactions-repair-tamper-acceptance",
+      "role": "repair-backup-receipt-schema-contracts-and-aggregate-runner",
+      "depends_on": [
+        "_tools/continuity_transactions/test_initialize_rollback_contracts.py",
+        "_tools/continuity_transactions/test_migration_failure_contracts.py",
+        "_tools/continuity_transactions/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_repair_tamper_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/test_initialize_rollback_contracts.py",
+      "owner": "continuity-transactions-initialize-rollback-acceptance",
+      "role": "initialize-confirmation-containment-list-and-rollback-contracts",
+      "depends_on": [
+        "_tools/agent_os_continuity_transactions.py",
+        "_tools/agent_os_context_memory.py",
+        "_tools/continuity_transactions/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_initialize_rollback_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/test_migration_failure_contracts.py",
+      "owner": "continuity-transactions-migration-failure-acceptance",
+      "role": "migration-partial-write-stale-source-and-receipt-window-contracts",
+      "depends_on": [
+        "_tools/agent_os_continuity_transactions.py",
+        "_tools/agent_os_context_memory.py",
+        "_tools/continuity_transactions/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_migration_failure_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/test_support.py",
+      "owner": "continuity-transactions-acceptance-support",
+      "role": "shared-disposable-transaction-fixture-support",
+      "depends_on": [
+        "_tools/agent_os_continuity_transactions.py",
+        "_tools/continuity_core/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_repair_tamper_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/agent_os_continuity_transactions.py",
+      "owner": "continuity-transactions",
+      "role": "public-compatibility-service",
+      "depends_on": [
+        "_tools/continuity_transactions/apply_engine.py",
+        "_tools/continuity_transactions/contracts.py",
+        "_tools/continuity_transactions/catalog_inventory.py",
+        "_tools/continuity_transactions/catalog_initialization.py",
+        "_tools/continuity_transactions/plan_validation.py",
+        "_tools/continuity_transactions/receipt_validation.py",
+        "_tools/continuity_transactions/recovery_planning.py",
+        "_tools/continuity_transactions/transition_planning.py"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/apply_engine.py",
+      "owner": "continuity-transactions-apply-engine",
+      "role": "lock-hash-restore-apply-and-transaction-listing",
+      "depends_on": [
+        "_tools/continuity_transactions/contracts.py", "_tools/agent_os_continuity.py",
+        "_tools/agent_os_context_memory.py", "_tools/agent_os_transaction_lock.py",
+        "self:validation-inventory-recovery-receipt-and-facade-paths"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_apply_engine.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/catalog_initialization.py",
+      "owner": "continuity-transactions-catalog-initialization",
+      "role": "initial-catalog-target-validation-and-projection",
+      "depends_on": [
+        "_tools/continuity_transactions/contracts.py", "_tools/continuity_transactions/catalog_inventory.py",
+        "_tools/agent_os_continuity.py", "_tools/agent_os_context_memory.py",
+        "self:binding-path-source_descriptor-validate_target"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_catalog_initialization.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/catalog_inventory.py",
+      "owner": "continuity-transactions-catalog-inventory",
+      "role": "migration-registry-source-inventory-and-descriptor-helpers",
+      "depends_on": [
+        "_tools/continuity_transactions/contracts.py",
+        "_tools/agent_os_context_memory.py",
+        "_tools/agent_os_continuity_migration_chain.py",
+        "self:path-head-project_path-git_blob-git_path_clean"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_catalog_inventory.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/contracts.py",
+      "owner": "continuity-transactions-contracts",
+      "role": "shared-path-field-id-and-strict-json-contracts",
+      "depends_on": [
+        "_tools/agent_os_continuity.py"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/recovery_planning.py",
+      "owner": "continuity-transactions-recovery-planning",
+      "role": "backup-read-create-repair-and-rollback-planning",
+      "depends_on": [
+        "_tools/continuity_transactions/contracts.py", "_tools/agent_os_continuity.py",
+        "_tools/agent_os_context_memory.py", "self:receipt-validation-transition-planning-and-facade-paths"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_recovery_planning.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/transition_planning.py",
+      "owner": "continuity-transactions-transition-planning",
+      "role": "catalog-refresh-migration-change-set-and-plan-construction",
+      "depends_on": [
+        "_tools/continuity_transactions/contracts.py", "_tools/agent_os_continuity.py",
+        "_tools/agent_os_context_memory.py", "self:catalog-inventory-initialization-validation-contracts"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_transition_planning.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/plan_validation.py",
+      "owner": "continuity-transactions-plan-validation",
+      "role": "transaction-plan-shape-metadata-and-reason-order-validation",
+      "depends_on": [
+        "_tools/continuity_transactions/contracts.py",
+        "_tools/agent_os_context_memory.py",
+        "self:binding-project_path-target_bytes-critical_set-catalog_source_paths"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_plan_validation.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_transactions/receipt_validation.py",
+      "owner": "continuity-transactions-receipt-validation",
+      "role": "backup-index-and-transaction-receipt-validation",
+      "depends_on": [
+        "_tools/continuity_transactions/contracts.py",
+        "_tools/agent_os_context_memory.py",
+        "self:contract_hashes-binding-valid_time-valid_hash-path-backup_index-valid_generation-valid_critical_set-valid_migration_path"
+      ],
+      "focused_shard": "_tools/continuity_transactions/test_receipt_validation.py"
+    }
+  ]
+}

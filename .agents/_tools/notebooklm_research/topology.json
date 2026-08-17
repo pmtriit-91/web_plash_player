@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "domain": "notebooklm-research",
+  "public_facade": "skills/notebooklm-research/SKILL.md",
+  "entries": [
+    {
+      "entrypoint": "skills/notebooklm-research/SKILL.md",
+      "owner": "notebooklm-research",
+      "role": "source-grounded-direct-research-and-studio-exploration",
+      "depends_on": [
+        "routing/capability-registry.json",
+        "routing/capability-descriptors.json",
+        "core/contracts/notebooklm-research-trace.schema.json",
+        "evals/notebooklm-behavioral-evals.json"
+      ],
+      "focused_shard": "_tools/notebooklm_research/test_behavioral_contract.py"
+    },
+    {
+      "entrypoint": "_tools/notebooklm_research/test_behavioral_contract.py",
+      "owner": "notebooklm-research-behavioral-acceptance",
+      "role": "seven-source-scope-continuity-precedence-export-and-read-only-contracts",
+      "depends_on": [
+        "skills/notebooklm-research/SKILL.md",
+        "routing/capability-registry.json",
+        "routing/capability-descriptors.json",
+        "core/contracts/notebooklm-research-trace.schema.json",
+        "evals/notebooklm-behavioral-evals.json"
+      ],
+      "focused_shard": "_tools/notebooklm_research/test_behavioral_contract.py"
+    }
+  ]
+}

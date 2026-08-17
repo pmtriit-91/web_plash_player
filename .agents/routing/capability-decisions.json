@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "receipts": [
+    {
+      "id": "v9-native-core",
+      "candidate_id": null,
+      "capability_ids": ["fast_ui_fix", "standard_feature", "architecture_refactor", "agent_os_maintenance", "security_review", "quality_gates"],
+      "decided_at": "2026-07-15T00:00:00Z",
+      "decision": "native",
+      "evidence": ["core/runtime-kernel.md", "routing/capability-registry.json", "evals/agent-os-evals.json"],
+      "rationale": "Keep a small local set of coordination, safety, and verification capabilities that define Agent OS behavior and cannot be delegated to vendors.",
+      "constraints": ["Project facts remain application-owned.", "Capabilities never grant mutation authority."],
+      "supersedes": null,
+      "content_sha256": "b4b77ad5512814317cc6c2e84de21a3857082e1bdafeeab6394b37d7ff8d53a9"
+    },
+    {
+      "id": "aos3-notebooklm-adaptation",
+      "candidate_id": null,
+      "capability_ids": ["notebooklm_research"],
+      "decided_at": "2026-07-15T00:00:00Z",
+      "decision": "adapt-local-skill",
+      "evidence": ["vendor/vendor-lock.json", "skills/notebooklm-research/SKILL.md"],
+      "rationale": "Adapt only the concise MCP and Studio workflow because the upstream skill is oversized and NotebookLM must remain optional rather than a boot dependency.",
+      "constraints": ["External state changes require matching user intent.", "Live tool schemas override remembered examples."],
+      "supersedes": null,
+      "content_sha256": "71ca8a5bcdc6d461a8991680e4e22710dbe5e8c42ba6b39f131191861401f434"
+    },
+    {
+      "id": "v9-addy-curated",
+      "candidate_id": null,
+      "capability_ids": ["api-and-interface-design", "code-review-and-quality", "code-simplification", "debugging-and-error-recovery", "documentation-and-adrs", "security-and-hardening", "source-driven-development", "test-driven-development"],
+      "decided_at": "2026-07-15T00:00:00Z",
+      "decision": "vendor-pin",
+      "evidence": ["vendor/vendor-lock.json", "vendor/addy-agent-skills/LICENSE"],
+      "rationale": "Vendor only eight non-overlapping MIT instruction files that add practical engineering workflows while keeping upstream hooks, agents, commands, scripts, installers, and meta-routing excluded.",
+      "constraints": ["Vendored bytes remain unchanged.", "Only the exact pinned allowlist may load.", "Vendor skills remain task-scoped references."],
+      "supersedes": null,
+      "content_sha256": "1e6fc21339644fd969a548a8edd2a4af83524cfb0494085c79a1b842234a9f0d"
+    },
+    {
+      "id": "aos13-1-notebooklm-v090-adaptation",
+      "candidate_id": "notebooklm-mcp-cli-v0.9.0",
+      "capability_ids": ["notebooklm_research"],
+      "decided_at": "2026-07-21T07:08:00Z",
+      "decision": "adapt-local-skill",
+      "evidence": ["vendor/vendor-lock.json", "skills/notebooklm-research/SKILL.md", "skills/notebooklm-research/references/direct-research.md"],
+      "rationale": "Keep a concise MCP-first Agent OS adaptation of upstream 0.9.0 so every consumer can research existing notebooks and Studio surfaces directly without inheriting bulk-download, installer, Git, or competing interface-selection policy.",
+      "constraints": ["Live MCP schemas override versioned examples.", "NotebookLM remains optional research-only authority.", "External mutations require matching user intent; deletion requires explicit confirmation.", "Bulk artifact download is backup/export only, never the default research path."],
+      "supersedes": "aos3-notebooklm-adaptation",
+      "content_sha256": "5c9c059a1041f50ca397fa0007a7b27d5197e0a7c223af07730da53395b77a80"
+    }
+  ]
+}

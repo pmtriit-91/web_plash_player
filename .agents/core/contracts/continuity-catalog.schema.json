@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/continuity-catalog.schema.json",
+  "title": "Universal Agent OS project continuity catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "catalog_id",
+    "catalog_revision",
+    "record_type_registry",
+    "recovery_profile",
+    "references",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": {"const": 2},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "catalog_id": {"type": "string", "pattern": "^continuity-[a-z0-9][a-z0-9._-]{1,119}$"},
+    "catalog_revision": {"type": "integer", "minimum": 1},
+    "record_type_registry": {"$ref": "#/$defs/coreRegistryReference"},
+    "recovery_profile": {"$ref": "#/$defs/profileReference"},
+    "project_record_type_registry": {"$ref": "#/$defs/projectRegistryReference"},
+    "migration_extensions": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/migrationExtension"}
+    },
+    "references": {
+      "type": "array",
+      "maxItems": 1024,
+      "items": {"$ref": "#/$defs/durableReference"}
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "gitCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "migrationExtensionScalar": {
+      "oneOf": [
+        {"type": "string", "maxLength": 4096},
+        {"type": "number", "minimum": -1000000000000, "maximum": 1000000000000},
+        {"type": "boolean"},
+        {"type": "null"}
+      ]
+    },
+    "migrationExtensionValue": {
+      "oneOf": [
+        {"$ref": "#/$defs/migrationExtensionScalar"},
+        {
+          "type": "array",
+          "maxItems": 32,
+          "items": {"$ref": "#/$defs/migrationExtensionScalar"}
+        },
+        {
+          "type": "object",
+          "maxProperties": 32,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9._-]{1,127}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/migrationExtensionScalar"
+          }
+        }
+      ]
+    },
+    "migrationExtension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_generation",
+        "migration_id",
+        "unknown_fields_sha256",
+        "fields"
+      ],
+      "properties": {
+        "source_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "migration_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{1,127}$"
+        },
+        "unknown_fields_sha256": {"$ref": "#/$defs/sha256"},
+        "fields": {
+          "type": "object",
+          "maxProperties": 32,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9._-]{1,127}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/migrationExtensionValue"
+          }
+        }
+      }
+    },
+    "coreRegistryReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["registry_id", "registry_version", "registry_sha256"],
+      "properties": {
+        "registry_id": {"const": "universal-continuity-record-types"},
+        "registry_version": {"type": "integer", "minimum": 1},
+        "registry_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "profileReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_id", "profile_version", "profile_sha256"],
+      "properties": {
+        "profile_id": {"const": "universal-project-continuity"},
+        "profile_version": {"type": "integer", "minimum": 1},
+        "profile_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "projectRegistryReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "registry_id", "registry_version", "registry_sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "maxLength": 512},
+        "registry_id": {"type": "string", "pattern": "^project\\.[a-z0-9][a-z0-9._-]{1,119}$"},
+        "registry_version": {"type": "integer", "minimum": 1},
+        "registry_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "sourceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "git_commit", "schema_id", "schema_version"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "maxLength": 512},
+        "sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        },
+        "git_commit": {
+          "oneOf": [
+            {"$ref": "#/$defs/gitCommit"},
+            {"type": "null"}
+          ]
+        },
+        "schema_id": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "schema_version": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relation", "target_reference_id"],
+      "properties": {
+        "relation": {
+          "enum": ["requires", "generated-from", "evidence-for", "verified-by", "hands-off"]
+        },
+        "target_reference_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{1,127}$"
+        }
+      }
+    },
+    "durableReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference_id",
+        "record_type",
+        "profile_role",
+        "record_id",
+        "record_revision",
+        "requirement",
+        "lifecycle",
+        "load_policy",
+        "authority_provider",
+        "source",
+        "dependencies",
+        "supersedes",
+        "retention_class",
+        "privacy_class",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "reference_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{1,127}$"
+        },
+        "record_type": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{1,127}$"
+        },
+        "profile_role": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{1,127}$"
+        },
+        "record_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "record_revision": {
+          "type": ["integer", "string", "null"]
+        },
+        "requirement": {
+          "enum": ["required", "state-aware", "advisory"]
+        },
+        "lifecycle": {
+          "enum": ["active", "superseded", "archived"]
+        },
+        "load_policy": {
+          "enum": ["boot", "just-in-time", "explicit-only"]
+        },
+        "authority_provider": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{1,127}$"
+        },
+        "source": {"$ref": "#/$defs/sourceReference"},
+        "dependencies": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {"$ref": "#/$defs/dependency"}
+        },
+        "supersedes": {
+          "type": "array",
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{1,127}$"
+          }
+        },
+        "retention_class": {
+          "enum": ["critical-active", "critical-history", "operational", "evidence", "advisory"]
+        },
+        "privacy_class": {
+          "enum": ["public-metadata", "project-internal", "sensitive-reference"]
+        },
+        "created_at": {"type": "string", "format": "date-time"},
+        "updated_at": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

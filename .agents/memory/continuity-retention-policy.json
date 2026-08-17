@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "policy_id": "universal-continuity-retention",
+  "policy_version": 1,
+  "classes": [
+    {
+      "retention_class": "critical-active",
+      "allowed_candidate_modes": [],
+      "live_prune_mode": "never"
+    },
+    {
+      "retention_class": "critical-history",
+      "allowed_candidate_modes": [
+        "explicit"
+      ],
+      "live_prune_mode": "after-verified-archive"
+    },
+    {
+      "retention_class": "evidence",
+      "allowed_candidate_modes": [
+        "explicit"
+      ],
+      "live_prune_mode": "after-verified-archive"
+    },
+    {
+      "retention_class": "operational",
+      "allowed_candidate_modes": [
+        "explicit",
+        "age",
+        "count"
+      ],
+      "live_prune_mode": "after-verified-archive"
+    },
+    {
+      "retention_class": "advisory",
+      "allowed_candidate_modes": [
+        "explicit"
+      ],
+      "live_prune_mode": "after-verified-archive"
+    }
+  ],
+  "holds": [
+    "active-required-or-state-aware",
+    "dependency-target",
+    "handoff-or-completion-evidence",
+    "recovery-pinned"
+  ],
+  "bounds": {
+    "max_entries": 2048,
+    "max_file_bytes": 8388608,
+    "max_total_bytes": 67108864,
+    "max_manifest_bytes": 1048576
+  },
+  "archive_original_required": true,
+  "explicit_confirmation_required": true,
+  "raw_conversation_allowed": false
+}

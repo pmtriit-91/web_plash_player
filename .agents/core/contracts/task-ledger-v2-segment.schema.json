@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/task-ledger-v2-segment.schema.json",
+  "title": "Universal Agent OS Task Ledger v2 immutable terminal segment",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "project_id", "segment_id", "sequence", "records", "predecessor", "successor"],
+  "properties": {
+    "schema_version": {"const": 2},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "segment_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$"},
+    "sequence": {"type": "integer", "minimum": 0},
+    "records": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/terminal_task"}},
+    "predecessor": {"type": ["string", "null"]},
+    "successor": {"type": ["string", "null"]}
+  },
+  "$defs": {
+    "terminal_task": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "title", "owner", "scope", "base_commit", "status", "claimed_at", "updated_at", "evidence"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$"},
+        "title": {"type": "string", "minLength": 3, "maxLength": 240},
+        "owner": {"type": "string", "minLength": 1, "maxLength": 128},
+        "scope": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 512}},
+        "base_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "status": {"enum": ["handed-off", "complete", "cancelled"]},
+        "claimed_at": {"type": "string", "format": "date-time"},
+        "updated_at": {"type": "string", "format": "date-time"},
+        "evidence": {"type": "array", "maxItems": 64, "items": {"type": "string", "minLength": 1, "maxLength": 512}}
+      }
+    }
+  }
+}

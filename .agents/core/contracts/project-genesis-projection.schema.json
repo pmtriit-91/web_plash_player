@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/project-genesis-projection.schema.json",
+  "title": "Universal Agent OS Project Genesis Boot Projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "genesis_revision",
+    "genesis_state",
+    "source_sha256",
+    "generated_at",
+    "reason_codes",
+    "claims"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{1,127}$"
+    },
+    "genesis_revision": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "genesis_state": {
+      "enum": [
+        "missing",
+        "draft",
+        "confirmed",
+        "stale",
+        "conflicting",
+        "contaminated"
+      ]
+    },
+    "source_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reason_codes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^GENESIS_[A-Z0-9_]+$"
+      }
+    },
+    "claims": {
+      "type": "object"
+    }
+  }
+}

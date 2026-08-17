@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/handoff-receipt.schema.json",
+  "title": "Universal Agent OS handoff receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "project_id",
+    "task_id",
+    "from_owner",
+    "to_owner",
+    "base_commit",
+    "created_at",
+    "verified_outcomes",
+    "unresolved_risks",
+    "next_action",
+    "evidence",
+    "content_sha256"
+  ],
+  "properties": {
+    "schema_version": {"enum": [1, 2]},
+    "id": {"type": "string", "pattern": "^handoff-[0-9a-f]{24}$"},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "task_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$"},
+    "from_owner": {"type": "string", "minLength": 1, "maxLength": 128},
+    "to_owner": {"type": ["string", "null"], "maxLength": 128},
+    "base_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "verified_outcomes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {"type": "string", "minLength": 3, "maxLength": 1000}
+    },
+    "unresolved_risks": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {"type": "string", "minLength": 3, "maxLength": 1000}
+    },
+    "next_action": {"type": "string", "minLength": 3, "maxLength": 2000},
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1, "maxLength": 512},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "git_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+        }
+      }
+    },
+    "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"schema_version": {"const": 2}}
+      },
+      "then": {
+        "properties": {
+          "evidence": {
+            "items": {
+              "required": ["path", "sha256", "git_commit"]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "connectors": [
+    {
+      "id": "github",
+      "enabled": true,
+      "optional": true,
+      "authority": "research-signal-only",
+      "operations": ["discover-metadata", "resolve-full-commit", "fetch-static-snapshot"],
+      "failure_mode": "isolated"
+    },
+    {
+      "id": "notebooklm",
+      "enabled": true,
+      "optional": true,
+      "authority": "research-signal-only",
+      "operations": ["synthesize-sources", "compare-candidates"],
+      "failure_mode": "isolated"
+    },
+    {
+      "id": "local",
+      "enabled": true,
+      "optional": true,
+      "authority": "research-signal-only",
+      "operations": ["inspect-static-directory"],
+      "failure_mode": "isolated"
+    },
+    {
+      "id": "mcp-skill-index",
+      "enabled": false,
+      "optional": true,
+      "authority": "research-signal-only",
+      "operations": ["read-static-index", "fetch-static-skill-resource"],
+      "failure_mode": "isolated"
+    }
+  ]
+}

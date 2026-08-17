@@ -1,0 +1,25 @@
+{
+  "version": "9.1.0",
+  "name": "Universal Agent OS Client Policy",
+  "state_source": "_tools/agent_os_lifecycle.py doctor",
+  "client_bridge_registry": "project-template/client-bridges.json",
+  "reference_client": "codex",
+  "fresh_session_validation_required": true,
+  "global_symlink_allowed": false,
+  "modes": {
+    "FAST": { "max_files": 6, "vendor_skills": "off_by_default" },
+    "STANDARD": { "max_files": 16, "vendor_skills": "task_scoped" },
+    "DEEP": { "max_files": 50, "vendor_skills": "task_scoped" }
+  },
+  "blocked_generic_scan_paths": [
+    "node_modules/",
+    "dist/",
+    "build/",
+    ".agents/_runtime/",
+    ".agents/_telemetry/*.jsonl"
+  ],
+  "external_services": {
+    "mcp": "optional",
+    "notebooklm": "optional_research_only"
+  }
+}

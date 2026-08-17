@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/capability-integration-plan.schema.json",
+  "title": "Universal Agent OS Capability Integration Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "plan_id", "status", "risk", "requires", "input", "exact_diff", "manifest_refresh_required", "commit_preview"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "plan_id": { "type": "string", "pattern": "^[0-9a-f]{24}$" },
+    "status": { "enum": ["pending-approval", "applied", "failed"] },
+    "risk": { "const": "release-owned-capability-lifecycle" },
+    "requires": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "input": {
+      "type": "object",
+      "required": ["operation", "git_head", "protected_digest", "created_at", "expires_at", "changes", "allow_dirty"],
+      "properties": {
+        "operation": { "enum": ["capability-integrate", "capability-update", "capability-state-change", "capability-rollback"] },
+        "git_head": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "protected_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "changes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "before_sha256", "after_sha256", "before_base64", "after_base64"],
+            "properties": {
+              "path": { "type": "string", "minLength": 1 },
+              "before_sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+              "after_sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+              "before_base64": { "type": ["string", "null"] },
+              "after_base64": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "allow_dirty": { "type": "boolean" }
+      }
+    },
+    "exact_diff": { "type": "string", "minLength": 1 },
+    "manifest_refresh_required": { "const": true },
+    "commit_preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "commit_created", "push_performed"],
+      "properties": {
+        "enabled": { "const": false },
+        "commit_created": { "const": false },
+        "push_performed": { "const": false }
+      }
+    }
+  }
+}

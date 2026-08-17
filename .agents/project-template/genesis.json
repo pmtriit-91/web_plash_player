@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "project_id": "unbound-consumer",
+  "document_id": "genesis-unbound-consumer",
+  "revision": 1,
+  "claims": {
+    "identity": [],
+    "problem": [],
+    "primary_user": [],
+    "why_now": [],
+    "input": [],
+    "core_transformation": [],
+    "output": [],
+    "desired_outcome": [],
+    "success": [],
+    "acceptance_evidence": [],
+    "failure_conditions": [],
+    "scope": [],
+    "non_goals": [],
+    "invariants": [],
+    "constraints": [],
+    "assumptions": [],
+    "unknowns": []
+  },
+  "extensions": {},
+  "created_at": "1970-01-01T00:00:00Z",
+  "updated_at": "1970-01-01T00:00:00Z"
+}

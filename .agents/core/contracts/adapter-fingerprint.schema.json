@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/adapter-fingerprint.schema.json",
+  "title": "Universal Agent OS Adapter Fingerprint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "binding_schema_version",
+    "algorithm",
+    "digests",
+    "verified_at",
+    "verified_commit"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{1,127}$"
+    },
+    "binding_schema_version": { "const": 1 },
+    "algorithm": { "const": "sha256" },
+    "digests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_identity", "commands", "context_entrypoints"],
+      "properties": {
+        "project_identity": { "$ref": "#/$defs/sha256" },
+        "commands": { "$ref": "#/$defs/sha256" },
+        "context_entrypoints": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "verified_at": { "type": "string", "format": "date-time" },
+    "verified_commit": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{40}$"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

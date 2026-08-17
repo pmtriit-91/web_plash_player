@@ -1,0 +1,17 @@
+{
+  "include": [
+    "../test-continuity-portability.py",
+    "../test-continuity-portability-w6.py",
+    "*.py"
+  ],
+  "exclude": [],
+  "extraPaths": [
+    ".."
+  ],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "off",
+  "reportMissingImports": "error",
+  "reportUndefinedVariable": "error",
+  "reportUnboundVariable": "error",
+  "reportPossiblyUnboundVariable": "error"
+}

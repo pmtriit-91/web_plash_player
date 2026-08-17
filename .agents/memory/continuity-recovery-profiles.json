@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "profiles": [
+    {
+      "profile_id": "universal-project-continuity",
+      "profile_version": 1,
+      "catalog_max_bytes": 262144,
+      "projection_max_bytes": 65536,
+      "roles": [
+        {
+          "profile_role": "project-binding",
+          "record_type": "project-binding",
+          "minimum": 1,
+          "maximum": 1,
+          "requirement": "required",
+          "load_policy": "boot",
+          "activation": "always"
+        },
+        {
+          "profile_role": "agent-os-release",
+          "record_type": "agent-os-release",
+          "minimum": 1,
+          "maximum": 1,
+          "requirement": "required",
+          "load_policy": "boot",
+          "activation": "always"
+        },
+        {
+          "profile_role": "project-genesis",
+          "record_type": "project-genesis",
+          "minimum": 1,
+          "maximum": 1,
+          "requirement": "state-aware",
+          "load_policy": "boot",
+          "activation": "always"
+        },
+        {
+          "profile_role": "context-manifest",
+          "record_type": "context-manifest",
+          "minimum": 1,
+          "maximum": 1,
+          "requirement": "required",
+          "load_policy": "boot",
+          "activation": "always"
+        },
+        {
+          "profile_role": "roadmap",
+          "record_type": "roadmap",
+          "minimum": 1,
+          "maximum": 1,
+          "requirement": "required",
+          "load_policy": "just-in-time",
+          "activation": "always"
+        },
+        {
+          "profile_role": "current-status",
+          "record_type": "current-status",
+          "minimum": 1,
+          "maximum": 1,
+          "requirement": "required",
+          "load_policy": "boot",
+          "activation": "always"
+        },
+        {
+          "profile_role": "active-task-ledger",
+          "record_type": "active-task-ledger",
+          "minimum": 1,
+          "maximum": 1,
+          "requirement": "required",
+          "load_policy": "boot",
+          "activation": "always"
+        },
+        {
+          "profile_role": "active-phase",
+          "record_type": "phase-charter",
+          "minimum": 0,
+          "maximum": 1,
+          "requirement": "required",
+          "load_policy": "just-in-time",
+          "activation": "typed-active-phase"
+        },
+        {
+          "profile_role": "current-handoff",
+          "record_type": "handoff-receipt",
+          "minimum": 0,
+          "maximum": 1,
+          "requirement": "required",
+          "load_policy": "just-in-time",
+          "activation": "typed-current-transition"
+        },
+        {
+          "profile_role": "completion-verification",
+          "record_type": "verification-artifact",
+          "minimum": 0,
+          "maximum": 64,
+          "requirement": "required",
+          "load_policy": "explicit-only",
+          "activation": "terminal-handoff"
+        }
+      ]
+    }
+  ]
+}

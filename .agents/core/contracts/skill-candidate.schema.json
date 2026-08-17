@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/skill-candidate.schema.json",
+  "title": "Universal Agent OS Skill Candidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "state", "source", "discovered_at", "evidence", "inventory", "gate_results", "overlap", "shadow_eval", "recommendation", "decision_history"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+    "target_capability_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+    "state": { "enum": ["discovered", "pinned", "blocked", "evaluating", "recommended", "approval-pending", "integrating", "active", "research-only", "rejected", "quarantined", "failed", "deprecated"] },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["connector", "repository", "commit", "license", "snapshot_sha256"],
+      "properties": {
+        "connector": { "enum": ["github", "notebooklm", "local", "mcp-skill-index"] },
+        "repository": { "type": "string", "minLength": 1 },
+        "commit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+        "license": { "type": ["string", "null"] },
+        "snapshot_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "discovered_at": { "type": "string", "format": "date-time" },
+    "evidence": { "type": "array", "items": { "type": "object" } },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_count", "total_bytes", "files"],
+      "properties": {
+        "file_count": { "type": "integer", "minimum": 0 },
+        "total_bytes": { "type": "integer", "minimum": 0 },
+        "files": { "type": "array", "items": { "type": "object" } }
+      }
+    },
+    "gate_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["gate", "status", "reason_codes"],
+        "properties": {
+          "gate": { "type": "string" },
+          "status": { "enum": ["pass", "warn", "block", "quarantine"] },
+          "reason_codes": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "overlap": { "type": "object" },
+    "shadow_eval": { "type": "object" },
+    "recommendation": { "enum": ["pending", "vendor-pin", "adapt-local-skill", "adapt-local-principles", "project-local", "research-only", "reject"] },
+    "decision_history": { "type": "array", "items": { "type": "object" } }
+  }
+}

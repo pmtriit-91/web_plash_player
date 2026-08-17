@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "project_id": "web-flash-player",
+  "binding_schema_version": 1,
+  "algorithm": "sha256",
+  "digests": {
+    "project_identity": "52b813c5fc37b9367a7a51a39b25ebedc856fac7891be41e0a15dc2f6b5365d7",
+    "commands": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "context_entrypoints": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "verified_at": "2026-08-17T16:00:00Z",
+  "verified_commit": null
+}

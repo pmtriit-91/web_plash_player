@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/capability-policy.schema.json",
+  "title": "Universal Agent OS Capability Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "discovery", "activation", "hard_gates"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "discovery": { "type": "object" },
+    "activation": { "type": "object" },
+    "hard_gates": { "type": "object" }
+  }
+}

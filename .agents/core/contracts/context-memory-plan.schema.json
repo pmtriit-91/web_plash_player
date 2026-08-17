@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/context-memory-plan.schema.json",
+  "title": "Universal Agent OS context memory transaction plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "plan_id", "status", "operation", "created_at", "expires_at", "git_head", "core_manifest_sha256", "project_id", "changes", "exact_diff", "metadata", "commit_created", "push_performed", "content_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "plan_id": {"type": "string", "pattern": "^[0-9a-f]{24}$"},
+    "status": {"enum": ["pending-approval", "applied", "failed", "expired"]},
+    "operation": {"enum": ["initialize", "refresh", "repair-projection", "upsert-record", "claim-task", "continue-task", "handoff", "compact", "migrate-task-ledger", "rollback-task-ledger"]},
+    "created_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "git_head": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "core_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "changes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "before_sha256", "after_sha256", "before_base64", "after_base64"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1, "maxLength": 512},
+          "before_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+          "after_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+          "before_base64": {"type": ["string", "null"]},
+          "after_base64": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "exact_diff": {"type": "string"},
+    "metadata": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["project_id"],
+          "properties": {
+            "project_id": {"type": "string", "minLength": 1, "maxLength": 128}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["previous_refreshed_commit"],
+          "properties": {
+            "previous_refreshed_commit": {
+              "type": ["string", "null"],
+              "pattern": "^[0-9a-f]{40}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["repair"],
+          "properties": {
+            "repair": {"const": "canonical-projection"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["record_id", "tier"],
+          "properties": {
+            "record_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$"},
+            "tier": {"enum": ["hot", "warm", "cold"]}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["task_id", "owner"],
+          "properties": {
+            "task_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$"},
+            "owner": {"type": "string", "minLength": 1, "maxLength": 128}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["task_id", "owner", "previous_base_commit", "continued_base_commit"],
+          "properties": {
+            "task_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$"},
+            "owner": {"type": "string", "minLength": 1, "maxLength": 128},
+            "previous_base_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            "continued_base_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["task_id", "handoff_id"],
+          "properties": {
+            "task_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$"},
+            "handoff_id": {"type": "string", "pattern": "^handoff-[0-9a-f]{24}$"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["archived_record_ids", "summary_id", "records_deleted"],
+          "properties": {
+            "archived_record_ids": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$"}
+            },
+            "summary_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$"},
+            "records_deleted": {"const": 0}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["source_ledger_sha256", "target_ledger_sha256", "index_sha256", "segments", "rollback_result"],
+          "properties": {
+            "source_ledger_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "target_ledger_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "index_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "segments": {"type": "array", "maxItems": 3, "items": {"type": "object", "additionalProperties": false, "required": ["path", "sha256", "byte_count"], "properties": {"path": {"type": "string", "pattern": "^project/context/task-ledger/segments/segment-[0-9]{8}\\.json$"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "byte_count": {"type": "integer", "minimum": 1, "maximum": 65536}}}},
+            "rollback_result": {"enum": ["not-required", "byte-exact-restored"]},
+            "source_plan_id": {"type": "string", "pattern": "^[0-9a-f]{24}$"}
+          }
+        }
+      ]
+    },
+    "commit_created": {"const": false},
+    "push_performed": {"const": false},
+    "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"operation": {"const": "initialize"}}, "required": ["operation"]},
+      "then": {"properties": {"metadata": {"required": ["project_id"]}}}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "refresh"}}, "required": ["operation"]},
+      "then": {"properties": {"metadata": {"required": ["previous_refreshed_commit"]}}}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "repair-projection"}}, "required": ["operation"]},
+      "then": {"properties": {"metadata": {"required": ["repair"]}}}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "upsert-record"}}, "required": ["operation"]},
+      "then": {"properties": {"metadata": {"required": ["record_id", "tier"]}}}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "claim-task"}}, "required": ["operation"]},
+      "then": {"properties": {"metadata": {"required": ["task_id", "owner"]}}}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "continue-task"}}, "required": ["operation"]},
+      "then": {"properties": {"metadata": {"required": ["task_id", "owner", "previous_base_commit", "continued_base_commit"]}}}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "handoff"}}, "required": ["operation"]},
+      "then": {"properties": {"metadata": {"required": ["task_id", "handoff_id"]}}}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "compact"}}, "required": ["operation"]},
+      "then": {"properties": {"metadata": {"required": ["archived_record_ids", "summary_id", "records_deleted"]}}}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "migrate-task-ledger"}}, "required": ["operation"]},
+      "then": {"properties": {"metadata": {"required": ["source_ledger_sha256", "target_ledger_sha256", "index_sha256", "segments", "rollback_result"]}}}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "rollback-task-ledger"}}, "required": ["operation"]},
+      "then": {"properties": {"metadata": {"required": ["source_ledger_sha256", "target_ledger_sha256", "index_sha256", "segments", "rollback_result", "source_plan_id"]}}}
+    }
+  ]
+}

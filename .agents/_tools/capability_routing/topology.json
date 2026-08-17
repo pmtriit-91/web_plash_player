@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "domain": "capability-routing",
+  "public_facade": "_tools/agent_os_capabilities.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/agent_os_capabilities.py",
+      "owner": "capability-routing",
+      "role": "catalog-validation-cards-and-explainable-deterministic-routing",
+      "depends_on": [
+        "routing/capability-registry.json",
+        "routing/capability-descriptors.json",
+        "routing/capability-policy.json",
+        "routing/capability-decisions.json"
+      ],
+      "focused_shard": "_tools/capability_routing/test_catalog_positive_routes.py"
+    },
+    {
+      "entrypoint": "_tools/capability_routing/test_catalog_positive_routes.py",
+      "owner": "capability-routing-catalog-positive-acceptance",
+      "role": "catalog-parity-and-first-six-positive-route-contracts",
+      "depends_on": ["_tools/agent_os_capabilities.py"],
+      "focused_shard": "_tools/capability_routing/test_catalog_positive_routes.py"
+    },
+    {
+      "entrypoint": "_tools/capability_routing/test_remaining_routes_policies.py",
+      "owner": "capability-routing-remaining-acceptance",
+      "role": "remaining-positive-fallback-cards-and-override-contracts",
+      "depends_on": ["_tools/agent_os_capabilities.py"],
+      "focused_shard": "_tools/capability_routing/test_remaining_routes_policies.py"
+    }
+  ]
+}

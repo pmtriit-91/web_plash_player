@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/research-connector.schema.json",
+  "title": "Universal Agent OS Research Connectors",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "connectors"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "connectors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "enabled", "optional", "authority", "operations", "failure_mode"],
+        "properties": {
+          "id": { "enum": ["github", "notebooklm", "local", "mcp-skill-index"] },
+          "enabled": { "type": "boolean" },
+          "optional": { "const": true },
+          "authority": { "const": "research-signal-only" },
+          "operations": { "type": "array", "items": { "type": "string" } },
+          "failure_mode": { "const": "isolated" }
+        }
+      }
+    }
+  }
+}

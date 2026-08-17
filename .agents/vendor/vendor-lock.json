@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-21T07:08:00Z",
+  "packages": [
+    {
+      "id": "addy-agent-skills-curated",
+      "root": "vendor/addy-agent-skills",
+      "repository": "https://github.com/addyosmani/agent-skills",
+      "commit": "98967c45a42b88d6b8fb3a88b7ff6273920763d6",
+      "license": "MIT",
+      "license_path": "vendor/addy-agent-skills/LICENSE",
+      "integration": "vendor-pin",
+      "excluded_upstream_components": [
+        ".agents",
+        ".claude-plugin",
+        ".codex-plugin",
+        ".gemini",
+        ".opencode",
+        "agents",
+        "commands",
+        "hooks",
+        "scripts",
+        "skills/using-agent-skills"
+      ],
+      "files": {
+        "vendor/addy-agent-skills/LICENSE": "6f202f8bd568cd730dbb2b0d1f8e243bc74c2fa1f64dbce9b2c7ea08bd5c9fd7",
+        "vendor/addy-agent-skills/skills/api-and-interface-design/SKILL.md": "293db2903b41316a5109a1e0ce3e1740eeafae31735bc1f9143dafbfd1187363",
+        "vendor/addy-agent-skills/skills/code-review-and-quality/SKILL.md": "bec431b759ff389e47b8d2c9d74e1981ff93cf5f3c36b4a3b6a71a75c250be2c",
+        "vendor/addy-agent-skills/skills/code-simplification/SKILL.md": "f0c5ed754057eb0c1e027e2587f59de816651feb5e837242296c43ea21cf621d",
+        "vendor/addy-agent-skills/skills/debugging-and-error-recovery/SKILL.md": "927ad6917fa2891827351cfa3470cd715423faaa5c5f27fe74534d9324c35eea",
+        "vendor/addy-agent-skills/skills/documentation-and-adrs/SKILL.md": "7fed35f9c5b95d8e3623ad24d78d209c3267ab62d7157fc03954c76a7e58adf4",
+        "vendor/addy-agent-skills/skills/security-and-hardening/SKILL.md": "266c60e073bc81651ad070a1427a93af4d062dc44470580eae31806b38561833",
+        "vendor/addy-agent-skills/skills/source-driven-development/SKILL.md": "b979e7531ea601ed14a090f32a5b135db517c48ab9821c5e8b09efd80f4ff4d8",
+        "vendor/addy-agent-skills/skills/test-driven-development/SKILL.md": "6c60e193d77a6c52eb3d9a7ca774f1801b9f798ec34f075720e0425a8094f50e"
+      }
+    }
+  ],
+  "research_sources": [
+    {
+      "id": "notebooklm-mcp-cli",
+      "repository": "https://github.com/jacob-bd/notebooklm-mcp-cli",
+      "version": "0.9.0",
+      "commit": "2f28855b1545ea321568be6e39dc8c2efb338dd5",
+      "license": "MIT",
+      "integration": "adapt-local-skill",
+      "files_inspected": {
+        "src/notebooklm_tools/data/SKILL.md": "1d7244317830816cca98a25a92ac0aa359ac5d409c28017642a9047f625699dc",
+        "src/notebooklm_tools/data/references/studio-prompting-guide.md": "51c26cfbc2dea440f676501cf19fe712bba347640f064bcd3f86ed3cbd68a3f9"
+      },
+      "local_influence": [
+        "skills/notebooklm-research/SKILL.md",
+        "skills/notebooklm-research/references/direct-research.md",
+        "skills/notebooklm-research/references/studio.md"
+      ],
+      "decision": "Upstream skill is 898 lines and includes interface-selection, installer, bulk-download, and Git workflow policy that cannot become universal authority; adapt only MCP-first direct research, auth, follow-up, Studio, and bounded lifecycle procedures."
+    },
+    {
+      "id": "obra-superpowers",
+      "repository": "https://github.com/obra/superpowers",
+      "version": "6.1.1",
+      "commit": "d884ae04edebef577e82ff7c4e143debd0bbec99",
+      "license": "MIT",
+      "integration": "adapt-local-principles",
+      "files_inspected": {
+        "skills/verification-before-completion/SKILL.md": "ea52d15aabaf72bc6b558efe2c126f161b53961090ddcd712000273bfe8c7b6c",
+        "skills/systematic-debugging/SKILL.md": "3b20719eca4f0461cb51a195221320d775dcf03b6859271066a03a5132a6ce7a"
+      },
+      "local_influence": [
+        "core/quality-gates.md",
+        "workflows/reviewer.md"
+      ],
+      "decision": "Do not vendor the competing boot, hooks, router, subagent, Git/worktree, telemetry, or duplicate skill framework."
+    }
+  ]
+}

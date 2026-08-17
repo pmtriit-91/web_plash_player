@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "project_id": "unbound-consumer",
+  "default_mode": "STANDARD",
+  "automation": {
+    "discovery": "event-driven-and-manual",
+    "activation_requires_approval": true,
+    "background_daemon": false,
+    "auto_commit": false,
+    "auto_push": false
+  },
+  "connectors": {
+    "github": "optional",
+    "notebooklm": "optional",
+    "mcp-skill-index": "disabled"
+  },
+  "budgets": {
+    "max_candidates_per_scan": 20,
+    "max_snapshot_bytes": 10485760,
+    "plan_expiry_seconds": 900
+  },
+  "capability_overrides": {}
+}

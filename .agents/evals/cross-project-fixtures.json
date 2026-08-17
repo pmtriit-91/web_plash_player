@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "fixtures": [
+    {
+      "id": "node-monorepo",
+      "remote": "fixtures/node-monorepo",
+      "markers": {
+        "package.json": "{\"name\":\"fixture-node\",\"private\":true}\n",
+        "packages/web/package.json": "{\"name\":\"fixture-web\"}\n"
+      },
+      "root_markers": [
+        "package.json"
+      ],
+      "workspaces": [
+        {
+          "id": "web",
+          "path": "packages/web",
+          "root_markers": [
+            "package.json"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "python-service",
+      "remote": "fixtures/python-service",
+      "markers": {
+        "pyproject.toml": "[project]\nname = \"fixture-python\"\nversion = \"0.1.0\"\n"
+      },
+      "root_markers": [
+        "pyproject.toml"
+      ],
+      "workspaces": []
+    },
+    {
+      "id": "documentation-site",
+      "remote": "fixtures/documentation-site",
+      "markers": {
+        "mkdocs.yml": "site_name: Fixture Docs\n",
+        "docs/index.md": "# Fixture documentation\n"
+      },
+      "root_markers": [
+        "mkdocs.yml"
+      ],
+      "workspaces": []
+    }
+  ]
+}

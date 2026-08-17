@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.invalid/schemas/migration-plan.schema.json",
+  "title": "Agent OS Migration Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "plan_id",
+    "status",
+    "operation",
+    "created_at",
+    "expires_at",
+    "source",
+    "target",
+    "source_release_id",
+    "source_version",
+    "target_family",
+    "inputs",
+    "release_diff",
+    "protected_application",
+    "reason_codes",
+    "ready_to_apply",
+    "writes_performed",
+    "content_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "plan_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{24}$"
+    },
+    "status": {
+      "const": "pending-approval"
+    },
+    "operation": {
+      "const": "migrate-agent-os"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "target": {
+      "type": "string"
+    },
+    "source_release_id": {
+      "type": "string"
+    },
+    "source_version": {
+      "type": "string"
+    },
+    "target_family": {
+      "enum": [
+        "v8-legacy",
+        "v9-working-baseline"
+      ]
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "release_diff": {
+      "type": "object"
+    },
+    "protected_application": {
+      "type": "object"
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ready_to_apply": {
+      "type": "boolean"
+    },
+    "writes_performed": {
+      "const": false
+    },
+    "content_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

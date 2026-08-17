@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/task-ledger-v2-index.schema.json",
+  "title": "Universal Agent OS Task Ledger v2 deterministic segment index",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "project_id", "active_facade", "history_policy", "segment_record_limit", "segment_byte_limit", "entries"],
+  "properties": {
+    "schema_version": {"const": 2},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "active_facade": {"const": "active-tasks.json"},
+    "history_policy": {"const": "explicit-only"},
+    "segment_record_limit": {"const": 256},
+    "segment_byte_limit": {"const": 65536},
+    "entries": {"type": "array", "maxItems": 4096, "items": {"$ref": "#/$defs/entry"}}
+  },
+  "$defs": {
+    "entry": {
+      "type": "object", "additionalProperties": false,
+      "required": ["segment_id", "sequence", "record_count", "byte_count", "sha256", "project_id", "predecessor", "successor"],
+      "properties": {
+        "segment_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{2,95}$"},
+        "sequence": {"type": "integer", "minimum": 0},
+        "record_count": {"type": "integer", "minimum": 0, "maximum": 256},
+        "byte_count": {"type": "integer", "minimum": 0, "maximum": 65536},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "predecessor": {"type": ["string", "null"]},
+        "successor": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

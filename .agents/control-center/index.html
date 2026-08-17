@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent OS Control Center</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <div><span class="eyebrow">LOCAL CONTROL PLANE</span><h1>Agent OS Control Center</h1></div>
+    <div id="health" class="status neutral">Connecting</div>
+  </header>
+  <nav id="nav" aria-label="Control Center sections"></nav>
+  <main>
+    <section id="overview" class="panel active"><h2>Overview</h2><div id="overview-content" class="grid"></div></section>
+    <section id="skills" class="panel"><h2>Skills</h2><p class="muted">Purpose, routing, provenance, risk, evals, and integration rationale from canonical JSON.</p><div id="skill-list" class="cards"></div><pre id="skill-detail" class="detail hidden"></pre></section>
+    <section id="research" class="panel"><h2>Research Inbox</h2><div id="research-content"></div></section>
+    <section id="assembly" class="panel"><h2>Assembly Workspace</h2><p class="muted">Paste agent-prepared candidate and assembly JSON. Planning is read-only and produces an exact diff; activation still requires approval.</p><div id="assembly-content" class="callout"></div><form id="integration-form"><label>Candidate JSON<textarea name="candidate" rows="12" required placeholder='{"schema_version":1,...}'></textarea></label><label>Assembly JSON<textarea name="assembly" rows="12" required placeholder='{"schema_version":1,...}'></textarea></label><button type="submit">Create integration plan</button></form><pre id="integration-plan" class="detail hidden"></pre></section>
+    <section id="approvals" class="panel"><h2>Approval Queue</h2><div id="approval-content"></div></section>
+    <section id="routing" class="panel"><h2>Routing Simulator</h2><form id="routing-form"><label>Example task<input id="routing-prompt" maxlength="4000" required placeholder="Audit Agent OS integrity"></label><button type="submit">Simulate</button></form><pre id="routing-result" class="detail"></pre></section>
+    <section id="automation" class="panel"><h2>Automation Settings</h2><p class="muted">Core hard safety is locked. Saving creates a reviewable plan; it does not apply changes.</p><form id="settings-form"></form><pre id="settings-plan" class="detail hidden"></pre></section>
+    <section id="updates" class="panel"><h2>Updates &amp; Rollback</h2><div id="updates-content" class="callout"></div><pre id="lifecycle-content" class="detail"></pre></section>
+    <section id="memory" class="panel"><h2>Context Memory</h2><p class="muted">Project-bound hot/warm/cold context, freshness, contamination, active-task overlap, handoffs, and compaction. Plans never commit or push.</p><div id="memory-health" class="grid"></div><div class="row"><button id="memory-initialize" type="button">Plan initialization</button><button id="memory-refresh" class="secondary" type="button">Plan refresh</button></div><h3>Memory or coordination proposal</h3><label>Operation<select id="memory-operation"><option value="proposals">Upsert record</option><option value="tasks">Claim task</option><option value="handoffs">Create handoff</option><option value="compactions">Compact cold records</option></select></label><label>Proposal JSON<textarea id="memory-input" rows="14" placeholder='{"id":"current-state",...}'></textarea></label><button id="memory-plan" type="button">Create review plan</button><pre id="memory-content" class="detail"></pre></section>
+    <section id="diagnostics" class="panel"><h2>Diagnostics</h2><pre id="diagnostics-content" class="detail"></pre></section>
+  </main>
+  <footer>No cloud service · No CDN · API mutations require token, same-origin, plan, and confirmation.</footer>
+  <script src="/app.js" defer></script>
+</body>
+</html>

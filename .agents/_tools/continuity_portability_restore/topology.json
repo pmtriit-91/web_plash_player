@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "domain": "continuity-portability-restore",
+  "public_facade": "_tools/agent_os_continuity_portability_restore.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/agent_os_continuity_portability_restore.py",
+      "owner": "continuity-portability-restore",
+            "role": "public-compatibility-mixin",
+            "depends_on": [
+                "_tools/continuity_portability_restore/contracts.py",
+                "_tools/continuity_portability_restore/apply_orchestration.py",
+                "_tools/continuity_portability_restore/backup_validation.py",
+                "_tools/continuity_portability_restore/backup_lifecycle.py",
+                "_tools/continuity_portability_restore/receipt_builder.py",
+                "_tools/continuity_portability_restore/receipt_validation.py",
+                "_tools/continuity_portability_restore/plan_validation.py",
+                "_tools/continuity_portability_restore/stage_plan.py",
+                "_tools/continuity_portability_restore/target_analysis.py"
+            ],
+      "focused_shard": "_tools/continuity_portability_restore/test_target_analysis.py"
+    },
+        {
+            "entrypoint": "_tools/continuity_portability_restore/apply_orchestration.py",
+            "owner": "continuity-portability-restore-apply-orchestration",
+            "role": "transactional-restore-apply-finalization-and-rollback",
+            "depends_on": ["_tools/agent_os_context_memory.py", "_tools/agent_os_continuity.py", "_tools/agent_os_continuity_portability.py", "_tools/agent_os_continuity_portability_export.py", "_tools/agent_os_continuity_portability_foundation.py", "_tools/agent_os_continuity_transactions.py", "_tools/agent_os_paths.py", "_tools/continuity_portability_restore/contracts.py", "_tools/continuity_portability_restore/backup_lifecycle.py", "_tools/continuity_portability_restore/receipt_builder.py", "_tools/continuity_portability_restore/plan_validation.py", "_tools/continuity_portability_restore/target_analysis.py"],
+            "focused_shard": "_tools/continuity_portability_restore/test_apply_orchestration.py"
+        },
+        {
+            "entrypoint": "_tools/continuity_portability_restore/contracts.py",
+      "owner": "continuity-portability-restore-contracts",
+      "role": "shared-field-id-hash-time-and-collision-contracts",
+      "depends_on": [
+        "_tools/agent_os_context_memory.py",
+        "_tools/agent_os_paths.py"
+      ],
+      "focused_shard": "_tools/continuity_portability_restore/test_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability_restore/target_analysis.py",
+      "owner": "continuity-portability-restore-target-analysis",
+      "role": "dependency-order-compatibility-and-bounded-diff",
+      "depends_on": [
+        "_tools/agent_os_context_memory.py",
+        "_tools/agent_os_continuity.py",
+        "_tools/agent_os_continuity_dependency_order.py",
+        "_tools/agent_os_continuity_portability_foundation.py",
+        "_tools/agent_os_continuity_transactions.py",
+        "_tools/agent_os_paths.py"
+      ],
+      "focused_shard": "_tools/continuity_portability_restore/test_target_analysis.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability_restore/test_generation_path_extension.py",
+      "owner": "continuity-portability-restore-generation-evidence-proof",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/agent_os_context_memory.py",
+        "_tools/continuity_portability/test_support.py",
+        "_tools/continuity_portability_restore/target_analysis.py"
+      ],
+      "focused_shard": "_tools/continuity_portability_restore/test_generation_path_extension.py"
+    },
+        {
+            "entrypoint": "_tools/continuity_portability_restore/backup_validation.py",
+            "owner": "continuity-portability-restore-backup-validation",
+            "role": "bounded-backup-index-file-hash-byte-and-collision-validation",
+            "depends_on": ["_tools/agent_os_context_memory.py", "_tools/agent_os_continuity_portability_export.py", "_tools/agent_os_continuity_portability_foundation.py", "_tools/agent_os_paths.py", "_tools/continuity_portability_restore/contracts.py"],
+            "focused_shard": "_tools/continuity_portability_restore/test_backup_validation.py"
+        },
+        {
+            "entrypoint": "_tools/continuity_portability_restore/receipt_builder.py",
+            "owner": "continuity-portability-restore-receipt-builder",
+            "role": "deterministic-restore-receipt-construction",
+            "depends_on": ["_tools/agent_os_context_memory.py", "_tools/agent_os_continuity_portability_foundation.py"],
+            "focused_shard": "_tools/continuity_portability_restore/test_receipt_builder.py"
+        },
+        {
+            "entrypoint": "_tools/continuity_portability_restore/receipt_validation.py",
+            "owner": "continuity-portability-restore-receipt-validation",
+            "role": "bounded-receipt-contract-provenance-target-and-backup-validation",
+            "depends_on": ["_tools/agent_os_context_memory.py", "_tools/agent_os_continuity_portability_export.py", "_tools/agent_os_continuity_portability_foundation.py", "_tools/agent_os_continuity_transactions.py", "_tools/agent_os_paths.py", "_tools/continuity_portability_restore/contracts.py", "_tools/continuity_portability_restore/backup_validation.py"],
+            "focused_shard": "_tools/continuity_portability_restore/test_receipt_validation.py"
+        },
+        {
+            "entrypoint": "_tools/continuity_portability_restore/backup_lifecycle.py",
+            "owner": "continuity-portability-restore-backup-lifecycle",
+            "role": "validated-backup-creation-and-byte-exact-reverse-order-rollback",
+            "depends_on": ["_tools/continuity_portability_restore/backup_validation.py"],
+            "focused_shard": "_tools/continuity_portability_restore/test_backup_lifecycle.py"
+        },
+        {
+            "entrypoint": "_tools/continuity_portability_restore/plan_validation.py",
+            "owner": "continuity-portability-restore-plan-validation",
+            "role": "restore-plan-admission-and-parity",
+            "depends_on": [
+                "_tools/continuity_portability_restore/contracts.py"
+            ],
+            "focused_shard": "_tools/continuity_portability_restore/test_plan_validation.py"
+        },
+        {
+            "entrypoint": "_tools/continuity_portability_restore/stage_plan.py",
+            "owner": "continuity-portability-restore-stage-plan",
+            "role": "bundle-staging-and-restore-plan-construction",
+            "depends_on": [
+                "_tools/agent_os_continuity_portability_foundation.py"
+            ],
+            "focused_shard": "_tools/continuity_portability_restore/test_stage_plan.py"
+        }
+  ]
+}

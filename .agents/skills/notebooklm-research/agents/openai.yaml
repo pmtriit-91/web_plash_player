@@ -1,0 +1,4 @@
+interface:
+  display_name: "NotebookLM Research"
+  short_description: "Research notebooks directly and explore Studio"
+  default_prompt: "Use $notebooklm-research to query the relevant NotebookLM sources directly, explore useful Studio views, and verify consequential claims."

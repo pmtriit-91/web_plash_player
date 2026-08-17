@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/skill-decision-receipt.schema.json",
+  "title": "Universal Agent OS Skill Decision Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "candidate_id", "capability_ids", "decided_at", "decision", "evidence", "rationale", "constraints", "supersedes", "content_sha256"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+    "candidate_id": { "type": ["string", "null"] },
+    "capability_ids": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "decided_at": { "type": "string", "format": "date-time" },
+    "decision": { "enum": ["native", "vendor-pin", "adapt-local-skill", "adapt-local-principles", "project-local", "research-only", "reject"] },
+    "evidence": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "rationale": { "type": "string", "minLength": 10 },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "supersedes": { "type": ["string", "null"] },
+    "content_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

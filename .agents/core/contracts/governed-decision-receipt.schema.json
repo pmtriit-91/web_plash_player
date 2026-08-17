@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/governed-decision-receipt.schema.json",
+  "title": "Universal Agent OS governed decision receipt",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "receipt_id", "project_id", "created_at", "request_sha256", "plan_sha256", "challenge_sha256", "authority_sha256", "ranked_options", "selected_option_id", "rejections", "disposition", "reason_codes", "stop_reason", "retry_budget", "confidence", "supersedes", "privacy", "content_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "receipt_id": {"type": "string", "pattern": "^decision-[0-9a-f]{24}$"},
+    "project_id": {"$ref": "#/$defs/id"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "request_sha256": {"$ref": "#/$defs/sha"},
+    "plan_sha256": {"$ref": "#/$defs/sha"},
+    "challenge_sha256": {"$ref": "#/$defs/sha"},
+    "authority_sha256": {"$ref": "#/$defs/sha"},
+    "ranked_options": {"type": "array", "minItems": 1, "maxItems": 16, "items": {"$ref": "#/$defs/ranking"}},
+    "selected_option_id": {"oneOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+    "rejections": {"type": "array", "maxItems": 15, "items": {"$ref": "#/$defs/rejection"}},
+    "disposition": {"enum": ["proceed", "escalate", "block"]},
+    "reason_codes": {"type": "array", "minItems": 1, "maxItems": 16, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,127}$"}},
+    "stop_reason": {"oneOf": [{"$ref": "#/$defs/text"}, {"type": "null"}]},
+    "retry_budget": {"type": "integer", "minimum": 0, "maximum": 8},
+    "confidence": {"enum": ["low", "medium", "high"]},
+    "supersedes": {"oneOf": [{"type": "string", "pattern": "^decision-[0-9a-f]{24}$"}, {"type": "null"}]},
+    "privacy": {"$ref": "#/$defs/privacy"},
+    "content_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "allOf": [
+    {"if": {"properties": {"disposition": {"const": "proceed"}}, "required": ["disposition"]}, "then": {"properties": {"selected_option_id": {"$ref": "#/$defs/id"}, "stop_reason": {"type": "null"}}}},
+    {"if": {"properties": {"disposition": {"enum": ["escalate", "block"]}}, "required": ["disposition"]}, "then": {"properties": {"selected_option_id": {"type": "null"}, "stop_reason": {"$ref": "#/$defs/text"}}}}
+  ],
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"},
+    "text": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "ranking": {"type": "object", "additionalProperties": false, "required": ["option_id", "rank", "score", "evidence_refs"], "properties": {"option_id": {"$ref": "#/$defs/id"}, "rank": {"type": "integer", "minimum": 1, "maximum": 16}, "score": {"type": "integer", "minimum": -1000, "maximum": 1000}, "evidence_refs": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}}},
+    "rejection": {"type": "object", "additionalProperties": false, "required": ["option_id", "reason_code", "rationale"], "properties": {"option_id": {"$ref": "#/$defs/id"}, "reason_code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,127}$"}, "rationale": {"$ref": "#/$defs/text"}}},
+    "privacy": {"type": "object", "additionalProperties": false, "required": ["raw_conversation_stored", "raw_prompt_stored", "chain_of_thought_stored", "secret_stored"], "properties": {"raw_conversation_stored": {"const": false}, "raw_prompt_stored": {"const": false}, "chain_of_thought_stored": {"const": false}, "secret_stored": {"const": false}}}
+  }
+}

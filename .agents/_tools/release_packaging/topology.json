@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "domain": "release-packaging",
+  "public_facade": "_tools/package-release.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/package-release.py",
+      "owner": "release-packaging",
+      "role": "manifest-owned-release-and-client-bridge-packager",
+      "depends_on": ["_tools/agent_os_clients.py", "_tools/agent_os_lifecycle.py", "_tools/agent_os_paths.py"],
+      "focused_shard": "_tools/release_packaging/test_release_package.py"
+    },
+    {
+      "entrypoint": "_tools/release_packaging/test_release_package.py",
+      "owner": "release-packaging-integration-proof",
+      "role": "integration-test-shard",
+      "depends_on": ["_tools/package-release.py", "_tools/agent_os_lifecycle.py"],
+      "focused_shard": "_tools/release_packaging/test_release_package.py"
+    },
+    {
+      "entrypoint": "_tools/release_packaging/test_cross_project_release.py",
+      "owner": "release-packaging-cross-project-integration-proof",
+      "role": "integration-test-shard",
+      "depends_on": ["_tools/package-release.py", "_tools/agent_os_lifecycle.py", "_tools/agent_os_context_memory.py"],
+      "focused_shard": "_tools/release_packaging/test_cross_project_release.py"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "execution": {
+    "upstream_code_allowed": false,
+    "archive_extraction_allowed": false,
+    "symlinks_must_resolve_within_snapshot": true,
+    "background_daemon": false
+  },
+  "provenance": {
+    "full_commit_required": true,
+    "dynamic_refs_allowed": false,
+    "file_hashes_required": true
+  },
+  "license": {
+    "vendor_allowlist": ["MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC"],
+    "unknown_disposition": "research-only"
+  },
+  "portfolio": {
+    "maximum_overlap_for_vendor": 0.45,
+    "one_primary_capability": true,
+    "prefer_adapting_existing_capability": true
+  },
+  "activation": {
+    "human_approval_required": true,
+    "auto_install": false,
+    "auto_commit": false,
+    "auto_push": false
+  }
+}

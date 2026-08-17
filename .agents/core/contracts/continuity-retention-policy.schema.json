@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/continuity-retention-policy.schema.json",
+  "title": "Universal Agent OS continuity retention policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy_id",
+    "policy_version",
+    "classes",
+    "holds",
+    "bounds",
+    "archive_original_required",
+    "explicit_confirmation_required",
+    "raw_conversation_allowed"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "policy_id": {"const": "universal-continuity-retention"},
+    "policy_version": {"const": 1},
+    "classes": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["retention_class", "allowed_candidate_modes", "live_prune_mode"],
+        "properties": {
+          "retention_class": {
+            "enum": ["critical-active", "critical-history", "evidence", "operational", "advisory"]
+          },
+          "allowed_candidate_modes": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"enum": ["explicit", "age", "count"]}
+          },
+          "live_prune_mode": {"enum": ["never", "after-verified-archive"]}
+        }
+      }
+    },
+    "holds": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "active-required-or-state-aware",
+          "dependency-target",
+          "handoff-or-completion-evidence",
+          "recovery-pinned"
+        ]
+      }
+    },
+    "bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_entries", "max_file_bytes", "max_total_bytes", "max_manifest_bytes"],
+      "properties": {
+        "max_entries": {"type": "integer", "minimum": 1, "maximum": 10000},
+        "max_file_bytes": {"type": "integer", "minimum": 1024, "maximum": 67108864},
+        "max_total_bytes": {"type": "integer", "minimum": 1048576, "maximum": 1073741824},
+        "max_manifest_bytes": {"type": "integer", "minimum": 4096, "maximum": 8388608}
+      }
+    },
+    "archive_original_required": {"const": true},
+    "explicit_confirmation_required": {"const": true},
+    "raw_conversation_allowed": {"const": false}
+  }
+}

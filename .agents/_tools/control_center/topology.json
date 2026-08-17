@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "domain": "control-center",
+  "public_facade": "_tools/agent_os_control_center.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/control_center/test_security_contracts.py",
+      "owner": "control-center-security-acceptance",
+      "role": "localhost-token-origin-csp-api-session-and-bind-acceptance",
+      "depends_on": [
+        "_tools/control_center/test_support.py",
+        "_tools/agent_os_control_center.py",
+        "_tools/agent_os_context_memory.py",
+        "_tools/agent_os_domain.py",
+        "_tools/agent_os_transactions.py"
+      ],
+      "focused_shard": "_tools/control_center/test_security_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/control_center/test_transaction_contracts.py",
+      "owner": "control-center-transaction-acceptance",
+      "role": "settings-plan-safety-stale-rollback-confirmation-and-integrity-acceptance",
+      "depends_on": [
+        "_tools/control_center/test_support.py",
+        "_tools/agent_os_transactions.py"
+      ],
+      "focused_shard": "_tools/control_center/test_transaction_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/control_center/test_support.py",
+      "owner": "control-center-acceptance-support",
+      "role": "shared-settings-and-git-fixture-primitives",
+      "depends_on": [],
+      "focused_shard": "_tools/control_center/test_transaction_contracts.py"
+    }
+  ]
+}

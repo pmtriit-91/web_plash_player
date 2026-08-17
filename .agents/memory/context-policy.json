@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "authority_order": [
+    "binding",
+    "git-evidence",
+    "user-confirmed",
+    "project-decision",
+    "research-only",
+    "historical"
+  ],
+  "tiers": {
+    "hot": {"load_policy": "boot", "allowed_kinds": ["identity", "current-state", "guardrail", "known-issue"]},
+    "warm": {"load_policy": "just-in-time", "allowed_kinds": ["decision", "architecture", "convention", "known-issue"]},
+    "cold": {"load_policy": "explicit-only", "allowed_kinds": ["research", "historical", "decision", "architecture"]}
+  },
+  "hard_safety": {
+    "actual_memory_is_application_owned": true,
+    "raw_conversation_allowed": false,
+    "chain_of_thought_allowed": false,
+    "notebooklm_max_tier": "cold",
+    "silent_delete_allowed": false,
+    "mutation_requires_approval": true,
+    "commit_or_push": false
+  },
+  "transaction": {
+    "plan_expiry_seconds": 900,
+    "bind_git_head": true,
+    "bind_target_hashes": true,
+    "atomic_write": true,
+    "rollback_on_failure": true
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "domain": "continuity-core",
+  "public_facade": "_tools/continuity_core/test_privacy_terminal_contracts.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/continuity_core/test_privacy_terminal_contracts.py",
+      "owner": "continuity-core-privacy-terminal-acceptance",
+      "role": "privacy-budget-provider-registry-terminal-failures-and-aggregate-runner",
+      "depends_on": [
+        "_tools/continuity_core/test_baseline_contracts.py",
+        "_tools/continuity_core/test_dependency_handoff_contracts.py",
+        "_tools/continuity_core/test_identity_path_contracts.py",
+        "_tools/continuity_core/test_payload_drift_contracts.py",
+        "_tools/continuity_core/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_core/test_privacy_terminal_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_core/test_baseline_contracts.py",
+      "owner": "continuity-core-baseline-acceptance",
+      "role": "baseline-schema-template-read-only-and-canonical-fixture-blob-parity-contracts",
+      "depends_on": ["_tools/agent_os_continuity.py", "_tools/continuity_core/test_support.py"],
+      "focused_shard": "_tools/continuity_core/test_baseline_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_core/test_identity_path_contracts.py",
+      "owner": "continuity-core-identity-path-acceptance",
+      "role": "identity-project-path-required-and-state-aware-contracts",
+      "depends_on": [
+        "_tools/continuity_core/test_baseline_contracts.py",
+        "_tools/continuity_core/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_core/test_identity_path_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_core/test_payload_drift_contracts.py",
+      "owner": "continuity-core-payload-drift-acceptance",
+      "role": "payload-source-revision-type-and-future-generation-contracts",
+      "depends_on": [
+        "_tools/continuity_core/test_baseline_contracts.py",
+        "_tools/continuity_core/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_core/test_payload_drift_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_core/test_dependency_handoff_contracts.py",
+      "owner": "continuity-core-dependency-handoff-acceptance",
+      "role": "dependency-supersession-handoff-and-completion-contracts",
+      "depends_on": [
+        "_tools/continuity_core/test_baseline_contracts.py",
+        "_tools/continuity_core/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_core/test_dependency_handoff_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_core/test_support.py",
+      "owner": "continuity-core-acceptance-support",
+      "role": "shared-disposable-repository-fixture-support",
+      "depends_on": ["_tools/agent_os_continuity.py", "_tools/agent_os_context_memory.py"],
+      "focused_shard": "_tools/continuity_core/test_privacy_terminal_contracts.py"
+    }
+  ]
+}

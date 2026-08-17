@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "domain": "documentation-governance",
+  "public_facade": "_tools/documentation_governance/test_documentation_governance.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/documentation_governance/test_documentation_governance.py",
+      "owner": "documentation-governance-acceptance",
+      "role": "portable-documentation-policy-and-research-routing-regression-proof",
+      "depends_on": [
+        "AGENTS.md",
+        "core/bootstrap.md",
+        "core/runtime-kernel.md",
+        "workflows/planner.md",
+        "workflows/reviewer.md",
+        "project-template/documentation-map.md",
+        "skills/notebooklm-research/SKILL.md",
+        "routing/capability-registry.json",
+        "routing/capability-descriptors.json",
+        "_tools/agent_os_resolver.py"
+      ],
+      "focused_shard": "_tools/documentation_governance/test_documentation_governance.py"
+    }
+  ]
+}

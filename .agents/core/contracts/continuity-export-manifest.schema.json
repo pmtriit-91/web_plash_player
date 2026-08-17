@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/continuity-export-manifest.schema.json",
+  "title": "Universal Agent OS deterministic continuity export manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_id",
+    "bundle_version",
+    "project_id",
+    "created_at",
+    "source_git_head",
+    "binding_sha256",
+    "adapter_fingerprint_sha256",
+    "core_manifest_sha256",
+    "record_type_registry",
+    "recovery_profile",
+    "retention_policy",
+    "catalog",
+    "entries",
+    "entry_count",
+    "total_bytes",
+    "inventory_sha256",
+    "raw_conversation_stored",
+    "prompt_stored",
+    "chain_of_thought_stored",
+    "secret_stored",
+    "source_deleted",
+    "commit_created",
+    "push_performed",
+    "content_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "bundle_id": {"type": "string", "pattern": "^continuity-export-[0-9a-f]{24}$"},
+    "bundle_version": {"const": 1},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "created_at": {"type": "string", "format": "date-time"},
+    "source_git_head": {"$ref": "#/$defs/gitCommit"},
+    "binding_sha256": {"$ref": "#/$defs/sha256"},
+    "adapter_fingerprint_sha256": {"$ref": "#/$defs/sha256"},
+    "core_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "record_type_registry": {"$ref": "#/$defs/registry"},
+    "recovery_profile": {"$ref": "#/$defs/profile"},
+    "retention_policy": {"$ref": "#/$defs/policy"},
+    "catalog": {"$ref": "#/$defs/catalog"},
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2048,
+      "items": {"$ref": "#/$defs/entry"}
+    },
+    "entry_count": {"type": "integer", "minimum": 1, "maximum": 2048},
+    "total_bytes": {"type": "integer", "minimum": 0, "maximum": 67108864},
+    "inventory_sha256": {"$ref": "#/$defs/sha256"},
+    "raw_conversation_stored": {"const": false},
+    "prompt_stored": {"const": false},
+    "chain_of_thought_stored": {"const": false},
+    "secret_stored": {"const": false},
+    "source_deleted": {"const": false},
+    "commit_created": {"const": false},
+    "push_performed": {"const": false},
+    "content_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "gitCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "registry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["registry_id", "registry_version", "registry_sha256"],
+      "properties": {
+        "registry_id": {"const": "universal-continuity-record-types"},
+        "registry_version": {"type": "integer", "minimum": 1},
+        "registry_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_id", "profile_version", "profile_sha256"],
+      "properties": {
+        "profile_id": {"const": "universal-project-continuity"},
+        "profile_version": {"type": "integer", "minimum": 1},
+        "profile_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_id", "policy_version", "policy_sha256"],
+      "properties": {
+        "policy_id": {"const": "universal-continuity-retention"},
+        "policy_version": {"const": 1},
+        "policy_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "catalog_revision", "catalog_sha256"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "catalog_revision": {"type": "integer", "minimum": 1},
+        "catalog_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entry_id",
+        "canonical_path",
+        "storage_path",
+        "canonical_owner",
+        "restore_mode",
+        "present",
+        "bytes",
+        "sha256",
+        "privacy_class",
+        "retention_class",
+        "reference_ids"
+      ],
+      "properties": {
+        "entry_id": {"type": "string", "pattern": "^continuity-entry-[0-9a-f]{24}$"},
+        "canonical_path": {"type": "string", "minLength": 1, "maxLength": 512},
+        "storage_path": {
+          "type": ["string", "null"],
+          "pattern": "^files/continuity-entry-[0-9a-f]{24}\\.bin$"
+        },
+        "canonical_owner": {"enum": ["core", "application"]},
+        "restore_mode": {"enum": ["verify-only", "replace"]},
+        "present": {"type": "boolean"},
+        "bytes": {"type": "integer", "minimum": 0, "maximum": 8388608},
+        "sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        },
+        "privacy_class": {"enum": ["public-metadata", "project-internal"]},
+        "retention_class": {"enum": ["critical-active", "critical-history", "operational", "evidence", "advisory"]},
+        "reference_ids": {
+          "type": "array",
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 128}
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"present": {"const": true}},
+            "required": ["present"]
+          },
+          "then": {
+            "properties": {
+              "storage_path": {"type": "string", "pattern": "^files/continuity-entry-[0-9a-f]{24}\\.bin$"},
+              "sha256": {"$ref": "#/$defs/sha256"}
+            }
+          },
+          "else": {
+            "properties": {
+              "storage_path": {"type": "null"},
+              "sha256": {"type": "null"},
+              "bytes": {"const": 0}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

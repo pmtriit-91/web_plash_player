@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/activation-receipt.schema.json",
+  "title": "Universal Agent OS Capability Activation Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "receipt_id", "capability_id", "capability_version", "router_version", "task_hash", "task_hash_algorithm", "selected_at", "confidence", "evidence_hashes", "evidence_hash_algorithm", "outcome", "raw_prompt_stored", "raw_evidence_stored", "content_sha256"],
+  "properties": {
+    "schema_version": { "const": 2 },
+    "receipt_id": { "type": "string", "pattern": "^[a-f0-9]{24}$" },
+    "capability_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+    "capability_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "router_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "task_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "task_hash_algorithm": { "const": "hmac-sha256-v2" },
+    "selected_at": { "type": "string", "format": "date-time" },
+    "confidence": { "enum": ["low", "medium", "high"] },
+    "evidence_hashes": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    },
+    "evidence_hash_algorithm": { "const": "hmac-sha256-v2" },
+    "outcome": { "enum": ["selected", "declined", "completed", "failed"] },
+    "raw_prompt_stored": { "const": false },
+    "raw_evidence_stored": { "const": false },
+    "content_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

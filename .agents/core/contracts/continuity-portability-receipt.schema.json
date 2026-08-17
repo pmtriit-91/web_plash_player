@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/continuity-portability-receipt.schema.json",
+  "title": "Universal Agent OS continuity archive or export receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "plan_id",
+    "operation",
+    "status",
+    "project_id",
+    "base_commit",
+    "applied_at",
+    "artifact_id",
+    "artifact_path",
+    "artifact_state",
+    "artifact_manifest",
+    "manifest_sha256",
+    "inventory_sha256",
+    "binding_sha256",
+    "adapter_fingerprint_sha256",
+    "retention_policy_sha256",
+    "source_deleted",
+    "owner_confirmation_performed",
+    "raw_conversation_stored",
+    "prompt_stored",
+    "chain_of_thought_stored",
+    "secret_stored",
+    "commit_created",
+    "push_performed",
+    "content_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "receipt_id": {"type": "string", "pattern": "^continuity-portability-[0-9a-f]{24}$"},
+    "plan_id": {"type": "string", "pattern": "^[0-9a-f]{24}$"},
+    "operation": {"enum": ["archive", "export"]},
+    "status": {"const": "applied"},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "base_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "applied_at": {"type": "string", "format": "date-time"},
+    "artifact_id": {"type": "string", "pattern": "^continuity-(?:archive|export)-[0-9a-f]{24}$"},
+    "artifact_path": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "artifact_state": {"enum": ["durable-verified", "external-unverified"]},
+    "artifact_manifest": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "continuity-export-manifest.schema.json"}
+      ]
+    },
+    "manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "inventory_sha256": {"$ref": "#/$defs/sha256"},
+    "binding_sha256": {"$ref": "#/$defs/sha256"},
+    "adapter_fingerprint_sha256": {"$ref": "#/$defs/sha256"},
+    "retention_policy_sha256": {"$ref": "#/$defs/sha256"},
+    "source_deleted": {"const": false},
+    "owner_confirmation_performed": {"const": false},
+    "raw_conversation_stored": {"const": false},
+    "prompt_stored": {"const": false},
+    "chain_of_thought_stored": {"const": false},
+    "secret_stored": {"const": false},
+    "commit_created": {"const": false},
+    "push_performed": {"const": false},
+    "content_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"operation": {"const": "archive"}},
+        "required": ["operation"]
+      },
+      "then": {
+        "properties": {
+          "artifact_id": {"type": "string", "pattern": "^continuity-archive-[0-9a-f]{24}$"},
+          "artifact_path": {"type": "string", "pattern": "^\\.agents/project/context/continuity-archives/continuity-archive-[0-9a-f]{24}$"},
+          "artifact_state": {"const": "durable-verified"},
+          "artifact_manifest": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"operation": {"const": "export"}},
+        "required": ["operation"]
+      },
+      "then": {
+        "properties": {
+          "artifact_id": {"type": "string", "pattern": "^continuity-export-[0-9a-f]{24}$"},
+          "artifact_path": {"type": "string", "pattern": "^external-directory/continuity-export-[0-9a-f]{24}$"},
+          "artifact_state": {"const": "external-unverified"},
+          "artifact_manifest": {"$ref": "continuity-export-manifest.schema.json"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

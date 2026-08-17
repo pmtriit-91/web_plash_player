@@ -1,0 +1,5 @@
+# Keep release text deterministic across Git clients and operating systems.
+** text=auto eol=lf
+
+# Governed vendor payloads are immutable byte snapshots.
+vendor/** -text

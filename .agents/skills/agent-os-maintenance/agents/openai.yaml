@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent OS Maintenance"
+  short_description: "Audit and safely evolve Universal Agent OS"
+  default_prompt: "Use $agent-os-maintenance to audit or update this repository-local Agent OS safely."

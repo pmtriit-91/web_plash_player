@@ -1,0 +1,143 @@
+{
+  "version": "9.1.0",
+  "principle": "Resolve one primary capability. Vendor skills are task-scoped references and never boot authorities.",
+  "source_of_truth": "core/runtime-kernel.md",
+  "global_rules": {
+    "load_one_primary_skill_first": true,
+    "do_not_scan_all_vendor_skills": true,
+    "project_memory_requires_bound": true,
+    "vendor_meta_routers_enabled": false,
+    "external_tools_require_user_intent_or_verification_need": true
+  },
+  "host_skill_precedence": {
+    "default_rule": "registered-repository-capability-wins",
+    "external_role_on_overlap": "reference-only",
+    "rules": [
+      {
+        "capability_id": "notebooklm_research",
+        "local_skill": "skills/notebooklm-research/SKILL.md",
+        "external_skill_ids": ["nlm-skill"],
+        "on_conflict": "repository-local-wins",
+        "protected_policies": [
+          "mcp-first",
+          "mutation-approval",
+          "export-by-exception",
+          "research-only-authority"
+        ]
+      }
+    ]
+  },
+  "modes": {
+    "FAST": { "max_files": 6, "vendor_skills": "off_by_default" },
+    "STANDARD": { "max_files": 16, "vendor_skills": "task_scoped" },
+    "DEEP": { "max_files": 50, "vendor_skills": "task_scoped" }
+  },
+  "capabilities": {
+    "fast_ui_fix": {
+      "mode": "FAST",
+      "triggers": ["typo", "minor CSS", "small spacing", "simple import"],
+      "load": ["reviewers/review-lite.md"],
+      "checks": ["nearest dependency", "syntax", "focused validation"]
+    },
+    "standard_feature": {
+      "mode": "STANDARD",
+      "triggers": ["feature", "component", "API integration", "local refactor"],
+      "load": ["reviewers/review-lite.md", "safety/anti-refactor.md"],
+      "checks": ["direct dependencies", "contracts", "focused tests"]
+    },
+    "architecture_refactor": {
+      "mode": "DEEP",
+      "triggers": ["architecture", "system design", "large refactor", "migration", "multi-module", "governed reasoning", "governed decision", "permission/risk policy", "adversarial challenge", "reasoning receipt"],
+      "load": ["skills/thinking/constitution-first/SKILL.md", "skills/thinking/architecture-challenge-framework/SKILL.md"],
+      "checks": ["ownership", "compatibility", "rollback", "integration validation", "confirmed Genesis and current binding", "matching intent, approval and transaction gates", "critic correlation disclosure and counterexample", "explicit confirmation for persistence or recovery"]
+    },
+    "agent_os_maintenance": {
+      "mode": "DEEP",
+      "triggers": ["Agent OS", ".agents", "project binding", "vendor skill", "skill provenance", "OS update"],
+      "load": ["skills/agent-os-maintenance/SKILL.md"],
+      "checks": ["doctor", "ownership boundary", "vendor lock", "manifest", "Git diff"]
+    },
+    "notebooklm_research": {
+      "mode": "DEEP",
+      "triggers": ["NotebookLM", "nlm MCP", "notebook research", "cross-source synthesis", "curated research corpus", "conflicting research sources", "historical architecture reconstruction", "multi-source evidence synthesis", "Studio exploration", "Studio artifact", "mind map", "data table", "Audio Overview", "Video Overview", "NotebookLM report"],
+      "load": ["skills/notebooklm-research/SKILL.md"],
+      "checks": ["proactive activation value exceeds overhead", "skip single local facts and fresh prior research", "repository-local host-skill precedence", "live MCP schema and server_info", "existing notebook first", "smallest relevant source scope", "conversation follow-up discipline", "Studio interaction fallback", "external-state intent", "no bulk-export default", "bounded status polling", "stop when decision input is sufficient", "redacted behavioral trace", "local evidence reconciliation"]
+    },
+    "security_review": {
+      "mode": "DEEP",
+      "triggers": ["security", "authentication", "authorization", "secret", "vulnerability"],
+      "load": ["safety/advanced-security-scan.md"],
+      "checks": ["trust boundaries", "secrets", "permissions", "dependency risk"]
+    },
+    "quality_gates": {
+      "mode": "STANDARD",
+      "triggers": ["build", "lint", "typecheck", "test", "verify"],
+      "load": ["core/quality-gates.md"],
+      "checks": ["project-evidenced commands only"]
+    }
+  },
+  "groups": {
+    "architecture": ["architecture_refactor", "agent_os_maintenance"],
+    "research": ["notebooklm_research"],
+    "engineering": [
+      "api-and-interface-design",
+      "code-review-and-quality",
+      "code-simplification",
+      "debugging-and-error-recovery",
+      "documentation-and-adrs",
+      "security-and-hardening",
+      "source-driven-development",
+      "test-driven-development"
+    ]
+  },
+  "vendor_skills": {
+    "api-and-interface-design": {
+      "path": "vendor/addy-agent-skills/skills/api-and-interface-design",
+      "group": "engineering",
+      "role": "primary",
+      "high_triggers": ["API design", "interface contract", "module boundary", "endpoint design"]
+    },
+    "code-review-and-quality": {
+      "path": "vendor/addy-agent-skills/skills/code-review-and-quality",
+      "group": "engineering",
+      "role": "primary",
+      "high_triggers": ["code review", "review changes", "review PR", "quality review"]
+    },
+    "code-simplification": {
+      "path": "vendor/addy-agent-skills/skills/code-simplification",
+      "group": "engineering",
+      "role": "primary",
+      "high_triggers": ["simplify code", "reduce complexity", "refactor for clarity"]
+    },
+    "debugging-and-error-recovery": {
+      "path": "vendor/addy-agent-skills/skills/debugging-and-error-recovery",
+      "group": "engineering",
+      "role": "primary",
+      "high_triggers": ["debug", "runtime error", "test failure", "regression", "root cause"]
+    },
+    "documentation-and-adrs": {
+      "path": "vendor/addy-agent-skills/skills/documentation-and-adrs",
+      "group": "engineering",
+      "role": "primary",
+      "high_triggers": ["ADR", "architecture decision", "document decision", "API documentation"]
+    },
+    "security-and-hardening": {
+      "path": "vendor/addy-agent-skills/skills/security-and-hardening",
+      "group": "engineering",
+      "role": "primary",
+      "high_triggers": ["security hardening", "auth security", "untrusted input", "vulnerability"]
+    },
+    "source-driven-development": {
+      "path": "vendor/addy-agent-skills/skills/source-driven-development",
+      "group": "engineering",
+      "role": "primary",
+      "high_triggers": ["official documentation", "current API", "source-cited implementation", "verify library usage"]
+    },
+    "test-driven-development": {
+      "path": "vendor/addy-agent-skills/skills/test-driven-development",
+      "group": "engineering",
+      "role": "primary",
+      "high_triggers": ["TDD", "test driven", "regression test", "write failing test"]
+    }
+  }
+}

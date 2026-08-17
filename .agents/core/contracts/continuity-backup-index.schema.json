@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/continuity-backup-index.schema.json",
+  "title": "Universal Agent OS continuity backup index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "backup_id",
+    "project_id",
+    "operation",
+    "created_at",
+    "git_head",
+    "binding_sha256",
+    "files",
+    "raw_conversation_stored",
+    "content_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "backup_id": {"type": "string", "pattern": "^continuity-backup-[0-9a-f]{24}$"},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "operation": {
+      "enum": ["initialize", "refresh", "migrate", "repair", "rollback"]
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "git_head": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "binding_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "files": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "present", "sha256", "bytes", "storage_path"],
+        "properties": {
+          "path": {
+            "enum": [
+              "project/context/continuity.json",
+              "project/context/continuity-projection.json"
+            ]
+          },
+          "present": {"type": "boolean"},
+          "sha256": {
+            "oneOf": [
+              {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              {"type": "null"}
+            ]
+          },
+          "bytes": {"type": "integer", "minimum": 0, "maximum": 1048576},
+          "storage_path": {
+            "oneOf": [
+              {"type": "string", "minLength": 1, "maxLength": 512},
+              {"type": "null"}
+            ]
+          }
+        }
+      }
+    },
+    "raw_conversation_stored": {"const": false},
+    "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

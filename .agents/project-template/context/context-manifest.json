@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "project_id": "unbound-consumer",
+  "repository": {"remote_aliases": ["replace-with-project-remote"]},
+  "authority_order": ["binding", "git-evidence", "user-confirmed", "project-decision", "research-only", "historical"],
+  "sources": [
+    {"id": "hot-context", "tier": "hot", "path": "project/context/hot.json", "owner": "application", "format": "context-store-json", "load_policy": "boot", "authority": "git-evidence", "content_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "canonical_keys": ["identity", "current-state", "guardrails"]},
+    {"id": "warm-context", "tier": "warm", "path": "project/context/warm.json", "owner": "application", "format": "context-store-json", "load_policy": "just-in-time", "authority": "project-decision", "content_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "canonical_keys": ["decisions", "architecture", "conventions", "known-issues"]},
+    {"id": "cold-context", "tier": "cold", "path": "project/context/cold.json", "owner": "application", "format": "context-store-json", "load_policy": "explicit-only", "authority": "research-only", "content_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "canonical_keys": ["research", "history"]}
+  ],
+  "active_task_ledger": "project/context/active-tasks.json",
+  "active_task_ledger_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "handoff_directory": "project/context/handoffs",
+  "projection": "skills/project-memory/SKILL.md",
+  "budgets": {"hot_max_bytes": 32768, "warm_max_bytes": 131072, "cold_max_records": 5000, "projection_max_bytes": 16384},
+  "refreshed_at": "1970-01-01T00:00:00Z",
+  "refreshed_commit": null
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "suite_id": "aos16-governed-reasoning-adversarial",
+  "authority": "test-fixture-only",
+  "cases": [
+    {"id": "deterministic-repeat", "mutation": "none", "expected": "PLAN_NORMALIZED"},
+    {"id": "missing-goal", "mutation": "delete-request-goal", "expected": "GOVERNED_ARTIFACT_INVALID"},
+    {"id": "missing-evidence", "mutation": "clear-request-evidence", "expected": "GOVERNED_ARTIFACT_INVALID"},
+    {"id": "missing-budget", "mutation": "delete-policy-limits", "expected": "GOVERNED_ARTIFACT_INVALID"},
+    {"id": "forward-dependency", "mutation": "forward-step-dependency", "expected": "PLAN_DEPENDENCY_INVALID"},
+    {"id": "unknown-evidence", "mutation": "unknown-step-evidence", "expected": "PLAN_EVIDENCE_REF_INVALID"},
+    {"id": "missing-alternative", "mutation": "clear-alternatives", "expected": "PLAN_ALTERNATIVES_INCOMPLETE"},
+    {"id": "stale-intent", "mutation": "stale-intent", "expected": "INTENT_AUTHORITY_MISMATCH"}
+  ],
+  "integration_envelope": {
+    "authority": "test-fixture-only",
+    "execution": "local-only",
+    "automatic_retries": 0,
+    "cases": [
+      {"id": "mission-drift-blocker", "dimension": "mission", "expected": "block"},
+      {"id": "correlated-critic-clear", "dimension": "critic-correlation", "expected": "reject"},
+      {"id": "circular-success-score", "dimension": "completion", "expected": "escalate"},
+      {"id": "constitution-conflict", "dimension": "authority", "expected": "block"},
+      {"id": "stale-intent", "dimension": "authority", "expected": "block"},
+      {"id": "irreversible-without-approval", "dimension": "authority", "expected": "block"},
+      {"id": "invalid-transaction-gate", "dimension": "authority", "expected": "block"},
+      {"id": "matching-authority-proceed", "dimension": "authority", "expected": "proceed"},
+      {"id": "raw-private-payload", "dimension": "privacy", "expected": "reject"},
+      {"id": "privacy-attestation", "dimension": "privacy", "expected": "reject"},
+      {"id": "false-negative-escalation", "dimension": "policy-metric", "expected": "measured-separately"},
+      {"id": "excessive-escalation", "dimension": "policy-metric", "expected": "measured-separately"}
+    ]
+  }
+}

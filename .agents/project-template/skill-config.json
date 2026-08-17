@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "agent_os_version": "9.1.0",
+  "purpose": "Legacy-compatible project preference template; not a binding authority.",
+  "default_mode": "FAST",
+  "creative_default": "lite",
+  "reviewer_default": "lite",
+  "vendor_skills": {
+    "auto_load": false,
+    "task_scoped_only": true,
+    "require_vendor_lock": true,
+    "registry": "routing/capability-registry.json"
+  },
+  "runtime": {
+    "doctor": "_tools/agent_os_lifecycle.py doctor",
+    "preflight": "_tools/preflight.py",
+    "hard_interception_requires_client_adapter": true
+  },
+  "memory": {
+    "project_memory_requires_bound_adapter": true,
+    "context_memory_requires_fresh_diagnosis": true,
+    "source_evidence_over_memory": true,
+    "raw_conversation_allowed": false,
+    "notebooklm_max_tier": "cold",
+    "compaction": "summarize-then-archive"
+  },
+  "tools": {
+    "capabilities_are_not_permission": true,
+    "browser_auto_launch": false,
+    "mcp_auto_invocation": false,
+    "prefer_low_cost_evidence": true
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "domain": "context-memory",
+  "entries": [
+    {
+      "entrypoint": "_tools/agent_os_context_memory.py",
+      "owner": "context-memory",
+      "role": "public-facade-and-transaction-engine",
+      "depends_on": ["_tools/context_memory/task_ledger.py"],
+      "orchestration_depends_on": ["_tools/context_memory/health.py", "_tools/context_memory/evidence.py", "_tools/context_memory/handoff_validation.py"],
+      "focused_shard": "_tools/context_memory/test_task_ledger.py",
+      "transition_shard": "_tools/context_memory/test_task_ledger_v2_transition.py",
+      "migration_shard": "_tools/context_memory/test_task_ledger_v2_migration.py",
+      "clean_clone_shard": "_tools/context_memory/test_task_ledger_v2_clean_clone.py"
+    },
+    {
+      "entrypoint": "_tools/context_memory/deep_receipt.py",
+      "owner": "context-memory-deep-receipt",
+      "role": "bounded-deep-verdict-receipt-contract",
+      "depends_on": [], "focused_shard": "_tools/context_memory/test_deep_receipt.py"
+    },
+    {
+      "entrypoint": "_tools/context_memory/evidence.py",
+      "owner": "context-memory-evidence",
+      "role": "git-evidence-and-repository-reference-helpers",
+      "depends_on": ["_tools/context_memory/git_batch.py"],
+      "focused_shard": "_tools/context_memory/test_evidence_extraction.py",
+      "deep_batch_shard": "_tools/context_memory/test_deep_batch.py",
+      "migration_shard": "_tools/context_memory/test_task_ledger_v2_migration.py",
+      "clean_clone_shard": "_tools/context_memory/test_task_ledger_v2_clean_clone.py"
+    },
+    {
+      "entrypoint": "_tools/context_memory/git_batch.py",
+      "owner": "context-memory-git-batch",
+      "role": "bounded-cat-file-batch-session",
+      "depends_on": [],
+      "focused_shard": "_tools/context_memory/test_evidence_batch.py"
+    },
+    {
+      "entrypoint": "_tools/context_memory/health.py",
+      "owner": "context-memory-health",
+      "role": "doctor-and-load-orchestration",
+      "depends_on": [],
+      "focused_shard": "_tools/context_memory/test_health_extraction.py",
+      "bounded_load_shard": "_tools/context_memory/test_bounded_load.py",
+      "migration_shard": "_tools/context_memory/test_task_ledger_v2_migration.py",
+      "clean_clone_shard": "_tools/context_memory/test_task_ledger_v2_clean_clone.py"
+    },
+    {
+      "entrypoint": "_tools/context_memory/handoff_validation.py",
+      "owner": "context-memory-handoff-validation",
+      "role": "handoff-receipt-traversal-and-durability-validation",
+      "depends_on": ["_tools/context_memory/evidence.py"],
+      "focused_shard": "_tools/context_memory/test_handoff_validation.py",
+      "deep_batch_shard": "_tools/context_memory/test_deep_batch.py"
+    },
+    {
+      "entrypoint": "_tools/context_memory/task_ledger.py",
+      "owner": "task-ledger",
+      "role": "v1-validation-and-plan-builder",
+      "depends_on": ["_tools/agent_os_paths.py"],
+      "focused_shard": "_tools/context_memory/test_task_ledger.py",
+      "claim_edge_shard": "_tools/context_memory/test_task_claim_edge_freshness.py",
+      "contract_shard": "_tools/context_memory/test_task_ledger_v2_contract.py",
+      "transition_shard": "_tools/context_memory/test_task_ledger_v2_transition.py",
+      "migration_shard": "_tools/context_memory/test_task_ledger_v2_migration.py",
+      "clean_clone_shard": "_tools/context_memory/test_task_ledger_v2_clean_clone.py"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architecture Challenge"
+  short_description: "Stress-test architecture before implementation"
+  default_prompt: "Use $architecture-challenge-framework to adversarially review this design before implementation."

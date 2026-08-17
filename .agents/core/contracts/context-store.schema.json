@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/context-store.schema.json",
+  "title": "Universal Agent OS context tier store",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "tier", "records"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "tier": {"enum": ["hot", "warm", "cold"]},
+    "records": {
+      "type": "array",
+      "items": {"$ref": "context-record.schema.json"}
+    }
+  }
+}

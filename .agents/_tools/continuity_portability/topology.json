@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "domain": "continuity-portability",
+  "public_facade": "_tools/test-continuity-portability.py",
+  "public_facades": [
+    "_tools/test-continuity-portability.py",
+    "_tools/test-continuity-portability-w6.py"
+  ],
+  "entries": [
+    {
+      "entrypoint": "_tools/test-continuity-portability.py",
+      "owner": "continuity-portability-w5",
+      "role": "stable-root-aggregate",
+      "depends_on": [
+        "_tools/continuity_portability/test_retention_policy_bounds.py",
+        "_tools/continuity_portability/test_retention_archive.py",
+        "_tools/continuity_portability/test_path_security.py",
+        "_tools/continuity_portability/test_cli_integration.py",
+        "_tools/continuity_portability/test_export_bundle_contract.py",
+        "_tools/continuity_portability/test_export_bundle_adversarial_guards.py",
+        "_tools/continuity_portability/test_export_source_and_plan_guards.py",
+        "_tools/continuity_portability/test_export_cleanup_and_privacy.py",
+        "_tools/continuity_portability/test_restore_admission_and_backup_guards.py",
+        "_tools/continuity_portability/test_restore_receipt_and_drift.py",
+        "_tools/continuity_portability/test_restore_rollback_and_diff_bounds.py",
+        "_tools/continuity_portability/test_support.py",
+        "_tools/continuity_portability/test_supervisor.py",
+        "_tools/eval_diagnostics/compact_summary.py"
+      ],
+      "focused_shard": "_tools/test-continuity-portability.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_compact_summary_integration.py",
+      "owner": "continuity-portability-compact-summary-acceptance",
+      "role": "success-failure-timeout-exit-preservation-contract",
+      "depends_on": [
+        "_tools/test-continuity-portability.py",
+        "_tools/eval_diagnostics/compact_summary.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_compact_summary_integration.py"
+    },
+    {
+      "entrypoint": "_tools/test-continuity-portability-w6.py",
+      "owner": "continuity-portability-w6",
+      "role": "stable-root-aggregate",
+      "depends_on": [
+        "_tools/continuity_portability/test_windows_path.py",
+        "_tools/continuity_portability/test_dependency_order.py",
+        "_tools/continuity_portability/test_stale_lock.py",
+        "_tools/continuity_portability/test_multi_generation.py",
+        "_tools/continuity_portability/test_partial_loss.py",
+        "_tools/continuity_portability/test_clean_clone.py",
+        "_tools/continuity_portability/test_supervisor.py"
+      ],
+      "focused_shard": "_tools/test-continuity-portability-w6.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_support.py",
+      "owner": "continuity-portability-shared-support",
+      "role": "shared-fixture-support",
+      "depends_on": [
+        "_tools/continuity_transactions/test_support.py"
+      ],
+      "focused_shard": "_tools/test-continuity-portability.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_supervisor.py",
+      "owner": "continuity-portability-shared-supervisor",
+      "role": "bounded-process-supervisor",
+      "depends_on": [],
+      "focused_shard": "_tools/test-continuity-portability-w6.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/pyrightconfig.json",
+      "owner": "continuity-portability-static-analysis",
+      "role": "pyright-configuration",
+      "depends_on": [],
+      "focused_shard": "_tools/continuity_portability/pyrightconfig.json"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_cli_integration.py",
+      "owner": "continuity-portability-w5-cli-integration",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_cli_integration.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_path_security.py",
+      "owner": "continuity-portability-w5-path-security",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_path_security.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_retention_policy_bounds.py",
+      "owner": "continuity-portability-w5-retention-policy-bounds",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_retention_policy_bounds.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_retention_archive.py",
+      "owner": "continuity-portability-w5-retention-archive",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_retention_archive.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_export_bundle_contract.py",
+      "owner": "continuity-portability-w5-export-bundle-contract",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_export_bundle_contract.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_export_bundle_adversarial_guards.py",
+      "owner": "continuity-portability-w5-export-bundle-adversarial-guards",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_export_bundle_adversarial_guards.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_export_source_and_plan_guards.py",
+      "owner": "continuity-portability-w5-export-source-and-plan-guards",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_export_source_and_plan_guards.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_export_cleanup_and_privacy.py",
+      "owner": "continuity-portability-w5-export-cleanup-and-privacy",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_export_cleanup_and_privacy.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_restore_admission_and_backup_guards.py",
+      "owner": "continuity-portability-w5-restore-admission-and-backup-guards",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_restore_admission_and_backup_guards.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_restore_receipt_and_drift.py",
+      "owner": "continuity-portability-w5-restore-receipt-and-drift",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_restore_receipt_and_drift.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_restore_rollback_and_diff_bounds.py",
+      "owner": "continuity-portability-w5-restore-rollback-and-diff-bounds",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_restore_rollback_and_diff_bounds.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability_restore/test_stage_plan.py",
+      "owner": "continuity-portability-restore-stage-plan-proof",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability_restore/topology.json"
+      ],
+      "focused_shard": "_tools/continuity_portability_restore/test_stage_plan.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability_restore/test_target_analysis.py",
+      "owner": "continuity-portability-restore-target-analysis-proof",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability_restore/topology.json"
+      ],
+      "focused_shard": "_tools/continuity_portability_restore/test_target_analysis.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_windows_path.py",
+      "owner": "continuity-portability-w6-windows-path",
+      "role": "executable-driver",
+      "depends_on": [
+        "_tools/continuity_portability/test_windows_path_export.py",
+        "_tools/continuity_portability/test_windows_path_archive.py",
+        "_tools/continuity_portability/test_windows_path_restore.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_windows_path.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_windows_path_export.py",
+      "owner": "continuity-portability-w6-windows-path-export",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_windows_path_export.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_windows_path_archive.py",
+      "owner": "continuity-portability-w6-windows-path-archive",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_windows_path_archive.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_windows_path_restore.py",
+      "owner": "continuity-portability-w6-windows-path-restore",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_windows_path_restore.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_dependency_order.py",
+      "owner": "continuity-portability-w6-dependency-order",
+      "role": "executable-driver",
+      "depends_on": [
+        "_tools/continuity_portability/test_dependency_order_primitive.py",
+        "_tools/continuity_portability/test_dependency_plan.py",
+        "_tools/continuity_portability/test_dependency_apply.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_dependency_order.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_dependency_order_primitive.py",
+      "owner": "continuity-portability-w6-dependency-order-primitive",
+      "role": "focused-test-shard",
+      "depends_on": [],
+      "focused_shard": "_tools/continuity_portability/test_dependency_order_primitive.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_dependency_plan.py",
+      "owner": "continuity-portability-w6-dependency-plan",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_dependency_plan.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_dependency_apply.py",
+      "owner": "continuity-portability-w6-dependency-apply",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_dependency_apply.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_stale_lock.py",
+      "owner": "continuity-portability-w6-stale-lock",
+      "role": "executable-driver",
+      "depends_on": [
+        "_tools/continuity_portability/test_stale_lock_primitive.py",
+        "_tools/continuity_portability/test_stale_lock_coordination.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_stale_lock.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_stale_lock_primitive.py",
+      "owner": "continuity-portability-w6-stale-lock-primitive",
+      "role": "kernel-before-metadata-lock-ordering-contract",
+      "depends_on": [],
+      "focused_shard": "_tools/continuity_portability/test_stale_lock_primitive.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_stale_lock_coordination.py",
+      "owner": "continuity-portability-w6-stale-lock-coordination",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_stale_lock_coordination.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_generation_contract.py",
+      "owner": "continuity-portability-w6-generation-contract",
+      "role": "focused-test-shard",
+      "depends_on": [],
+      "focused_shard": "_tools/continuity_portability/test_generation_contract.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_export_generation_extension.py",
+      "owner": "continuity-portability-w6-export-generation-extension",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_export_generation_extension.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_migration_chain.py",
+      "owner": "continuity-portability-w6-migration-chain",
+      "role": "focused-test-shard",
+      "depends_on": [],
+      "focused_shard": "_tools/continuity_portability/test_migration_chain.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_multi_generation.py",
+      "owner": "continuity-portability-w6-multi-generation",
+      "role": "executable-registry-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_migration_chain.py",
+        "_tools/continuity_transactions/test_migration_failure_contracts.py",
+        "_tools/continuity_portability/test_export_generation_extension.py",
+        "_tools/continuity_portability_restore/test_generation_path_extension.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_multi_generation.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_partial_loss.py",
+      "owner": "continuity-portability-w6-partial-loss",
+      "role": "executable-registry-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_partial_loss_recovery.py",
+        "_tools/continuity_core/test_identity_path_contracts.py",
+        "_tools/continuity_transactions/test_repair_tamper_contracts.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_partial_loss.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_partial_loss_recovery.py",
+      "owner": "continuity-portability-w6-partial-loss-recovery-proof",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/agent_os_continuity.py",
+        "_tools/agent_os_continuity_transactions.py",
+        "_tools/continuity_transactions/test_support.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_partial_loss_recovery.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_clean_clone.py",
+      "owner": "continuity-portability-w6-clean-clone",
+      "role": "executable-registry-shard",
+      "depends_on": [
+        "_tools/continuity_portability/test_clean_clone_recovery.py",
+        "_tools/context_memory/test_task_ledger_v2_clean_clone.py",
+        "_tools/lifecycle/test_health.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_clean_clone.py"
+    },
+    {
+      "entrypoint": "_tools/continuity_portability/test_clean_clone_recovery.py",
+      "owner": "continuity-portability-w6-clean-clone-recovery-proof",
+      "role": "focused-test-shard",
+      "depends_on": [
+        "_tools/agent_os_continuity_transactions.py",
+        "_tools/agent_os_context_memory.py"
+      ],
+      "focused_shard": "_tools/continuity_portability/test_clean_clone_recovery.py"
+    }
+  ]
+}

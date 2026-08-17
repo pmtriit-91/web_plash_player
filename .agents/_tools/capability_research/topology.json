@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "domain": "capability-research",
+  "public_facade": "_tools/agent_os_research.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/agent_os_research.py",
+      "owner": "capability-research",
+      "role": "static-zero-execution-candidate-research-and-admission-analysis",
+      "depends_on": [
+        "_tools/agent_os_capabilities.py",
+        "research/connectors.json",
+        "research/candidate-registry.json",
+        "research/decision-history.json",
+        "research/research-policy.json"
+      ],
+      "focused_shard": "_tools/capability_research/test_candidate_corpus.py"
+    },
+    {
+      "entrypoint": "_tools/capability_research/test_support.py",
+      "owner": "capability-research-test-support",
+      "role": "disposable-candidate-fixtures-and-corpus-boundary",
+      "depends_on": ["evals/research-adversarial-corpus.json"],
+      "focused_shard": "_tools/capability_research/test_candidate_corpus.py"
+    },
+    {
+      "entrypoint": "_tools/capability_research/test_candidate_corpus.py",
+      "owner": "capability-research-candidate-corpus-acceptance",
+      "role": "first-ten-static-candidate-corpus-contracts",
+      "depends_on": [
+        "_tools/agent_os_research.py",
+        "_tools/capability_research/test_support.py",
+        "evals/research-adversarial-corpus.json"
+      ],
+      "focused_shard": "_tools/capability_research/test_candidate_corpus.py"
+    },
+    {
+      "entrypoint": "_tools/capability_research/test_remaining_contracts.py",
+      "owner": "capability-research-remaining-acceptance",
+      "role": "remaining-candidate-connector-transition-and-receipt-contracts",
+      "depends_on": [
+        "_tools/agent_os_research.py",
+        "_tools/capability_research/test_support.py",
+        "evals/research-adversarial-corpus.json"
+      ],
+      "focused_shard": "_tools/capability_research/test_remaining_contracts.py"
+    }
+  ]
+}

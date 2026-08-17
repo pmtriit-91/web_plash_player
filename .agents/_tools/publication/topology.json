@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "domain": "publication",
+  "public_facade": "_tools/agent_os_publication.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/agent_os_publication.py",
+      "owner": "agent-os-publication",
+      "role": "read-only-publication-readiness-audit",
+      "depends_on": [],
+      "focused_shard": "_tools/publication/test_publication_readiness.py"
+    },
+    {
+      "entrypoint": "_tools/publication/test_publication_readiness.py",
+      "owner": "agent-os-publication-integration-proof",
+      "role": "integration-test-shard",
+      "depends_on": ["_tools/agent_os_publication.py"],
+      "focused_shard": "_tools/publication/test_publication_readiness.py"
+    }
+  ]
+}

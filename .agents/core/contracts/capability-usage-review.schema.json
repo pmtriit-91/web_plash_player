@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/capability-usage-review.schema.json",
+  "title": "Universal Agent OS Capability Usage Review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ok", "summary", "malformed_records_ignored", "privacy_unsafe_records_ignored", "raw_prompts_stored", "raw_evidence_stored", "authority"],
+  "properties": {
+    "ok": { "const": true },
+    "summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["capability_id", "observations", "failed_or_declined", "never_observed", "review_recommended"],
+        "properties": {
+          "capability_id": { "type": "string" },
+          "observations": { "type": "integer", "minimum": 0 },
+          "failed_or_declined": { "type": "integer", "minimum": 0 },
+          "never_observed": { "type": "boolean" },
+          "review_recommended": { "type": "boolean" }
+        }
+      }
+    },
+    "malformed_records_ignored": { "type": "integer", "minimum": 0 },
+    "privacy_unsafe_records_ignored": { "type": "integer", "minimum": 0 },
+    "raw_prompts_stored": { "const": false },
+    "raw_evidence_stored": { "const": false },
+    "authority": { "const": "local-telemetry-only" }
+  }
+}

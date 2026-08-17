@@ -1,0 +1,83 @@
+{
+  "version": "9.1.0",
+  "source_of_truth": "Runtime workflow selection for internal Agent OS workflows. Capability and skill routing remains governed by routing/capability-registry.json.",
+  "default_selection_policy": {
+    "load_one_workflow_first": true,
+    "prefer_fast_for_low_risk_tasks": true,
+    "escalate_when_scope_or_risk_increases": true,
+    "do_not_load_all_workflows": true,
+    "fallback": "Use planner for ambiguous implementation tasks, reviewer for review-only tasks, and executor for approved bounded implementation tasks."
+  },
+  "workflows": {
+    "planner": {
+      "path": "workflows/planner.md",
+      "mode": "STANDARD",
+      "triggers": ["plan", "implementation plan", "scope", "design before coding", "task breakdown", "governed plan", "governed decision", "decision alternatives", "reasoning plan"],
+      "load_conditions": ["Before non-trivial implementation when the approach or impacted files must be scoped."],
+      "forbidden_when": ["The user asks for a direct factual answer with no implementation or planning need."]
+    },
+    "executor": {
+      "path": "workflows/executor.md",
+      "mode": "STANDARD",
+      "triggers": ["implement", "execute approved plan", "apply changes", "bounded code change"],
+      "load_conditions": ["After scope is known and file edits are required."],
+      "forbidden_when": ["The user explicitly requests audit-only, no-code, or planning-only work."]
+    },
+    "reviewer": {
+      "path": "workflows/reviewer.md",
+      "mode": "STANDARD",
+      "triggers": ["review", "audit code", "check changes", "risk review", "self-review", "cumulative phase review", "major phase handoff", "phase transition gate", "release review", "adversarial challenge", "governed challenge", "critic correlation", "reasoning receipt review"],
+      "load_conditions": ["After significant changes, when the user requests review, or before a dependent major-phase open, phase release, or final phase handoff whose cumulative review gate is due."],
+      "forbidden_when": ["The task is a trivial one-line answer with no artifact to inspect."]
+    },
+    "fast-task-loop": {
+      "path": "workflows/fast-task-loop.md",
+      "mode": "FAST",
+      "triggers": ["small fix", "typo", "minor CSS", "simple import", "quick change"],
+      "load_conditions": ["Low-risk task with narrow scope and no architectural impact."],
+      "forbidden_when": ["The task touches shared architecture, security, data contracts, or more files than FAST mode allows."]
+    },
+    "advanced-agent-loop": {
+      "path": "workflows/advanced-agent-loop.md",
+      "mode": "DEEP",
+      "triggers": ["complex task", "multi-module", "deep implementation", "system-level change", "repeated failure"],
+      "load_conditions": ["Basic execution is insufficient because the task spans multiple boundaries or has meaningful risk."],
+      "forbidden_when": ["A FAST or STANDARD workflow can safely complete the task."]
+    },
+    "debugging": {
+      "path": "workflows/debugging.md",
+      "mode": "STANDARD",
+      "triggers": ["bug", "error", "debug", "fix failing", "regression", "runtime failure"],
+      "load_conditions": ["A concrete symptom, error output, failed test, or reproducible behavior exists."],
+      "forbidden_when": ["There is no observable symptom and the user is asking for design or planning only."]
+    },
+    "refactoring": {
+      "path": "workflows/refactoring.md",
+      "mode": "DEEP",
+      "triggers": ["refactor", "cleanup architecture", "reduce duplication", "restructure", "simplify module"],
+      "load_conditions": ["Refactoring is explicitly requested or required to complete the task safely."],
+      "forbidden_when": ["The user requested a narrow behavioral fix and refactoring is optional."]
+    },
+    "creative-experience-loop": {
+      "path": "workflows/creative-experience-loop.md",
+      "mode": "DEEP",
+      "triggers": ["premium UI", "cinematic", "3D", "motion", "landing page", "visual polish", "product showcase"],
+      "load_conditions": ["The task requires high visual quality, motion, storytelling, or a complete experience redesign."],
+      "forbidden_when": ["Only minor text, spacing, or color adjustment is requested."]
+    },
+    "frontend-runtime-verification-loop": {
+      "path": "workflows/frontend-runtime-verification-loop.md",
+      "mode": "STANDARD",
+      "triggers": ["browser verify", "runtime UI", "Playwright", "Puppeteer", "visual regression", "screenshot"],
+      "load_conditions": ["Runtime evidence is explicitly requested or needed to validate a visual/runtime issue."],
+      "forbidden_when": ["Source-level verification is sufficient and the user did not request browser/runtime tools."]
+    },
+    "git-commit": {
+      "path": "workflows/git-commit.md",
+      "mode": "FAST",
+      "triggers": ["commit message", "git commit", "semantic commit", "write commit"],
+      "load_conditions": ["The user explicitly requests commit-message help or Git history wording."],
+      "forbidden_when": ["The user did not explicitly request commit-related work."]
+    }
+  }
+}

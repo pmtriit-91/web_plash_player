@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "domain": "phase-review",
+  "public_facade": "_tools/phase_review/test_phase_review_contract.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/phase_review/test_phase_review_contract.py",
+      "owner": "phase-review-enforcement-acceptance",
+      "role": "cumulative-phase-transition-governance-regression-proof",
+      "depends_on": [
+        "AGENTS.md",
+        "core/bootstrap.md",
+        "core/runtime-kernel.md",
+        "workflows/reviewer.md",
+        "skills/agent-os-maintenance/SKILL.md",
+        "routing/workflow-registry.json",
+        "_tools/agent_os_resolver.py"
+      ],
+      "focused_shard": "_tools/phase_review/test_phase_review_contract.py"
+    }
+  ]
+}

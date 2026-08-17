@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "domain": "project-genesis",
+  "public_facade": "_tools/agent_os_genesis.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/project_genesis/git_evidence.py",
+      "owner": "project-genesis-git-evidence",
+      "role": "git-canonical-current-and-reachable-immutable-evidence-validation",
+      "depends_on": [],
+      "focused_shard": "_tools/project_genesis/test_lifecycle_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_lifecycle_contracts.py",
+      "owner": "project-genesis-lifecycle-acceptance",
+      "role": "derived-lifecycle-state-and-confirmation-acceptance",
+      "depends_on": ["_tools/project_genesis/test_support.py", "_tools/project_genesis/git_evidence.py", "_tools/agent_os_genesis.py"],
+      "focused_shard": "_tools/project_genesis/test_lifecycle_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_transaction_contracts.py",
+      "owner": "project-genesis-transaction-acceptance",
+      "role": "migration-confirmation-projection-and-recovery-acceptance",
+      "depends_on": ["_tools/agent_os_genesis.py", "_tools/agent_os_genesis_transactions.py", "_tools/agent_os_lifecycle.py"],
+      "focused_shard": "_tools/project_genesis/test_transaction_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_adversarial_contracts.py",
+      "owner": "project-genesis-adversarial-acceptance",
+      "role": "lifecycle-migration-projection-and-release-boundary-acceptance",
+      "depends_on": ["_tools/project_genesis/adversarial_support.py", "evals/project-genesis-adversarial.json"],
+      "focused_shard": "_tools/project_genesis/test_adversarial_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/adversarial_support.py",
+      "owner": "project-genesis-adversarial-acceptance-support",
+      "role": "shared-adversarial-lifecycle-transaction-release-fixture-and-case-dispatch",
+      "depends_on": ["_tools/project_genesis/test_support.py", "_tools/agent_os_genesis.py", "_tools/agent_os_genesis_transactions.py", "_tools/agent_os_lifecycle.py"],
+      "focused_shard": "_tools/project_genesis/test_adversarial_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_adversarial_input_contracts.py",
+      "owner": "project-genesis-adversarial-input-boundary-acceptance",
+      "role": "input-json-secret-path-project-and-template-boundary-acceptance",
+      "depends_on": ["_tools/project_genesis/adversarial_support.py", "evals/project-genesis-adversarial.json"],
+      "focused_shard": "_tools/project_genesis/test_adversarial_input_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_adversarial_manifest_graph_drift_contracts.py",
+      "owner": "project-genesis-adversarial-manifest-graph-drift-acceptance",
+      "role": "manifest-singleton-supersession-and-drift-boundary-acceptance",
+      "depends_on": ["_tools/project_genesis/adversarial_support.py", "evals/project-genesis-adversarial.json"],
+      "focused_shard": "_tools/project_genesis/test_adversarial_manifest_graph_drift_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_adversarial_evidence_receipt_binding_date_contracts.py",
+      "owner": "project-genesis-adversarial-evidence-receipt-binding-date-acceptance",
+      "role": "evidence-receipt-binding-and-date-attack-acceptance",
+      "depends_on": ["_tools/project_genesis/adversarial_support.py", "evals/project-genesis-adversarial.json"],
+      "focused_shard": "_tools/project_genesis/test_adversarial_evidence_receipt_binding_date_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_adversarial_authority_budget_extension_uncertainty_contracts.py",
+      "owner": "project-genesis-adversarial-authority-budget-extension-uncertainty-acceptance",
+      "role": "authority-budget-extension-and-uncertainty-policy-acceptance",
+      "depends_on": ["_tools/project_genesis/adversarial_support.py", "evals/project-genesis-adversarial.json"],
+      "focused_shard": "_tools/project_genesis/test_adversarial_authority_budget_extension_uncertainty_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_adversarial_confirmed_profiles_contracts.py",
+      "owner": "project-genesis-adversarial-confirmed-profiles-acceptance",
+      "role": "confirmed-node-python-documentation-profile-acceptance",
+      "depends_on": ["_tools/project_genesis/adversarial_support.py", "evals/project-genesis-adversarial.json"],
+      "focused_shard": "_tools/project_genesis/test_adversarial_confirmed_profiles_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_adversarial_migration_projection_contracts.py",
+      "owner": "project-genesis-adversarial-migration-projection-acceptance",
+      "role": "adversarial-migration-and-projection-contract-acceptance",
+      "depends_on": ["_tools/project_genesis/adversarial_support.py", "evals/project-genesis-adversarial.json"],
+      "focused_shard": "_tools/project_genesis/test_adversarial_migration_projection_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_adversarial_release_selection_package_contracts.py",
+      "owner": "project-genesis-adversarial-release-selection-package-acceptance",
+      "role": "actual-project-exclusion-and-template-release-package-acceptance",
+      "depends_on": ["_tools/project_genesis/adversarial_support.py", "_tools/agent_os_lifecycle.py"],
+      "focused_shard": "_tools/project_genesis/test_adversarial_release_selection_package_contracts.py"
+    },
+    {
+      "entrypoint": "_tools/project_genesis/test_support.py",
+      "owner": "project-genesis-acceptance-support",
+      "role": "shared-lifecycle-fixture-and-confirmation-primitives",
+      "depends_on": ["_tools/agent_os_genesis.py"],
+      "focused_shard": "_tools/project_genesis/test_lifecycle_contracts.py"
+    }
+  ]
+}

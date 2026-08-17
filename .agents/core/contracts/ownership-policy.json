@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "agent_os_version": "9.1.0",
+  "release_owned_roots": [
+    ".gitattributes",
+    ".agentignore",
+    "AGENTS.md",
+    "OS_MAINTENANCE_PROMPTS_VI.md",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md",
+    "USER_GUIDE_VI.md",
+    "_ide",
+    "_manifest",
+    "_telemetry",
+    "_tools",
+    "core",
+    "control-center",
+    "creative",
+    "evals",
+    "memory",
+    "project-template",
+    "reviewers",
+    "research",
+    "routing",
+    "safety",
+    "settings",
+    "skills",
+    "vendor",
+    "workflows"
+  ],
+  "application_owned_scopes": [
+    "project/**",
+    "skills/project-memory/**",
+    "skills/project-local/**"
+  ],
+  "runtime_scopes": [
+    "_runtime/**",
+    "_telemetry/*.jsonl",
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "**/.DS_Store"
+  ],
+  "manifest_self": "_manifest/base-release-manifest.json",
+  "root_bridge": "AGENTS.md"
+}

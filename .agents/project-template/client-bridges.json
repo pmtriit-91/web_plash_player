@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "primary_client": "codex",
+  "bridges": [
+    {
+      "id": "codex",
+      "label": "Codex",
+      "status": "reference-client",
+      "root_file": "AGENTS.md",
+      "template": "project-template/AGENTS.md",
+      "discovery": "verified-by-fresh-session",
+      "role": "canonical boot bridge"
+    },
+    {
+      "id": "claude-code",
+      "label": "Claude Code",
+      "status": "thin-shim",
+      "root_file": "CLAUDE.md",
+      "template": "project-template/clients/CLAUDE.md",
+      "discovery": "client-dependent",
+      "role": "redirect to canonical AGENTS.md"
+    },
+    {
+      "id": "gemini-cli",
+      "label": "Gemini CLI",
+      "status": "thin-shim",
+      "root_file": "GEMINI.md",
+      "template": "project-template/clients/GEMINI.md",
+      "discovery": "client-dependent",
+      "role": "redirect to canonical AGENTS.md"
+    },
+    {
+      "id": "antigravity",
+      "label": "Antigravity",
+      "status": "thin-shim",
+      "root_file": "GEMINI.md",
+      "template": "project-template/clients/GEMINI.md",
+      "discovery": "evidence-required",
+      "role": "repository-local redirect without global symlink"
+    }
+  ]
+}

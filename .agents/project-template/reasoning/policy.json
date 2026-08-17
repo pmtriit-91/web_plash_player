@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "policy_id": "policy-default",
+  "project_id": "unbound-consumer",
+  "overlay_mode": "restrict-only",
+  "fail_closed": true,
+  "authority": {
+    "binding_required": true,
+    "confirmed_genesis_required": true,
+    "matching_intent_required": true,
+    "matching_approval_when_required": true,
+    "transaction_gates_required": true,
+    "scores_cannot_override": true
+  },
+  "risk": {
+    "unknown_reversibility": "escalate",
+    "irreversible_without_approval": "block",
+    "constitution_conflict": "block",
+    "low_confidence": "escalate"
+  },
+  "limits": {
+    "max_options": 16,
+    "max_steps": 32,
+    "max_findings": 32,
+    "max_evidence_refs": 32,
+    "max_retry_budget": 8,
+    "max_artifact_bytes": 131072
+  },
+  "content_sha256": "7d510b82dae42b7c67870735c9170d1bf466ac407819507900d73f1dd2bd58ad"
+}

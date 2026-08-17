@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "domain": "capability-lifecycle",
+  "public_facade": "_tools/agent_os_capability_lifecycle.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/agent_os_capability_lifecycle.py",
+      "owner": "capability-lifecycle",
+      "role": "public-compatibility-service-and-cli",
+      "depends_on": [
+        "_tools/capability_lifecycle/candidate_validation.py",
+        "_tools/capability_lifecycle/integration_builder.py",
+        "_tools/capability_lifecycle/manifest_builder.py",
+        "_tools/capability_lifecycle/platform_privacy.py",
+        "_tools/capability_lifecycle/shared.py",
+        "_tools/capability_lifecycle/state_planning.py",
+        "_tools/capability_lifecycle/telemetry.py",
+        "_tools/capability_lifecycle/transaction_engine.py"
+      ],
+      "focused_shard": "_tools/capability_lifecycle/test_shared.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/candidate_validation.py",
+      "owner": "capability-lifecycle-candidate-validation",
+      "role": "candidate-descriptor-assembly-routing-snapshot-validation",
+      "depends_on": ["_tools/agent_os_capabilities.py", "_tools/agent_os_research.py",
+        "_tools/capability_lifecycle/platform_privacy.py", "_tools/capability_lifecycle/shared.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_candidate_validation.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/test_support.py",
+      "owner": "capability-lifecycle-acceptance-support",
+      "role": "shared-disposable-repository-fixture-support",
+      "depends_on": ["_tools/agent_os_capability_lifecycle.py", "_tools/agent_os_research.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_usage_state_update.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/test_plan_apply_rollback.py",
+      "owner": "capability-lifecycle-plan-apply-rollback-acceptance",
+      "role": "read-only-plan-confirmed-apply-replay-and-explicit-rollback-contracts",
+      "depends_on": ["_tools/agent_os_capability_lifecycle.py", "_tools/capability_lifecycle/test_support.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_plan_apply_rollback.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/test_concurrency_recovery.py",
+      "owner": "capability-lifecycle-concurrency-recovery-acceptance",
+      "role": "lock-stale-state-failure-injection-and-crash-recovery-contracts",
+      "depends_on": ["_tools/agent_os_capability_lifecycle.py", "_tools/capability_lifecycle/test_support.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_concurrency_recovery.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/test_activation_snapshot_vendor.py",
+      "owner": "capability-lifecycle-activation-snapshot-vendor-acceptance",
+      "role": "activation-gate-snapshot-path-vendor-pin-and-principles-contracts",
+      "depends_on": ["_tools/agent_os_capability_lifecycle.py", "_tools/capability_lifecycle/test_support.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_activation_snapshot_vendor.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/test_usage_state_update.py",
+      "owner": "capability-lifecycle-usage-state-update-acceptance",
+      "role": "privacy-safe-usage-deprecation-and-superseding-update-contracts",
+      "depends_on": ["_tools/agent_os_capability_lifecycle.py", "_tools/capability_lifecycle/test_support.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_usage_state_update.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/test_telemetry_privacy_integration.py",
+      "owner": "capability-lifecycle-telemetry-privacy-integration-acceptance",
+      "role": "raw-free-keyed-platform-protected-and-bounded-telemetry-contracts",
+      "depends_on": ["_tools/agent_os_capability_lifecycle.py", "_tools/agent_os_domain.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_telemetry_privacy_integration.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/integration_builder.py",
+      "owner": "capability-lifecycle-integration-builder",
+      "role": "validated-capability-integration-document-construction",
+      "depends_on": ["_tools/agent_os_research.py", "_tools/capability_lifecycle/candidate_validation.py",
+        "_tools/capability_lifecycle/manifest_builder.py", "_tools/capability_lifecycle/platform_privacy.py",
+        "_tools/capability_lifecycle/shared.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_integration_builder.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/manifest_builder.py",
+      "owner": "capability-lifecycle-manifest-builder",
+      "role": "release-overlay-and-working-manifest-construction",
+      "depends_on": ["_tools/capability_lifecycle/shared.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_manifest_builder.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/platform_privacy.py",
+      "owner": "capability-lifecycle-platform-privacy",
+      "role": "platform-protection-and-privacy-safe-receipt-contracts",
+      "depends_on": ["_tools/capability_lifecycle/shared.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_platform_privacy.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/state_planning.py",
+      "owner": "capability-lifecycle-state-planning",
+      "role": "diff-plan-update-comparison-and-state-transition-planning",
+      "depends_on": ["_tools/capability_lifecycle/candidate_validation.py",
+        "_tools/capability_lifecycle/integration_builder.py", "_tools/capability_lifecycle/manifest_builder.py",
+        "_tools/capability_lifecycle/shared.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_state_planning.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/telemetry.py",
+      "owner": "capability-lifecycle-privacy-safe-telemetry",
+      "role": "local-keyed-raw-free-usage-telemetry",
+      "depends_on": [
+        "_tools/capability_lifecycle/platform_privacy.py",
+        "_tools/capability_lifecycle/shared.py"
+      ],
+      "focused_shard": "_tools/capability_lifecycle/test_telemetry.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/transaction_engine.py",
+      "owner": "capability-lifecycle-transaction-engine",
+      "role": "lock-apply-recovery-and-rollback-transaction-execution",
+      "depends_on": ["_tools/capability_lifecycle/manifest_builder.py",
+        "_tools/capability_lifecycle/platform_privacy.py", "_tools/capability_lifecycle/shared.py",
+        "_tools/capability_lifecycle/state_planning.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_transaction_engine.py"
+    },
+    {
+      "entrypoint": "_tools/capability_lifecycle/shared.py",
+      "owner": "capability-lifecycle-shared-foundation",
+      "role": "path-document-hash-runtime-state-foundations",
+      "depends_on": ["_tools/agent_os_paths.py", "_tools/agent_os_research.py"],
+      "focused_shard": "_tools/capability_lifecycle/test_shared.py"
+    }
+  ]
+}

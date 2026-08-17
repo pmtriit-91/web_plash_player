@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "aos13-1-notebooklm-direct-research-shadow",
+      "capability_id": "notebooklm_research",
+      "positive": [
+        "Query the existing NotebookLM notebook and follow up on the cited disagreement.",
+        "Explore this NotebookLM Studio mind-map branch and compare it with the source report."
+      ],
+      "negative": [
+        "Read local Git history and verify whether the runtime test passed.",
+        "Download every artifact from every notebook even though no backup was requested."
+      ],
+      "method": "proposed-portfolio-shadow-v1",
+      "status": "passing"
+    }
+  ]
+}

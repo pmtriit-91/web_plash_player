@@ -1,0 +1,466 @@
+{
+  "version": "9.1.0",
+  "purpose": "Behavioral checks for routing, context firewall, split integrity, capability lifecycle, project-bound Context Memory, Genesis and Continuity, cross-project release, migrations, portable paths, client bridges, update planning, and MCP readiness.",
+  "cases": [
+    {
+      "id": "route-agent-os-maintenance",
+      "type": "routing",
+      "prompt": "Audit and update the repository Agent OS vendor skills.",
+      "expected_capability": "agent_os_maintenance"
+    },
+    {
+      "id": "route-debugging-root-cause",
+      "type": "routing",
+      "prompt": "Debug this runtime error and find the root cause.",
+      "expected_workflow": "debugging",
+      "expected_capability": "debugging-and-error-recovery"
+    },
+    {
+      "id": "route-fast-small-fix",
+      "type": "routing",
+      "prompt": "Make a small typo fix and a minor CSS spacing adjustment.",
+      "expected_workflow": "fast-task-loop",
+      "expected_capability": "fast_ui_fix"
+    },
+    {
+      "id": "route-architecture",
+      "type": "routing",
+      "prompt": "Design a multi-module architecture migration before implementation.",
+      "expected_workflow": "advanced-agent-loop",
+      "expected_capability": "architecture_refactor"
+    },
+    {
+      "id": "route-cumulative-phase-review",
+      "type": "routing",
+      "prompt": "Before opening the next major Agent OS phase, run the cumulative phase review transition gate.",
+      "expected_workflow": "reviewer",
+      "expected_capability": "agent_os_maintenance"
+    },
+    {
+      "id": "route-notebooklm-studio",
+      "type": "routing",
+      "prompt": "Use NotebookLM Studio to create a source-grounded report from this research notebook.",
+      "expected_capability": "notebooklm_research"
+    },
+    {
+      "id": "route-notebooklm-direct-research",
+      "type": "routing",
+      "prompt": "Research this question directly in my existing NotebookLM notebook and continue with source-scoped follow-up questions.",
+      "expected_capability": "notebooklm_research"
+    },
+    {
+      "id": "route-notebooklm-studio-exploration",
+      "type": "routing",
+      "prompt": "Use the existing NotebookLM mind map as a Studio exploration surface and investigate the relevant branch without bulk-downloading the corpus.",
+      "expected_capability": "notebooklm_research"
+    },
+    {
+      "id": "route-notebooklm-proactive-synthesis",
+      "type": "routing",
+      "prompt": "Synthesize conflicts in the curated research corpus before we decide a consequential system design.",
+      "expected_capability": "notebooklm_research"
+    },
+    {
+      "id": "route-local-fact-without-notebooklm",
+      "type": "routing",
+      "prompt": "Read this single local file and explain what the current function does.",
+      "expected_capability": "standard_feature"
+    },
+    {
+      "id": "firewall-runtime-log",
+      "type": "firewall",
+      "path": "_runtime/session/output.jsonl",
+      "expected_blocked": true
+    },
+    {
+      "id": "firewall-vendor-skill-allowed",
+      "type": "firewall",
+      "path": "vendor/addy-agent-skills/skills/debugging-and-error-recovery/SKILL.md",
+      "expected_blocked": false
+    },
+    {
+      "id": "lifecycle-state-is-derived",
+      "type": "lifecycle",
+      "command": "doctor",
+      "timeout_seconds": 120,
+      "expected_state": "derived",
+      "expected_core_ok": true
+    },
+    {
+      "id": "integrity-core",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/agent_os_lifecycle.py", "verify-core"],
+      "expected_ok": true
+    },
+    {
+      "id": "integrity-vendors",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/agent_os_lifecycle.py", "verify-vendors"],
+      "expected_ok": true
+    },
+    {
+      "id": "integrity-skills",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/agent_os_lifecycle.py", "validate-skills"],
+      "expected_ok": true
+    },
+    {
+      "id": "integrity-routing",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/validate-routing-sync.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "capability-router-catalog-positive-routes",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/capability_routing/test_catalog_positive_routes.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "capability-router-v2",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/capability_routing/test_remaining_routes_policies.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "capability-research-candidate-corpus",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/capability_research/test_candidate_corpus.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "skill-research-adversarial-gates",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/capability_research/test_remaining_contracts.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "notebooklm-behavioral-contract",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/notebooklm_research/test_behavioral_contract.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "control-center-transactions",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/control_center/test_transaction_contracts.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "capability-lifecycle-transactions",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/capability_lifecycle/test_usage_state_update.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "activation-telemetry-privacy",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/capability_lifecycle/test_telemetry_privacy_integration.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "context-memory-freshness-contamination-and-coordination",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/test-context-memory.py"],
+      "timeout_seconds": 300,
+      "expected_ok": true
+    },
+    {
+      "id": "context-memory-task-ledger-v2-migration",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/context_memory/test_task_ledger_v2_migration.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "cumulative-phase-review-enforcement",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/phase_review/test_phase_review_contract.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "task-capacity-decomposition-enforcement",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/tooling_topology/test_task_capacity_contract.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "task-file-growth-ratchet",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/tooling_topology/test_task_growth_ratchet.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "portable-documentation-governance",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/documentation_governance/test_documentation_governance.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "project-genesis-derived-lifecycle",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/project_genesis/test_lifecycle_contracts.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "project-genesis-transactions-projection-and-recovery",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/project_genesis/test_transaction_contracts.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "project-genesis-adversarial-and-package-boundary",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/project_genesis/test_adversarial_contracts.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "portable-path-safety",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/portable_paths/test_portable_paths.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "portable-lexical-policy",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/portable_paths/test_lexical_policy.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "portable-filesystem-checkout",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/portable_paths/test_filesystem_checkout.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "client-bridge-registry",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/agent_os_clients.py", "validate"],
+      "expected_ok": true
+    },
+    {
+      "id": "cross-project-release-recovery",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/release_packaging/test_cross_project_release.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "v8-v9-migration-transactions",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/migration/test_agent_os_migrations.py"],
+      "timeout_seconds": 90,
+      "expected_ok": true
+    },
+    {
+      "id": "control-center-security-and-parity",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/control_center/test_security_contracts.py"],
+      "timeout_seconds": 90,
+      "expected_ok": true
+    },
+    {
+      "id": "update-planner-preservation",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/lifecycle/test_update_planner_integration.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "update-transaction-recovery",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/lifecycle/test_update_transaction_integration.py"],
+      "timeout_seconds": 90,
+      "expected_ok": true
+    },
+    {
+      "id": "release-package-purity",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/release_packaging/test_release_package.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "release-manifest-provenance",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/lifecycle/test_release_manifest_provenance.py"],
+      "timeout_seconds": 90,
+      "expected_ok": true
+    },
+    {
+      "id": "publication-readiness-gates",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/publication/test_publication_readiness.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "committed-whitespace-assurance",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/lifecycle/test_committed_whitespace.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "aggregate-failure-diagnostics",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/eval_diagnostics/test_eval_runner_diagnostics.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "structured-failure-diagnostics",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/eval_diagnostics/test_structured_diagnostics.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "sensitive-failure-diagnostics",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/eval_diagnostics/test_sensitive_diagnostics.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "hosted-failure-discipline",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/eval_diagnostics/test_hosted_failure_discipline.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-catalog-lifecycle",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_core/test_privacy_terminal_contracts.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-core-baseline-contracts",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_core/test_baseline_contracts.py"],
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-core-identity-path-contracts",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_core/test_identity_path_contracts.py"],
+      "timeout_seconds": 60,
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-core-payload-drift-contracts",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_core/test_payload_drift_contracts.py"],
+      "timeout_seconds": 60,
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-core-dependency-handoff-contracts",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_core/test_dependency_handoff_contracts.py"],
+      "timeout_seconds": 90,
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-core-privacy-terminal-contracts",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_core/test_privacy_terminal_contracts.py", "--focused"],
+      "timeout_seconds": 90,
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-transaction-recovery",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_transactions/test_repair_tamper_contracts.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-transaction-initialize-rollback-contracts",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_transactions/test_initialize_rollback_contracts.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-transaction-migration-failure-contracts",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_transactions/test_migration_failure_contracts.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-transaction-repair-tamper-contracts",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_transactions/test_repair_tamper_contracts.py", "--focused"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-transaction-lock-contracts",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/continuity_transactions/test_lock_contracts.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "continuity-offline-portability",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/test-continuity-portability.py"],
+      "timeout_seconds": 300,
+      "expected_ok": true
+    },
+    {
+      "id": "aos16-governed-reasoning-adversarial",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/governed_reasoning/test_adversarial.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "aos16-governed-reasoning-portability-recovery",
+      "type": "command",
+      "argv": ["python3", ".agents/_tools/governed_reasoning/test_portability_recovery.py"],
+      "timeout_seconds": 120,
+      "expected_ok": true
+    },
+    {
+      "id": "mcp-lifecycle-and-transaction-tools",
+      "type": "mcp",
+      "expect_tools": [
+        "agent_os/doctor",
+        "agent_os/verify_core",
+        "agent_os/verify_adapter",
+        "agent_os/verify_vendors",
+        "agent_os/validate_skills",
+        "agent_os/run_preflight",
+        "agent_os/validate_routing",
+        "agent_os/resolve_routing",
+        "agent_os/list_capabilities",
+        "agent_os/show_capability",
+        "agent_os/simulate_routing",
+        "agent_os/validate_capability_catalog",
+        "agent_os/research_status",
+        "agent_os/validate_research_registry",
+        "agent_os/effective_settings",
+        "agent_os/capability_lifecycle_status",
+        "agent_os/usage_review",
+        "agent_os/show_candidate",
+        "agent_os/context_memory_doctor",
+        "agent_os/context_memory_load",
+        "agent_os/context_memory_tasks",
+        "agent_os/context_memory_handoffs",
+        "agent_os/context_memory_plan_continue",
+        "agent_os/continuity_doctor",
+        "agent_os/continuity_plan",
+        "agent_os/continuity_apply",
+        "agent_os/continuity_transactions",
+        "agent_os/client_bridges",
+        "agent_os/migration_inspect",
+        "agent_os/publication_audit"
+      ]
+    }
+  ]
+}

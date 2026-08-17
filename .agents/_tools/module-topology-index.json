@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "domains": [
+    {
+      "domain": "context-memory",
+      "public_facade": "_tools/agent_os_context_memory.py",
+      "topology": "_tools/context_memory/topology.json"
+    },
+    {
+      "domain": "continuity-core",
+      "public_facade": "_tools/continuity_core/test_privacy_terminal_contracts.py",
+      "topology": "_tools/continuity_core/topology.json"
+    },
+    {
+      "domain": "control-center",
+      "public_facade": "_tools/agent_os_control_center.py",
+      "topology": "_tools/control_center/topology.json"
+    },
+    {
+      "domain": "project-genesis",
+      "public_facade": "_tools/agent_os_genesis.py",
+      "topology": "_tools/project_genesis/topology.json"
+    },
+    {
+      "domain": "lifecycle",
+      "public_facade": "_tools/agent_os_lifecycle.py",
+      "topology": "_tools/lifecycle/topology.json"
+    },
+    {
+      "domain": "migration",
+      "public_facade": "_tools/agent_os_migrate.py",
+      "topology": "_tools/migration/topology.json"
+    },
+    {
+      "domain": "publication",
+      "public_facade": "_tools/agent_os_publication.py",
+      "topology": "_tools/publication/topology.json"
+    },
+    {
+      "domain": "release-packaging",
+      "public_facade": "_tools/package-release.py",
+      "topology": "_tools/release_packaging/topology.json"
+    },
+    {
+      "domain": "continuity-portability-restore",
+      "public_facade": "_tools/agent_os_continuity_portability_restore.py",
+      "topology": "_tools/continuity_portability_restore/topology.json"
+    },
+    {
+      "domain": "continuity-transactions",
+      "public_facade": "_tools/agent_os_continuity_transactions.py",
+      "topology": "_tools/continuity_transactions/topology.json"
+    },
+    {
+      "domain": "capability-lifecycle",
+      "public_facade": "_tools/agent_os_capability_lifecycle.py",
+      "topology": "_tools/capability_lifecycle/topology.json"
+    },
+    {
+      "domain": "continuity-portability",
+      "public_facade": "_tools/test-continuity-portability.py",
+      "topology": "_tools/continuity_portability/topology.json"
+    },
+    {
+      "domain": "tooling-topology",
+      "public_facade": "_tools/tooling_topology/root_cardinality.py",
+      "topology": "_tools/tooling_topology/topology.json"
+    }
+  ]
+}

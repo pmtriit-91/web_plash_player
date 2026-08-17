@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "domain": "migration",
+  "public_facade": "_tools/agent_os_migrate.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/agent_os_migrate.py",
+      "owner": "agent-os-migration",
+      "role": "v8-v9-inspect-plan-apply-rollback-cli",
+      "depends_on": ["_tools/agent_os_lifecycle.py", "_tools/agent_os_paths.py"],
+      "focused_shard": "_tools/migration/test_agent_os_migrations.py"
+    },
+    {
+      "entrypoint": "_tools/migration/test_agent_os_migrations.py",
+      "owner": "agent-os-migration-integration-proof",
+      "role": "integration-test-shard-with-exact-git-add-envelope",
+      "depends_on": ["_tools/agent_os_migrate.py", "_tools/agent_os_lifecycle.py"],
+      "focused_shard": "_tools/migration/test_agent_os_migrations.py"
+    },
+    {
+      "entrypoint": "_tools/migration/test_fixture_git_timeout_contract.py",
+      "owner": "agent-os-migration-fixture-envelope-proof",
+      "role": "exact-git-add-timeout-contract",
+      "depends_on": ["_tools/migration/test_agent_os_migrations.py"],
+      "focused_shard": "_tools/migration/test_fixture_git_timeout_contract.py"
+    }
+  ]
+}

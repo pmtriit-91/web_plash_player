@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/governed-plan-receipt.schema.json",
+  "title": "Universal Agent OS governed plan receipt",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "receipt_id", "project_id", "created_at", "request_sha256", "authority_sha256", "steps", "alternatives", "uncertainties", "confidence", "supersedes", "privacy", "content_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "receipt_id": {"type": "string", "pattern": "^plan-[0-9a-f]{24}$"},
+    "project_id": {"$ref": "#/$defs/id"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "request_sha256": {"$ref": "#/$defs/sha"},
+    "authority_sha256": {"$ref": "#/$defs/sha"},
+    "steps": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"$ref": "#/$defs/step"}},
+    "alternatives": {"type": "array", "maxItems": 16, "items": {"$ref": "#/$defs/alternative"}},
+    "uncertainties": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+    "confidence": {"enum": ["low", "medium", "high"]},
+    "supersedes": {"oneOf": [{"type": "string", "pattern": "^plan-[0-9a-f]{24}$"}, {"type": "null"}]},
+    "privacy": {"$ref": "#/$defs/privacy"},
+    "content_sha256": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"},
+    "text": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "step": {"type": "object", "additionalProperties": false, "required": ["step_id", "action", "depends_on", "acceptance", "evidence_refs"], "properties": {"step_id": {"$ref": "#/$defs/id"}, "action": {"$ref": "#/$defs/text"}, "depends_on": {"type": "array", "maxItems": 8, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "acceptance": {"type": "array", "minItems": 1, "maxItems": 8, "items": {"$ref": "#/$defs/text"}}, "evidence_refs": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}}},
+    "alternative": {"type": "object", "additionalProperties": false, "required": ["option_id", "status", "rationale"], "properties": {"option_id": {"$ref": "#/$defs/id"}, "status": {"enum": ["candidate", "rejected", "deferred"]}, "rationale": {"$ref": "#/$defs/text"}}},
+    "privacy": {"type": "object", "additionalProperties": false, "required": ["raw_conversation_stored", "raw_prompt_stored", "chain_of_thought_stored", "secret_stored"], "properties": {"raw_conversation_stored": {"const": false}, "raw_prompt_stored": {"const": false}, "chain_of_thought_stored": {"const": false}, "secret_stored": {"const": false}}}
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/governed-reasoning-policy.schema.json",
+  "title": "Universal Agent OS governed reasoning restrictive policy overlay",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "policy_id", "project_id", "overlay_mode", "fail_closed", "authority", "risk", "limits", "content_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "policy_id": {"type": "string", "pattern": "^policy-[a-z0-9][a-z0-9._-]{0,119}$"},
+    "project_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"},
+    "overlay_mode": {"const": "restrict-only"},
+    "fail_closed": {"const": true},
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["binding_required", "confirmed_genesis_required", "matching_intent_required", "matching_approval_when_required", "transaction_gates_required", "scores_cannot_override"],
+      "properties": {
+        "binding_required": {"const": true},
+        "confirmed_genesis_required": {"const": true},
+        "matching_intent_required": {"const": true},
+        "matching_approval_when_required": {"const": true},
+        "transaction_gates_required": {"const": true},
+        "scores_cannot_override": {"const": true}
+      }
+    },
+    "risk": {
+      "type": "object", "additionalProperties": false,
+      "required": ["unknown_reversibility", "irreversible_without_approval", "constitution_conflict", "low_confidence"],
+      "properties": {
+        "unknown_reversibility": {"enum": ["escalate", "block"]},
+        "irreversible_without_approval": {"const": "block"},
+        "constitution_conflict": {"const": "block"},
+        "low_confidence": {"enum": ["escalate", "block"]}
+      }
+    },
+    "limits": {
+      "type": "object", "additionalProperties": false,
+      "required": ["max_options", "max_steps", "max_findings", "max_evidence_refs", "max_retry_budget", "max_artifact_bytes"],
+      "properties": {
+        "max_options": {"type": "integer", "minimum": 1, "maximum": 16},
+        "max_steps": {"type": "integer", "minimum": 1, "maximum": 32},
+        "max_findings": {"type": "integer", "minimum": 1, "maximum": 32},
+        "max_evidence_refs": {"type": "integer", "minimum": 1, "maximum": 32},
+        "max_retry_budget": {"type": "integer", "minimum": 0, "maximum": 8},
+        "max_artifact_bytes": {"type": "integer", "minimum": 1024, "maximum": 131072}
+      }
+    },
+    "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

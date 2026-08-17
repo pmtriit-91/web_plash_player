@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "domain": "tooling-topology",
+  "public_facade": "_tools/tooling_topology/root_cardinality.py",
+  "direct_root_exceptions": [],
+  "entries": [
+    {
+      "entrypoint": "_tools/tooling_topology/root_cardinality.py",
+      "owner": "tooling-topology-root-cardinality",
+      "role": "direct-root-name-and-cardinality-ratchet-primitive",
+      "depends_on": [],
+      "focused_shard": "_tools/tooling_topology/test_root_cardinality.py"
+    },
+    {
+      "entrypoint": "_tools/agent_os_capacity.py",
+      "owner": "task-capacity-admission",
+      "role": "root-cardinality-enforcement-consumer",
+      "depends_on": [
+        "_tools/tooling_topology/root_cardinality.py"
+      ],
+      "governance_shard": "_tools/tooling_topology/test_task_capacity_contract.py",
+      "preflight_shard": "_tools/tooling_topology/test_preflight_capacity_admission.py",
+      "growth_support": "_tools/tooling_topology/task_growth_support.py",
+      "growth_contract_shard": "_tools/tooling_topology/test_task_growth_contract.py",
+      "root_cardinality_integration_shard": "_tools/tooling_topology/test_tools_root_cardinality_integration.py",
+      "focused_shard": "_tools/tooling_topology/test_task_growth_ratchet.py"
+    }
+  ]
+}

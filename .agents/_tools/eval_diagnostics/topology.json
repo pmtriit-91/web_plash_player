@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "domain": "eval-diagnostics",
+  "public_facade": "_tools/eval_diagnostics/test_eval_runner_diagnostics.py",
+  "entries": [
+    {
+      "entrypoint": "_tools/eval_diagnostics/test_eval_runner_diagnostics.py",
+      "owner": "eval-diagnostics-aggregate-acceptance",
+      "role": "canonical-fifteen-case-failure-diagnostics-aggregate",
+      "depends_on": [
+        "_tools/eval_diagnostics/compact_summary.py",
+        "_tools/eval_diagnostics/test_sensitive_diagnostics.py",
+        "_tools/eval_diagnostics/test_structured_diagnostics.py",
+        "_tools/eval_diagnostics/test_support.py",
+        "_tools/run-agent-os-evals.py"
+      ],
+      "focused_shard": "_tools/eval_diagnostics/test_eval_runner_diagnostics.py"
+    },
+    {
+      "entrypoint": "_tools/eval_diagnostics/compact_summary.py",
+      "owner": "hosted-ci-compact-result-producer",
+      "role": "deterministic-redacted-json-and-markdown-summary-producer",
+      "depends_on": [],
+      "focused_shard": "_tools/eval_diagnostics/test_compact_summary.py"
+    },
+    {
+      "entrypoint": "_tools/eval_diagnostics/test_compact_summary.py",
+      "owner": "hosted-ci-compact-result-acceptance",
+      "role": "bounded-redaction-exit-status-and-newline-contracts",
+      "depends_on": [
+        "_tools/eval_diagnostics/compact_summary.py",
+        "_tools/run-agent-os-evals.py"
+      ],
+      "focused_shard": "_tools/eval_diagnostics/test_compact_summary.py"
+    },
+    {
+      "entrypoint": "_tools/eval_diagnostics/test_structured_diagnostics.py",
+      "owner": "eval-diagnostics-structured-acceptance",
+      "role": "structured-bounded-fallback-evaluate-timeout-and-exact-hosted-margin-contracts",
+      "depends_on": ["_tools/eval_diagnostics/test_support.py"],
+      "focused_shard": "_tools/eval_diagnostics/test_structured_diagnostics.py"
+    },
+    {
+      "entrypoint": "_tools/eval_diagnostics/test_sensitive_diagnostics.py",
+      "owner": "eval-diagnostics-sensitive-acceptance",
+      "role": "credential-redaction-and-false-positive-contracts",
+      "depends_on": ["_tools/eval_diagnostics/test_support.py"],
+      "focused_shard": "_tools/eval_diagnostics/test_sensitive_diagnostics.py"
+    },
+    {
+      "entrypoint": "_tools/eval_diagnostics/test_hosted_failure_discipline.py",
+      "owner": "hosted-failure-discipline-acceptance",
+      "role": "summary-first-local-first-zero-blind-rerun-release-contract",
+      "depends_on": [
+        "core/runtime-kernel.md",
+        "workflows/debugging.md"
+      ],
+      "focused_shard": "_tools/eval_diagnostics/test_hosted_failure_discipline.py"
+    },
+    {
+      "entrypoint": "_tools/eval_diagnostics/test_support.py",
+      "owner": "eval-diagnostics-acceptance-support",
+      "role": "shared-structured-timeout-process-tree-heartbeat-redaction-and-false-positive-scenarios",
+      "depends_on": ["_tools/run-agent-os-evals.py"],
+      "focused_shard": "_tools/eval_diagnostics/test_eval_runner_diagnostics.py"
+    }
+  ]
+}

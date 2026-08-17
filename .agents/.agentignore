@@ -1,0 +1,35 @@
+# Universal Agent OS context firewall — V9.1.0
+# Exclude these payloads from broad context scans. This is not an access-control file.
+
+# Ephemeral runtime and Python cache
+_runtime/
+_telemetry/*.jsonl
+**/__pycache__/
+**/*.pyc
+__pycache__/
+*.pyc
+.DS_Store
+
+# Binary, media, archive, and generated payloads
+*.bin
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.ico
+*.pdf
+*.zip
+*.tar
+*.tgz
+*.gz
+*.7z
+*.dmg
+*.mp3
+*.mp4
+*.mov
+*.avi
+*.woff
+*.woff2
+*.ttf
+*.otf

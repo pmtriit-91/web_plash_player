@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "project_id": "unbound-consumer",
+  "catalog_id": "continuity-unbound-consumer",
+  "catalog_revision": 1,
+  "record_type_registry": {
+    "registry_id": "universal-continuity-record-types",
+    "registry_version": 1,
+    "registry_sha256": "ad5bbd4bfc685883a24d2dbcf037d4357d7de65837dba760059e79c6a2dbbd0a"
+  },
+  "recovery_profile": {
+    "profile_id": "universal-project-continuity",
+    "profile_version": 1,
+    "profile_sha256": "bac9a16bee22a42c3587f2e27d0c3731f4be4fe0318e621d4c014faf49b2bd3d"
+  },
+  "migration_extensions": [],
+  "references": [],
+  "created_at": "1970-01-01T00:00:00Z",
+  "updated_at": "1970-01-01T00:00:00Z"
+}

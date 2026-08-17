@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "discovery": {
+    "default_trigger": "event-driven-and-manual",
+    "background_daemon": false,
+    "emit_gap_on_low_confidence": true,
+    "research_connectors_optional": true
+  },
+  "activation": {
+    "one_primary_capability": true,
+    "minimum_confidence": 55,
+    "activation_requires_active_state": true,
+    "sensitive_permissions_require_approval": true,
+    "capabilities_are_not_permission": true
+  },
+  "hard_gates": {
+    "license_required_for_vendor": true,
+    "full_commit_required": true,
+    "opaque_archives_rejected": true,
+    "unsafe_symlinks_rejected": true,
+    "global_installers_rejected": true,
+    "competing_boot_or_router_rejected": true,
+    "upstream_scripts_quarantined": true
+  }
+}

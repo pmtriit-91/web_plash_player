@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/continuity-transaction-receipt.schema.json",
+  "title": "Universal Agent OS continuity transaction receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "transaction_id",
+    "operation",
+    "status",
+    "project_id",
+    "base_commit",
+    "applied_at",
+    "source_generation",
+    "target_generation",
+    "binding_sha256",
+    "adapter_fingerprint_sha256",
+    "record_type_registry_sha256",
+    "recovery_profile_sha256",
+    "migration_registry_sha256",
+    "before_catalog_sha256",
+    "after_catalog_sha256",
+    "source_inventory_sha256",
+    "critical_set_before",
+    "critical_set_after",
+    "unknown_fields_sha256",
+    "backup",
+    "semantic_completeness",
+    "rollback_verified",
+    "source_deleted",
+    "owner_confirmation_performed",
+    "raw_conversation_stored",
+    "commit_created",
+    "push_performed",
+    "content_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "transaction_id": {"type": "string", "pattern": "^continuity-tx-[0-9a-f]{24}$"},
+    "operation": {
+      "enum": ["initialize", "refresh", "migrate", "repair", "rollback"]
+    },
+    "status": {"const": "applied"},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "base_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "applied_at": {"type": "string", "format": "date-time"},
+    "source_generation": {
+      "oneOf": [{"type": "integer", "minimum": 0}, {"type": "null"}]
+    },
+    "target_generation": {
+      "oneOf": [{"type": "integer", "minimum": 0}, {"type": "null"}]
+    },
+    "binding_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "adapter_fingerprint_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "record_type_registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "recovery_profile_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "migration_registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "before_catalog_sha256": {
+      "oneOf": [{"type": "string", "pattern": "^[0-9a-f]{64}$"}, {"type": "null"}]
+    },
+    "after_catalog_sha256": {
+      "oneOf": [{"type": "string", "pattern": "^[0-9a-f]{64}$"}, {"type": "null"}]
+    },
+    "source_inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "critical_set_before": {
+      "type": "array",
+      "maxItems": 1024,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 128}
+    },
+    "critical_set_after": {
+      "type": "array",
+      "maxItems": 1024,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 128}
+    },
+    "unknown_fields_sha256": {
+      "oneOf": [{"type": "string", "pattern": "^[0-9a-f]{64}$"}, {"type": "null"}]
+    },
+    "migration_path": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "migration_id",
+          "provider",
+          "source_generation",
+          "target_generation",
+          "unknown_fields_sha256"
+        ],
+        "properties": {
+          "migration_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,127}$"
+          },
+          "provider": {
+            "type": "string",
+            "pattern": "^builtin:[a-z0-9][a-z0-9-]{0,127}$"
+          },
+          "source_generation": {"type": "integer", "minimum": 0},
+          "target_generation": {"type": "integer", "minimum": 1},
+          "unknown_fields_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "migration_path_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "backup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backup_id", "index_path", "index_sha256"],
+      "properties": {
+        "backup_id": {"type": "string", "pattern": "^continuity-backup-[0-9a-f]{24}$"},
+        "index_path": {"type": "string", "minLength": 1, "maxLength": 512},
+        "index_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "semantic_completeness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["topology_state", "authority_state", "reason_codes"],
+      "properties": {
+        "topology_state": {
+          "enum": ["complete", "incomplete", "corrupt", "contaminated", "unsupported", "unconfigured"]
+        },
+        "authority_state": {"enum": ["available", "partial", "unavailable"]},
+        "reason_codes": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 128}
+        }
+      }
+    },
+    "rollback_verified": {"type": "boolean"},
+    "source_deleted": {"const": false},
+    "owner_confirmation_performed": {"const": false},
+    "raw_conversation_stored": {"const": false},
+    "commit_created": {"const": false},
+    "push_performed": {"const": false},
+    "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "operation": {"const": "migrate"},
+          "target_generation": {"const": 2}
+        }
+      },
+      "then": {
+        "required": ["migration_path", "migration_path_sha256"]
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {"required": ["migration_path"]},
+            {"required": ["migration_path_sha256"]}
+          ]
+        }
+      }
+    }
+  ]
+}

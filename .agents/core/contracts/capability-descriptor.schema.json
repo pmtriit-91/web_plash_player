@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-agent-os.local/schemas/capability-descriptor.schema.json",
+  "title": "Universal Agent OS Capability Descriptor Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "agent_os_version", "capabilities"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "agent_os_version": { "type": "string", "minLength": 1 },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id", "version", "lifecycle_state", "summary", "when_to_use",
+          "not_for", "integration_mode", "source", "risk", "permissions",
+          "dependencies", "conflicts", "token_profile", "eval", "decision_ref"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+          "version": { "type": "string", "minLength": 1 },
+          "lifecycle_state": { "enum": ["active", "manual-only", "disabled", "quarantined", "deprecated"] },
+          "summary": { "type": "string", "minLength": 10, "maxLength": 240 },
+          "when_to_use": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 3 } },
+          "not_for": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 3 } },
+          "integration_mode": { "enum": ["native", "vendor-pin", "adapt-local-skill", "adapt-local-principles", "project-local", "research-only"] },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "provenance_ref"],
+            "properties": {
+              "kind": { "enum": ["local", "vendor", "project"] },
+              "repository": { "type": ["string", "null"] },
+              "commit": { "type": ["string", "null"], "pattern": "^[a-f0-9]{40}$" },
+              "license": { "type": ["string", "null"] },
+              "provenance_ref": { "type": "string", "minLength": 1 }
+            }
+          },
+          "risk": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["level", "notes"],
+            "properties": {
+              "level": { "enum": ["low", "medium", "high"] },
+              "notes": { "type": "string", "minLength": 1 }
+            }
+          },
+          "permissions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["filesystem", "shell", "git", "network", "secrets", "external_state"],
+            "properties": {
+              "filesystem": { "enum": ["none", "read-only", "task-scoped", "agent-os-scoped"] },
+              "shell": { "enum": ["none", "project-evidenced", "validation-only"] },
+              "git": { "enum": ["none", "explicit-approval"] },
+              "network": { "enum": ["none", "research-only", "explicit-approval"] },
+              "secrets": { "enum": ["none", "redacted-access"] },
+              "external_state": { "enum": ["none", "explicit-approval"] }
+            }
+          },
+          "dependencies": { "type": "array", "items": { "type": "string" } },
+          "conflicts": { "type": "array", "items": { "type": "string" } },
+          "token_profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["metadata_budget", "activation_budget"],
+            "properties": {
+              "metadata_budget": { "enum": ["tiny", "small"] },
+              "activation_budget": { "enum": ["small", "medium", "large"] }
+            }
+          },
+          "eval": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "case_ids"],
+            "properties": {
+              "status": { "enum": ["passing", "failing", "pending"] },
+              "case_ids": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "decision_ref": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

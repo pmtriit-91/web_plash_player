@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "append_only": true,
+  "receipts": [
+    {
+      "schema_version": 1,
+      "id": "lifecycle-5ec6916f49ef1431a750ec6f",
+      "candidate_id": "notebooklm-mcp-cli-v0.9.0",
+      "capability_id": "notebooklm_research",
+      "action": "update",
+      "state": "active",
+      "integration_mode": "adapt-local-skill",
+      "at": "2026-07-21T07:08:00Z",
+      "decision_ref": "aos13-1-notebooklm-v090-adaptation",
+      "source_snapshot_sha256": "fe74c5eec67d179ba750a73b4f7a71da82f60a7bdb62576ce08b25586958a34c",
+      "eval_case_ids": ["route-notebooklm-studio", "route-notebooklm-direct-research", "route-notebooklm-studio-exploration"],
+      "manifest_refresh_required": true,
+      "commit_created": false,
+      "push_performed": false,
+      "content_sha256": "ceeb3c6d80b340c7a320e045b30738b789521587e08a76180aa203125a24b5f6"
+    }
+  ]
+}
