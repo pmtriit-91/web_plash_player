@@ -1,5 +1,5 @@
 /**
- * Gunny & Flash Games WebSocket-to-TCP Proxy Bridge + Smart Asset, XML Rewriter & Chrome Session Sync Proxy
+ * Gunny & Flash Games WebSocket-to-TCP Proxy Bridge + Clean Path-Based Asset Proxy & XML Rewriter
  * Universal Agent OS - Web Flash Player Engine
  */
 
@@ -14,7 +14,7 @@ const HTTP_PORT = process.env.BRIDGE_HTTP_PORT || 8081;
 const WS_PORT = process.env.BRIDGE_WS_PORT || 8080;
 
 /**
- * Execute AppleScript cleanly via stdin to avoid shell escaping issues
+ * Execute AppleScript cleanly via stdin
  */
 function runAppleScript(script) {
   return new Promise((resolve, reject) => {
@@ -89,14 +89,12 @@ function extractFlashFromHtml(htmlText, finalUrl) {
   let swfRawUrl = null;
   let extractedFlashvars = {};
 
-  // 1. Check <param name="movie" value='...' /> or value="..."
   const paramMovieMatch = /<param[^>]*name=["'](?:movie|src)["'][^>]*value=["']([^"']+)["']/i.exec(htmlText) ||
                           /<param[^>]*value=["']([^"']+)["'][^>]*name=["'](?:movie|src)["']/i.exec(htmlText);
   if (paramMovieMatch) {
     swfRawUrl = paramMovieMatch[1];
   }
 
-  // 2. Check <embed src='...' ...>
   if (!swfRawUrl) {
     const embedSrcMatch = /<embed[^>]*src=["']([^"']+)["']/i.exec(htmlText);
     if (embedSrcMatch) {
@@ -104,7 +102,6 @@ function extractFlashFromHtml(htmlText, finalUrl) {
     }
   }
 
-  // 3. Check swfobject.embedSWF("...")
   if (!swfRawUrl) {
     const swfObjMatch = /swfobject\.embedSWF\s*\(\s*["']([^"']+)["']/i.exec(htmlText);
     if (swfObjMatch) {
@@ -112,7 +109,6 @@ function extractFlashFromHtml(htmlText, finalUrl) {
     }
   }
 
-  // 4. Extract Flashvars from <param name="FlashVars" value="..."> or embed
   const fvParamMatch = /<param[^>]*name=["']flashvars["'][^>]*value=["']([^"']*)["']/i.exec(htmlText) ||
                        /<param[^>]*value=["']([^"']*)["'][^>]*name=["']flashvars["']/i.exec(htmlText) ||
                        /<embed[^>]*flashvars=["']([^"']*)["']/i.exec(htmlText);
@@ -129,7 +125,14 @@ function extractFlashFromHtml(htmlText, finalUrl) {
 
     for (const [k, v] of parsedSwfUrl.searchParams.entries()) {
       if (k === 'config') {
-        extractedFlashvars[k] = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(v)}`;
+        const configUrl = new URL(v);
+        // Map https://s737.gn.zing.vn/config.xml to http://localhost:8081/s737/config.xml
+        const subDomainMatch = /^(s[0-9]+)\.gn\.zing\.vn$/i.exec(configUrl.hostname);
+        if (subDomainMatch) {
+          extractedFlashvars[k] = `http://localhost:${HTTP_PORT}/${subDomainMatch[1]}${configUrl.pathname}`;
+        } else {
+          extractedFlashvars[k] = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(v)}`;
+        }
       } else {
         extractedFlashvars[k] = v;
       }
@@ -150,12 +153,12 @@ function extractFlashFromHtml(htmlText, finalUrl) {
   return { found: false };
 }
 
-// 1. HTTP Server for Status, Smart Inspector, Chrome Sync, Dynamic XML Rewriter, and CORS Proxy
+// 1. HTTP Server for Status, Path-based Asset Proxy, and Session Sync
 const server = http.createServer(async (req, res) => {
-  // Add universal CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
   res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader('Access-Control-Expose-Headers', '*');
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
@@ -164,14 +167,15 @@ const server = http.createServer(async (req, res) => {
   }
 
   const reqUrl = new URL(req.url, `http://localhost:${HTTP_PORT}`);
+  const pathname = reqUrl.pathname;
 
   // Health check endpoint
-  if (reqUrl.pathname === '/health' || reqUrl.pathname === '/') {
+  if (pathname === '/health' || pathname === '/') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       status: 'active',
       service: 'Web Flash Player Network Bridge',
-      version: '1.6.0',
+      version: '2.0.0',
       wsPort: WS_PORT,
       uptime: process.uptime()
     }, null, 2));
@@ -179,7 +183,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Chrome 1-Click Session Sync: /sync-zing-session?sid=737
-  if (reqUrl.pathname === '/sync-zing-session') {
+  if (pathname === '/sync-zing-session') {
     try {
       const sid = reqUrl.searchParams.get('sid') || '737';
       const appleScript = `tell application "Google Chrome"
@@ -211,7 +215,7 @@ end tell`;
         const extracted = extractFlashFromHtml(html, sessionData.url);
 
         if (extracted.found) {
-          const proxiedSwf = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(extracted.cleanSwfUrl)}`;
+          const proxiedSwf = `http://localhost:${HTTP_PORT}/res${sid}/flash/Loading.swf`;
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({
             ok: true,
@@ -220,7 +224,7 @@ end tell`;
             swfUrl: extracted.cleanSwfUrl,
             proxiedSwfUrl: proxiedSwf,
             flashvars: extracted.flashvars,
-            baseUrl: extracted.baseUrl,
+            baseUrl: `http://localhost:${HTTP_PORT}/res${sid}/flash/`,
             message: 'Đã tự động đồng bộ phiên chơi từ Chrome thành công!'
           }));
           return;
@@ -236,104 +240,28 @@ end tell`;
     return;
   }
 
-  // Smart URL Inspector: /inspect-url?url=...
-  if (reqUrl.pathname === '/inspect-url') {
-    const targetUrl = reqUrl.searchParams.get('url');
-    if (!targetUrl) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Missing "url" query parameter' }));
-      return;
-    }
+  // Path-based Proxy Routing for Gunny
+  let targetUrl = null;
 
-    try {
-      const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
-      const contentType = (proxyRes.headers['content-type'] || '').toLowerCase();
-
-      // Collect data chunks
-      const chunks = [];
-      for await (const chunk of proxyRes) {
-        chunks.push(chunk);
-        if (chunks.reduce((acc, c) => acc + c.length, 0) > 1024 * 1024) break;
-      }
-      const buffer = Buffer.concat(chunks);
-
-      // Check if it's a binary SWF (magic bytes: FWS, CWS, ZWS)
-      const magic = buffer.subarray(0, 3).toString('ascii');
-      const isSwfBinary = magic === 'FWS' || magic === 'CWS' || magic === 'ZWS' || contentType.includes('shockwave-flash');
-
-      if (isSwfBinary) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          ok: true,
-          type: 'swf',
-          finalUrl,
-          swfUrl: finalUrl,
-          flashvars: {}
-        }));
-        return;
-      }
-
-      // If it's HTML, parse it for SWF files & Flashvars
-      const htmlText = buffer.toString('utf-8');
-      const extracted = extractFlashFromHtml(htmlText, finalUrl);
-
-      if (extracted.found) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          ok: true,
-          type: 'html_with_flash',
-          finalUrl,
-          swfUrl: extracted.cleanSwfUrl,
-          proxiedSwfUrl: `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(extracted.cleanSwfUrl)}`,
-          flashvars: extracted.flashvars,
-          baseUrl: extracted.baseUrl,
-          message: 'Đã tìm thấy tệp Flash (.swf) và tham số Gunny nhúng trong trang web!'
-        }));
-        return;
-      }
-
-      const isLoginPage = finalUrl.includes('login') || 
-                          finalUrl.includes('id.zing.vn') || 
-                          htmlText.includes('name="password"') || 
-                          htmlText.includes('id="login"') ||
-                          htmlText.includes('dang-nhap') ||
-                          htmlText.includes('id-levelup');
-
-      if (isLoginPage) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          ok: false,
-          type: 'login_required',
-          finalUrl,
-          message: 'Trang web này yêu cầu Đăng nhập tài khoản (Zing ID/Session Cookie).'
-        }));
-        return;
-      }
-
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({
-        ok: false,
-        type: 'html_no_flash',
-        finalUrl,
-        message: 'Trang web không chứa tệp Flash (.SWF) nào.'
-      }));
-
-    } catch (err) {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: false, error: err.message }));
-    }
-    return;
+  if (pathname.startsWith('/vcdn/')) {
+    targetUrl = `https://gunny.vcdn.vn/${pathname.substring('/vcdn/'.length)}${reqUrl.search}`;
+  } else if (/^\/(quest[0-9]+)\//i.test(pathname)) {
+    const match = /^\/(quest[0-9]+)\/(.*)/i.exec(pathname);
+    targetUrl = `https://${match[1]}.gn.zing.vn/${match[2]}${reqUrl.search}`;
+  } else if (/^\/(s[0-9]+)\//i.test(pathname)) {
+    const match = /^\/(s[0-9]+)\/(.*)/i.exec(pathname);
+    targetUrl = `https://${match[1]}.gn.zing.vn/${match[2]}${reqUrl.search}`;
+  } else if (/^\/(res[0-9]+)\//i.test(pathname)) {
+    const match = /^\/(res[0-9]+)\/(.*)/i.exec(pathname);
+    targetUrl = `https://${match[1]}.gn.zing.vn/${match[2]}${reqUrl.search}`;
+  } else if (/^\/(assist[0-9]+)\//i.test(pathname)) {
+    const match = /^\/(assist[0-9]+)\/(.*)/i.exec(pathname);
+    targetUrl = `https://${match[1]}.gn.zing.vn/${match[2]}${reqUrl.search}`;
+  } else if (pathname === '/proxy') {
+    targetUrl = reqUrl.searchParams.get('url');
   }
 
-  // CORS Asset Proxy with Dynamic XML Rewriter: /proxy?url=http://example.com/asset.swf
-  if (reqUrl.pathname === '/proxy') {
-    const targetUrl = reqUrl.searchParams.get('url');
-    if (!targetUrl) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Missing "url" query parameter' }));
-      return;
-    }
-
+  if (targetUrl) {
     try {
       const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
       const isXml = (proxyRes.headers['content-type'] || '').includes('xml') || targetUrl.includes('.xml');
@@ -344,29 +272,26 @@ end tell`;
           xmlContent += chunk.toString('utf-8');
         }
 
-        // Dynamically rewrite FLASHSITE, SITE, REQUEST_PATH, POLICY_FILES to route through Proxy
-        const rewrittenXml = xmlContent.replace(
-          /value=["'](https?:\/\/[^"']+)["']/gi,
-          (match, originalUrl) => {
-            if (originalUrl.includes('vcdn.vn') || originalUrl.includes('zing.vn') || originalUrl.includes('7road.com')) {
-              return `value="http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(originalUrl)}"`;
-            }
-            return match;
-          }
-        );
+        // Clean Path-based XML Rewriter
+        const rewrittenXml = xmlContent
+          .replace(/https?:\/\/gunny\.vcdn\.vn\/flash\//gi, `http://localhost:${HTTP_PORT}/vcdn/flash/`)
+          .replace(/https?:\/\/gunny\.vcdn\.vn\//gi, `http://localhost:${HTTP_PORT}/vcdn/`)
+          .replace(/https?:\/\/(quest[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
+          .replace(/https?:\/\/(s[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
+          .replace(/https?:\/\/(res[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
+          .replace(/https?:\/\/(assist[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`);
 
         res.writeHead(200, {
           'Content-Type': 'application/xml; charset=utf-8',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': '*',
           'Cache-Control': 'no-cache',
-          'X-Rewritten-By': 'Gunny-Bridge-Proxy'
+          'X-Rewritten-By': 'Gunny-Bridge-Path-Proxy'
         });
         res.end(rewrittenXml);
         return;
       }
 
-      // Normal binary streaming proxy (SWF, PNG, MP3, etc.)
       res.writeHead(proxyRes.statusCode || 200, {
         'Content-Type': proxyRes.headers['content-type'] || 'application/octet-stream',
         'Access-Control-Allow-Origin': '*',
@@ -379,7 +304,7 @@ end tell`;
       proxyRes.pipe(res);
     } catch (err) {
       res.writeHead(502, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Proxy request failed', details: err.message }));
+      res.end(JSON.stringify({ error: 'Proxy request failed', details: err.message, targetUrl }));
     }
     return;
   }
@@ -400,7 +325,6 @@ wss.on('connection', (ws, req) => {
 
   console.log(`[Bridge] New client connected. Forwarding to TCP ${targetHost}:${targetPort}`);
 
-  // Create raw TCP connection to the game server
   const tcpSocket = net.createConnection({ host: targetHost, port: targetPort }, () => {
     console.log(`[Bridge] TCP connected to ${targetHost}:${targetPort}`);
   });
