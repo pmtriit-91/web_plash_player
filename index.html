@@ -6,6 +6,57 @@
   <title>Web Flash Player Pro — Universal Agent OS Flash & Gunny Runtime</title>
   <meta name="description" content="Nền tảng giả lập Flash Player WebAssembly hiện đại, hỗ trợ ActionScript 3.0, WebGL rendering và kết nối Game Server Gunny qua WebSocket Bridge.">
   <link rel="stylesheet" href="/src/style.css">
+  <script>
+    window.RufflePlayer = window.RufflePlayer || {};
+    window.RufflePlayer.config = {
+      publicPath: '/ruffle/',
+      polyfills: true,
+      autoplay: 'on',
+      unmuteOverlay: 'visible',
+      letterbox: 'on',
+      warnOnUnsupportedContent: false,
+      logLevel: 'warn',
+      openUrlMode: 'confirm',
+      fontSources: [
+        '/fonts/Arial.ttf',
+        '/fonts/Arial-Bold.ttf',
+        '/fonts/Tahoma.ttf',
+        '/fonts/Tahoma-Bold.ttf'
+      ],
+      defaultFonts: {
+        sansSerif: ['Arial', 'Tahoma', 'Inter', 'sans-serif'],
+        serif: ['Times New Roman', 'serif'],
+        typewriter: ['Courier New', 'monospace']
+      },
+      socketProxy: [
+        // 123gn.net Game Server
+        { host: '15.235.193.106', port: 25565, proxyUrl: 'ws://localhost:8080' },
+        { host: '15.235.193.106', port: 9200, proxyUrl: 'ws://localhost:8080' },
+        { host: '15.235.193.106', port: 9201, proxyUrl: 'ws://localhost:8080' },
+        { host: '15.235.193.106', port: 9208, proxyUrl: 'ws://localhost:8080' },
+        { host: '123gn.net', port: 25565, proxyUrl: 'ws://localhost:8080' },
+        { host: '123gn.net', port: 9200, proxyUrl: 'ws://localhost:8080' },
+        { host: '123gn.net', port: 9201, proxyUrl: 'ws://localhost:8080' },
+
+        // Zing Gunny Game Servers
+        { host: 's737.gn.zing.vn', port: 9200, proxyUrl: 'ws://localhost:8080' },
+        { host: 's737.gn.zing.vn', port: 9201, proxyUrl: 'ws://localhost:8080' },
+        { host: 's737.gn.zing.vn', port: 9208, proxyUrl: 'ws://localhost:8080' },
+        { host: 's737.gn.zing.vn', port: 25565, proxyUrl: 'ws://localhost:8080' },
+        { host: 'quest737.gn.zing.vn', port: 9200, proxyUrl: 'ws://localhost:8080' },
+        { host: 'quest737.gn.zing.vn', port: 9201, proxyUrl: 'ws://localhost:8080' },
+        { host: 'gunny.vcdn.vn', port: 9200, proxyUrl: 'ws://localhost:8080' },
+
+        // Local Dev & Generic Servers
+        { host: '127.0.0.1', port: 9200, proxyUrl: 'ws://localhost:8080' },
+        { host: '127.0.0.1', port: 9201, proxyUrl: 'ws://localhost:8080' },
+        { host: '127.0.0.1', port: 25565, proxyUrl: 'ws://localhost:8080' },
+        { host: 'localhost', port: 9200, proxyUrl: 'ws://localhost:8080' },
+        { host: 'localhost', port: 9201, proxyUrl: 'ws://localhost:8080' },
+        { host: 'localhost', port: 25565, proxyUrl: 'ws://localhost:8080' }
+      ]
+    };
+  </script>
 </head>
 <body>
 

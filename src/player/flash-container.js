@@ -147,6 +147,8 @@ export class FlashContainer {
       const loadConfig = {
         parameters: customConfig.flashvars || {},
         allowScriptAccess: true,
+        openUrlMode: 'confirm',
+        socketProxy: (window.RufflePlayer && window.RufflePlayer.config && window.RufflePlayer.config.socketProxy) ? window.RufflePlayer.config.socketProxy : [],
         wmode: this.options.wmode,
         quality: this.options.quality,
         autoplay: 'on',
