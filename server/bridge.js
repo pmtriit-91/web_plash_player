@@ -344,12 +344,11 @@ end tell`;
     try {
       const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
       
-      // ONLY rewrite plain text config XML files (config.xml, config3.xml)
-      // NEVER alter binary zlib/gzip XML bytearrays (e.g. CardInfoList.xml, ShopItemList.xml)
-      const targetLower = targetUrl.toLowerCase();
-      const isConfigXml = (targetLower.includes('config') || targetLower.includes('serverlist')) && targetLower.includes('.xml');
+      // ONLY rewrite plain text client configuration XML files (e.g. config.xml, config3.xml)
+      // NEVER touch game template XMLs like PetConfigInfo.xml, BombConfig.xml, ServerConfig.xml
+      const isClientConfigXml = /\/config[0-9]*\.xml/i.test(pathname);
 
-      if (isConfigXml) {
+      if (isClientConfigXml) {
         let xmlContent = '';
         for await (const chunk of proxyRes) {
           xmlContent += chunk.toString('utf-8');
