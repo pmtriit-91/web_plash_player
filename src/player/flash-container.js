@@ -66,12 +66,22 @@ export class FlashContainer {
       socketProxy: [
         {
           host: '127.0.0.1',
-          port: 9200,
           proxyUrl: this.options.bridgeWsUrl
         },
         {
           host: 'localhost',
-          port: 9200,
+          proxyUrl: this.options.bridgeWsUrl
+        },
+        {
+          host: 's737.gn.zing.vn',
+          proxyUrl: this.options.bridgeWsUrl
+        },
+        {
+          host: 'quest737.gn.zing.vn',
+          proxyUrl: this.options.bridgeWsUrl
+        },
+        {
+          host: 'gunny.vcdn.vn',
           proxyUrl: this.options.bridgeWsUrl
         }
       ]

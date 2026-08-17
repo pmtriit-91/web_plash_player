@@ -1,5 +1,5 @@
 /**
- * Gunny & Flash Games WebSocket-to-TCP Proxy Bridge + Smart Asset & Chrome Session Sync Proxy
+ * Gunny & Flash Games WebSocket-to-TCP Proxy Bridge + Smart Asset, XML Rewriter & Chrome Session Sync Proxy
  * Universal Agent OS - Web Flash Player Engine
  */
 
@@ -150,7 +150,7 @@ function extractFlashFromHtml(htmlText, finalUrl) {
   return { found: false };
 }
 
-// 1. HTTP Server for Status, Smart Inspector, Chrome Sync, and CORS Proxy
+// 1. HTTP Server for Status, Smart Inspector, Chrome Sync, Dynamic XML Rewriter, and CORS Proxy
 const server = http.createServer(async (req, res) => {
   // Add universal CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -171,7 +171,7 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify({
       status: 'active',
       service: 'Web Flash Player Network Bridge',
-      version: '1.5.0',
+      version: '1.6.0',
       wsPort: WS_PORT,
       uptime: process.uptime()
     }, null, 2));
@@ -325,7 +325,7 @@ end tell`;
     return;
   }
 
-  // CORS Asset Proxy: /proxy?url=http://example.com/asset.swf
+  // CORS Asset Proxy with Dynamic XML Rewriter: /proxy?url=http://example.com/asset.swf
   if (reqUrl.pathname === '/proxy') {
     const targetUrl = reqUrl.searchParams.get('url');
     if (!targetUrl) {
@@ -336,10 +336,41 @@ end tell`;
 
     try {
       const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
+      const isXml = (proxyRes.headers['content-type'] || '').includes('xml') || targetUrl.includes('.xml');
 
+      if (isXml) {
+        let xmlContent = '';
+        for await (const chunk of proxyRes) {
+          xmlContent += chunk.toString('utf-8');
+        }
+
+        // Dynamically rewrite FLASHSITE, SITE, REQUEST_PATH, POLICY_FILES to route through Proxy
+        const rewrittenXml = xmlContent.replace(
+          /value=["'](https?:\/\/[^"']+)["']/gi,
+          (match, originalUrl) => {
+            if (originalUrl.includes('vcdn.vn') || originalUrl.includes('zing.vn') || originalUrl.includes('7road.com')) {
+              return `value="http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(originalUrl)}"`;
+            }
+            return match;
+          }
+        );
+
+        res.writeHead(200, {
+          'Content-Type': 'application/xml; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': '*',
+          'Cache-Control': 'no-cache',
+          'X-Rewritten-By': 'Gunny-Bridge-Proxy'
+        });
+        res.end(rewrittenXml);
+        return;
+      }
+
+      // Normal binary streaming proxy (SWF, PNG, MP3, etc.)
       res.writeHead(proxyRes.statusCode || 200, {
         'Content-Type': proxyRes.headers['content-type'] || 'application/octet-stream',
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
         'Access-Control-Expose-Headers': '*',
         'Cache-Control': 'public, max-age=86400',
         'X-Final-Url': finalUrl
