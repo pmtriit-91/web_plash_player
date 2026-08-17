@@ -1,6 +1,6 @@
 /**
  * Universal Gunny & Flash Games WebSocket-to-TCP Proxy Bridge
- * Supports Zing Gunny, 123gn.net, Private Servers, and Custom Flash Games
+ * Universal Host-Based Reverse Proxy Engine for Zing, 123gn.net, DDTank & Private Servers
  * Universal Agent OS - Web Flash Player Engine
  */
 
@@ -129,19 +129,14 @@ function extractFlashFromHtml(htmlText, finalUrl) {
     for (const [k, v] of parsedSwfUrl.searchParams.entries()) {
       if (k === 'config') {
         const configUrl = new URL(v);
-        const subDomainMatch = /^(s[0-9]+)\.gn\.zing\.vn$/i.exec(configUrl.hostname);
-        if (subDomainMatch) {
-          extractedFlashvars[k] = `http://localhost:${HTTP_PORT}/${subDomainMatch[1]}${configUrl.pathname}`;
-        } else {
-          extractedFlashvars[k] = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(v)}`;
-        }
+        extractedFlashvars[k] = `http://localhost:${HTTP_PORT}/host/${configUrl.host}${configUrl.pathname}`;
       } else {
         extractedFlashvars[k] = v;
       }
     }
 
     const cleanSwfUrl = `${parsedSwfUrl.origin}${parsedSwfUrl.pathname}`;
-    const baseUrl = cleanSwfUrl.substring(0, cleanSwfUrl.lastIndexOf('/') + 1);
+    const baseUrl = `http://localhost:${HTTP_PORT}/host/${parsedSwfUrl.host}${parsedSwfUrl.pathname.substring(0, parsedSwfUrl.pathname.lastIndexOf('/') + 1)}`;
 
     return {
       found: true,
@@ -155,7 +150,7 @@ function extractFlashFromHtml(htmlText, finalUrl) {
   return { found: false };
 }
 
-// 1. HTTP Server for Status, Path-based Asset Proxy, and Universal Session Sync
+// 1. HTTP Server for Status, Host-based Asset Proxy, and Universal Session Sync
 const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
@@ -177,7 +172,7 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify({
       status: 'active',
       service: 'Universal Web Flash Player Bridge',
-      version: '3.1.0',
+      version: '4.0.0',
       wsPort: WS_PORT,
       uptime: process.uptime()
     }, null, 2));
@@ -226,10 +221,10 @@ const server = http.createServer(async (req, res) => {
   repeat with w in windows
     repeat with t in tabs of w
       set tabUrl to URL of t
-      if tabUrl contains "id-levelup.gn.zing.vn" then
-        tell t to return (execute javascript "(() => { var xhr = new XMLHttpRequest(); xhr.open('GET', '/play-game?_svid=${sid}&checkAgree=True', false); xhr.send(null); return JSON.stringify({ type: 'zing', data: JSON.parse(xhr.responseText) }); })()")
-      else if tabUrl contains "123gn.net" or tabUrl contains "/play/" or tabUrl contains "Loading.swf" or tabUrl contains "gunny" then
+      if tabUrl contains "123gn.net" or tabUrl contains "/play/" or tabUrl contains "Loading.swf" then
         tell t to return (execute javascript ${JSON.stringify(jsExtractDirect)})
+      else if tabUrl contains "id-levelup.gn.zing.vn" then
+        tell t to return (execute javascript "(() => { var xhr = new XMLHttpRequest(); xhr.open('GET', '/play-game?_svid=${sid}&checkAgree=True', false); xhr.send(null); return JSON.stringify({ type: 'zing', data: JSON.parse(xhr.responseText) }); })()")
       end if
     end repeat
   end repeat
@@ -255,7 +250,7 @@ end tell`;
         const extracted = extractFlashFromHtml(html, sessionUrl);
 
         if (extracted.found) {
-          const proxiedSwf = `http://localhost:${HTTP_PORT}/res${sid}/flash/Loading.swf`;
+          const proxiedSwf = `http://localhost:${HTTP_PORT}/host/res${sid}.gn.zing.vn/flash/Loading.swf`;
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({
             ok: true,
@@ -265,22 +260,29 @@ end tell`;
             swfUrl: extracted.cleanSwfUrl,
             proxiedSwfUrl: proxiedSwf,
             flashvars: extracted.flashvars,
-            baseUrl: `http://localhost:${HTTP_PORT}/res${sid}/flash/`,
+            baseUrl: `http://localhost:${HTTP_PORT}/host/res${sid}.gn.zing.vn/flash/`,
             message: 'Đã tự động đồng bộ phiên chơi Zing Gunny từ Chrome thành công!'
           }));
           return;
         }
       } else if (syncResult.type === 'direct' && syncResult.swfUrl) {
-        const cleanSwf = syncResult.swfUrl;
+        const cleanSwf = syncResult.swfUrl.replace(/([^:])\/\//g, '$1/');
+        const parsedSwf = new URL(cleanSwf);
         const fv = syncResult.flashvars || {};
         
-        // Proxy config URL if present
+        // Proxy config URL cleanly through /host/
         if (fv.config) {
-          fv.config = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(fv.config)}`;
+          try {
+            const parsedConfig = new URL(fv.config);
+            fv.config = `http://localhost:${HTTP_PORT}/host/${parsedConfig.host}${parsedConfig.pathname}`;
+          } catch (e) {
+            fv.config = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(fv.config)}`;
+          }
         }
 
-        const proxiedSwf = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(cleanSwf)}`;
-        const baseUrl = cleanSwf.substring(0, cleanSwf.lastIndexOf('/') + 1);
+        const proxiedSwf = `http://localhost:${HTTP_PORT}/host/${parsedSwf.host}${parsedSwf.pathname}`;
+        const baseFolder = parsedSwf.pathname.substring(0, parsedSwf.pathname.lastIndexOf('/') + 1);
+        const baseUrl = `http://localhost:${HTTP_PORT}/host/${parsedSwf.host}${baseFolder}`;
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
@@ -290,7 +292,7 @@ end tell`;
           swfUrl: cleanSwf,
           proxiedSwfUrl: proxiedSwf,
           flashvars: fv,
-          baseUrl: `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(baseUrl)}`,
+          baseUrl: baseUrl,
           message: `Đã tự động đồng bộ phiên chơi Gunny (${new URL(syncResult.pageUrl).hostname}) từ Chrome!`
         }));
         return;
@@ -305,10 +307,17 @@ end tell`;
     return;
   }
 
-  // Path-based Proxy Routing for Gunny
+  // Universal Host-based Path Proxy Routing: /host/<domain>/<path>?<query>
   let targetUrl = null;
 
-  if (pathname.startsWith('/vcdn/')) {
+  if (pathname.startsWith('/host/')) {
+    const afterHost = pathname.substring('/host/'.length);
+    const slashIdx = afterHost.indexOf('/');
+    const targetHost = slashIdx !== -1 ? afterHost.substring(0, slashIdx) : afterHost;
+    const targetPath = slashIdx !== -1 ? afterHost.substring(slashIdx) : '/';
+    const protocol = (targetHost.includes('127.0.0.1') || targetHost.includes('localhost')) ? 'http' : 'https';
+    targetUrl = `${protocol}://${targetHost}${targetPath}${reqUrl.search}`;
+  } else if (pathname.startsWith('/vcdn/')) {
     targetUrl = `https://gunny.vcdn.vn/${pathname.substring('/vcdn/'.length)}${reqUrl.search}`;
   } else if (/^\/(quest[0-9]+)\//i.test(pathname)) {
     const match = /^\/(quest[0-9]+)\/(.*)/i.exec(pathname);
@@ -337,25 +346,21 @@ end tell`;
           xmlContent += chunk.toString('utf-8');
         }
 
-        // Clean Path-based XML Rewriter for Zing and Universal Proxy Rewriter for other domains
-        const rewrittenXml = xmlContent
-          .replace(/https?:\/\/gunny\.vcdn\.vn\/flash\//gi, `http://localhost:${HTTP_PORT}/vcdn/flash/`)
-          .replace(/https?:\/\/gunny\.vcdn\.vn\//gi, `http://localhost:${HTTP_PORT}/vcdn/`)
-          .replace(/https?:\/\/(quest[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
-          .replace(/https?:\/\/(s[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
-          .replace(/https?:\/\/(res[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
-          .replace(/https?:\/\/(assist[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
-          .replace(/value=["'](https?:\/\/[^"']+)["']/gi, (match, url) => {
-            if (url.startsWith(`http://localhost:${HTTP_PORT}`)) return match;
-            return `value="http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(url)}"`;
-          });
+        // Universal XML Rewriter: replaces any https://domain.com/path with http://localhost:8081/host/domain.com/path
+        const rewrittenXml = xmlContent.replace(
+          /value=["'](https?:\/\/([^"'\/]+)([^"']*))["']/gi,
+          (match, fullUrl, host, restPath) => {
+            if (fullUrl.startsWith(`http://localhost:${HTTP_PORT}`)) return match;
+            return `value="http://localhost:${HTTP_PORT}/host/${host}${restPath}"`;
+          }
+        );
 
         res.writeHead(200, {
           'Content-Type': 'application/xml; charset=utf-8',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': '*',
           'Cache-Control': 'no-cache',
-          'X-Rewritten-By': 'Gunny-Bridge-Universal-Proxy'
+          'X-Rewritten-By': 'Universal-Host-Path-Proxy'
         });
         res.end(rewrittenXml);
         return;
