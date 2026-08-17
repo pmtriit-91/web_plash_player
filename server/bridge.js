@@ -1,5 +1,6 @@
 /**
- * Gunny & Flash Games WebSocket-to-TCP Proxy Bridge + Clean Path-Based Asset Proxy & XML Rewriter
+ * Universal Gunny & Flash Games WebSocket-to-TCP Proxy Bridge
+ * Supports Zing Gunny, 123gn.net, Private Servers, and Custom Flash Games
  * Universal Agent OS - Web Flash Player Engine
  */
 
@@ -53,6 +54,8 @@ async function fetchWithRedirects(targetUrl, maxRedirects = 5, customHeaders = {
     let referer = `${parsed.protocol}//${parsed.host}/`;
     if (parsed.hostname.endsWith('zing.vn') || parsed.hostname.endsWith('vcdn.vn')) {
       referer = 'https://id-levelup.gn.zing.vn/server-game';
+    } else if (parsed.hostname.includes('123gn.net')) {
+      referer = 'https://123gn.net/play/1001';
     }
 
     const headers = {
@@ -126,7 +129,6 @@ function extractFlashFromHtml(htmlText, finalUrl) {
     for (const [k, v] of parsedSwfUrl.searchParams.entries()) {
       if (k === 'config') {
         const configUrl = new URL(v);
-        // Map https://s737.gn.zing.vn/config.xml to http://localhost:8081/s737/config.xml
         const subDomainMatch = /^(s[0-9]+)\.gn\.zing\.vn$/i.exec(configUrl.hostname);
         if (subDomainMatch) {
           extractedFlashvars[k] = `http://localhost:${HTTP_PORT}/${subDomainMatch[1]}${configUrl.pathname}`;
@@ -153,7 +155,7 @@ function extractFlashFromHtml(htmlText, finalUrl) {
   return { found: false };
 }
 
-// 1. HTTP Server for Status, Path-based Asset Proxy, and Session Sync
+// 1. HTTP Server for Status, Path-based Asset Proxy, and Universal Session Sync
 const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
@@ -174,23 +176,60 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       status: 'active',
-      service: 'Web Flash Player Network Bridge',
-      version: '2.0.0',
+      service: 'Universal Web Flash Player Bridge',
+      version: '3.1.0',
       wsPort: WS_PORT,
       uptime: process.uptime()
     }, null, 2));
     return;
   }
 
-  // Chrome 1-Click Session Sync: /sync-zing-session?sid=737
-  if (pathname === '/sync-zing-session') {
+  // Universal Gunny 1-Click Session Sync from Chrome (Zing, 123gn.net, Private Servers)
+  if (pathname === '/sync-zing-session' || pathname === '/sync-gunny-session') {
     try {
       const sid = reqUrl.searchParams.get('sid') || '737';
+      const jsExtractDirect = `(() => {
+        var html = document.documentElement.innerHTML;
+        var swf = (typeof swfPath !== 'undefined') ? swfPath : '';
+        if (!swf) {
+          var el = document.querySelector('object, embed');
+          if (el) swf = el.getAttribute('data') || el.getAttribute('movie') || el.src || '';
+        }
+        if (!swf) {
+          var m = html.match(/(https?:\\/\\/[^"'\\s]+\\/Loading\\.swf)/i);
+          if (m) swf = m[1];
+        }
+        if (!swf) swf = 'https://123gn.net/flash3/Loading.swf';
+
+        var fv = null;
+        if (typeof flashvars !== 'undefined' && typeof flashvars === 'object') {
+          fv = Object.assign({}, flashvars);
+        }
+        if (!fv) {
+          var mFvObj = html.match(/flashvars\\s*=\\s*({[\\s\\S]*?});/i);
+          if (mFvObj) {
+            try { eval('fv = ' + mFvObj[1]); } catch(e){}
+          }
+        }
+        if (!fv) {
+          var mFvStr = html.match(/flashvars[\"'\s]*[:=][\"'\s]*([a-zA-Z0-9_=&%\\/:.\\-]+)/i);
+          if (mFvStr) {
+            var sp = new URLSearchParams(mFvStr[1].replace(/&amp;/g, '&'));
+            fv = {};
+            for (var pair of sp.entries()) fv[pair[0]] = pair[1];
+          }
+        }
+        return JSON.stringify({ type: 'direct', swfUrl: swf, flashvars: fv || {}, pageUrl: window.location.href });
+      })()`;
+
       const appleScript = `tell application "Google Chrome"
   repeat with w in windows
     repeat with t in tabs of w
-      if URL of t contains "id-levelup.gn.zing.vn" then
-        tell t to return (execute javascript "(() => { var xhr = new XMLHttpRequest(); xhr.open('GET', '/play-game?_svid=${sid}&checkAgree=True', false); xhr.send(null); return xhr.responseText; })()")
+      set tabUrl to URL of t
+      if tabUrl contains "id-levelup.gn.zing.vn" then
+        tell t to return (execute javascript "(() => { var xhr = new XMLHttpRequest(); xhr.open('GET', '/play-game?_svid=${sid}&checkAgree=True', false); xhr.send(null); return JSON.stringify({ type: 'zing', data: JSON.parse(xhr.responseText) }); })()")
+      else if tabUrl contains "123gn.net" or tabUrl contains "/play/" or tabUrl contains "Loading.swf" or tabUrl contains "gunny" then
+        tell t to return (execute javascript ${JSON.stringify(jsExtractDirect)})
       end if
     end repeat
   end repeat
@@ -201,38 +240,64 @@ end tell`;
 
       if (outputText === 'NOT_FOUND' || !outputText) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: false, error: 'Không tìm thấy tab Gunny (id-levelup.gn.zing.vn) nào đang mở trong Chrome.' }));
+        res.end(JSON.stringify({ ok: false, error: 'Không tìm thấy tab Gunny (Zing hoặc 123gn.net) nào đang mở trong Chrome.' }));
         return;
       }
 
-      const sessionData = JSON.parse(outputText);
+      const syncResult = JSON.parse(outputText);
 
-      if (sessionData.ret === 1 && sessionData.url) {
-        const { response: pageRes } = await fetchWithRedirects(sessionData.url);
+      if (syncResult.type === 'zing' && syncResult.data && syncResult.data.ret === 1) {
+        const sessionUrl = syncResult.data.url;
+        const { response: pageRes } = await fetchWithRedirects(sessionUrl);
         let html = '';
         for await (const chunk of pageRes) html += chunk.toString('utf-8');
 
-        const extracted = extractFlashFromHtml(html, sessionData.url);
+        const extracted = extractFlashFromHtml(html, sessionUrl);
 
         if (extracted.found) {
           const proxiedSwf = `http://localhost:${HTTP_PORT}/res${sid}/flash/Loading.swf`;
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({
             ok: true,
+            serverType: 'zing',
             serverId: sid,
-            serverUrl: sessionData.url,
+            serverUrl: sessionUrl,
             swfUrl: extracted.cleanSwfUrl,
             proxiedSwfUrl: proxiedSwf,
             flashvars: extracted.flashvars,
             baseUrl: `http://localhost:${HTTP_PORT}/res${sid}/flash/`,
-            message: 'Đã tự động đồng bộ phiên chơi từ Chrome thành công!'
+            message: 'Đã tự động đồng bộ phiên chơi Zing Gunny từ Chrome thành công!'
           }));
           return;
         }
+      } else if (syncResult.type === 'direct' && syncResult.swfUrl) {
+        const cleanSwf = syncResult.swfUrl;
+        const fv = syncResult.flashvars || {};
+        
+        // Proxy config URL if present
+        if (fv.config) {
+          fv.config = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(fv.config)}`;
+        }
+
+        const proxiedSwf = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(cleanSwf)}`;
+        const baseUrl = cleanSwf.substring(0, cleanSwf.lastIndexOf('/') + 1);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          ok: true,
+          serverType: 'private',
+          serverUrl: syncResult.pageUrl,
+          swfUrl: cleanSwf,
+          proxiedSwfUrl: proxiedSwf,
+          flashvars: fv,
+          baseUrl: `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(baseUrl)}`,
+          message: `Đã tự động đồng bộ phiên chơi Gunny (${new URL(syncResult.pageUrl).hostname}) từ Chrome!`
+        }));
+        return;
       }
 
       res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: false, error: 'Không lấy được phiên chơi. Hãy chắc chắn tab Chrome đang mở trang chọn server Gunny.' }));
+      res.end(JSON.stringify({ ok: false, error: 'Không thể trích xuất thông tin game từ tab Chrome đang mở.' }));
     } catch (e) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: false, error: e.message }));
@@ -272,21 +337,25 @@ end tell`;
           xmlContent += chunk.toString('utf-8');
         }
 
-        // Clean Path-based XML Rewriter
+        // Clean Path-based XML Rewriter for Zing and Universal Proxy Rewriter for other domains
         const rewrittenXml = xmlContent
           .replace(/https?:\/\/gunny\.vcdn\.vn\/flash\//gi, `http://localhost:${HTTP_PORT}/vcdn/flash/`)
           .replace(/https?:\/\/gunny\.vcdn\.vn\//gi, `http://localhost:${HTTP_PORT}/vcdn/`)
           .replace(/https?:\/\/(quest[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
           .replace(/https?:\/\/(s[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
           .replace(/https?:\/\/(res[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
-          .replace(/https?:\/\/(assist[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`);
+          .replace(/https?:\/\/(assist[0-9]+)\.gn\.zing\.vn\//gi, `http://localhost:${HTTP_PORT}/$1/`)
+          .replace(/value=["'](https?:\/\/[^"']+)["']/gi, (match, url) => {
+            if (url.startsWith(`http://localhost:${HTTP_PORT}`)) return match;
+            return `value="http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(url)}"`;
+          });
 
         res.writeHead(200, {
           'Content-Type': 'application/xml; charset=utf-8',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': '*',
           'Cache-Control': 'no-cache',
-          'X-Rewritten-By': 'Gunny-Bridge-Path-Proxy'
+          'X-Rewritten-By': 'Gunny-Bridge-Universal-Proxy'
         });
         res.end(rewrittenXml);
         return;
