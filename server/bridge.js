@@ -1,6 +1,6 @@
 /**
  * Universal Gunny & Flash Games WebSocket-to-TCP Proxy Bridge
- * Universal Host-Based Reverse Proxy Engine for Zing, 123gn.net, DDTank & Private Servers
+ * Precision Config Rewriter & Binary Asset Preservation Proxy
  * Universal Agent OS - Web Flash Player Engine
  */
 
@@ -172,7 +172,7 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify({
       status: 'active',
       service: 'Universal Web Flash Player Bridge',
-      version: '4.0.0',
+      version: '4.5.0',
       wsPort: WS_PORT,
       uptime: process.uptime()
     }, null, 2));
@@ -338,9 +338,13 @@ end tell`;
   if (targetUrl) {
     try {
       const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
-      const isXml = (proxyRes.headers['content-type'] || '').includes('xml') || targetUrl.includes('.xml');
+      
+      // ONLY rewrite plain text config XML files (config.xml, config3.xml)
+      // NEVER alter binary zlib/gzip XML bytearrays (e.g. CardInfoList.xml, ShopItemList.xml)
+      const targetLower = targetUrl.toLowerCase();
+      const isConfigXml = (targetLower.includes('config') || targetLower.includes('serverlist')) && targetLower.includes('.xml');
 
-      if (isXml) {
+      if (isConfigXml) {
         let xmlContent = '';
         for await (const chunk of proxyRes) {
           xmlContent += chunk.toString('utf-8');
@@ -360,12 +364,13 @@ end tell`;
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': '*',
           'Cache-Control': 'no-cache',
-          'X-Rewritten-By': 'Universal-Host-Path-Proxy'
+          'X-Rewritten-By': 'Universal-Host-Config-Proxy'
         });
         res.end(rewrittenXml);
         return;
       }
 
+      // Stream ALL binary assets and data XML files untouched
       res.writeHead(proxyRes.statusCode || 200, {
         'Content-Type': proxyRes.headers['content-type'] || 'application/octet-stream',
         'Access-Control-Allow-Origin': '*',
