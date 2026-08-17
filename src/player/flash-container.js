@@ -76,6 +76,14 @@ export class FlashContainer {
       },
       socketProxy: [
         {
+          host: '15.235.193.106',
+          proxyUrl: this.options.bridgeWsUrl
+        },
+        {
+          host: '123gn.net',
+          proxyUrl: this.options.bridgeWsUrl
+        },
+        {
           host: '127.0.0.1',
           proxyUrl: this.options.bridgeWsUrl
         },
