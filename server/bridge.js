@@ -7,17 +7,39 @@ import http from 'http';
 import https from 'https';
 import net from 'net';
 import { URL } from 'url';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { spawn } from 'child_process';
 import { WebSocketServer, WebSocket } from 'ws';
-
-const execAsync = promisify(exec);
 
 const HTTP_PORT = process.env.BRIDGE_HTTP_PORT || 8081;
 const WS_PORT = process.env.BRIDGE_WS_PORT || 8080;
 
 /**
- * Helper to fetch a URL following HTTP redirects
+ * Execute AppleScript cleanly via stdin to avoid shell escaping issues
+ */
+function runAppleScript(script) {
+  return new Promise((resolve, reject) => {
+    const child = spawn('osascript', []);
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', (d) => { stdout += d; });
+    child.stderr.on('data', (d) => { stderr += d; });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve(stdout.trim());
+      } else {
+        reject(new Error(stderr.trim() || `AppleScript exited with code ${code}`));
+      }
+    });
+
+    child.stdin.write(script);
+    child.stdin.end();
+  });
+}
+
+/**
+ * Helper to fetch a URL following HTTP redirects with intelligent referer
  */
 async function fetchWithRedirects(targetUrl, maxRedirects = 5, customHeaders = {}) {
   let currentUrl = targetUrl;
@@ -28,10 +50,15 @@ async function fetchWithRedirects(targetUrl, maxRedirects = 5, customHeaders = {
     const isHttps = parsed.protocol === 'https:';
     const httpModule = isHttps ? https : http;
 
+    let referer = `${parsed.protocol}//${parsed.host}/`;
+    if (parsed.hostname.endsWith('zing.vn') || parsed.hostname.endsWith('vcdn.vn')) {
+      referer = 'https://id-levelup.gn.zing.vn/server-game';
+    }
+
     const headers = {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       'Accept': '*/*',
-      'Referer': `${parsed.protocol}//${parsed.host}/`,
+      'Referer': referer,
       ...customHeaders
     };
 
@@ -55,6 +82,74 @@ async function fetchWithRedirects(targetUrl, maxRedirects = 5, customHeaders = {
   throw new Error('Too many redirects');
 }
 
+/**
+ * Extract Flash SWF and Flashvars from HTML
+ */
+function extractFlashFromHtml(htmlText, finalUrl) {
+  let swfRawUrl = null;
+  let extractedFlashvars = {};
+
+  // 1. Check <param name="movie" value='...' /> or value="..."
+  const paramMovieMatch = /<param[^>]*name=["'](?:movie|src)["'][^>]*value=["']([^"']+)["']/i.exec(htmlText) ||
+                          /<param[^>]*value=["']([^"']+)["'][^>]*name=["'](?:movie|src)["']/i.exec(htmlText);
+  if (paramMovieMatch) {
+    swfRawUrl = paramMovieMatch[1];
+  }
+
+  // 2. Check <embed src='...' ...>
+  if (!swfRawUrl) {
+    const embedSrcMatch = /<embed[^>]*src=["']([^"']+)["']/i.exec(htmlText);
+    if (embedSrcMatch) {
+      swfRawUrl = embedSrcMatch[1];
+    }
+  }
+
+  // 3. Check swfobject.embedSWF("...")
+  if (!swfRawUrl) {
+    const swfObjMatch = /swfobject\.embedSWF\s*\(\s*["']([^"']+)["']/i.exec(htmlText);
+    if (swfObjMatch) {
+      swfRawUrl = swfObjMatch[1];
+    }
+  }
+
+  // 4. Extract Flashvars from <param name="FlashVars" value="..."> or embed
+  const fvParamMatch = /<param[^>]*name=["']flashvars["'][^>]*value=["']([^"']*)["']/i.exec(htmlText) ||
+                       /<param[^>]*value=["']([^"']*)["'][^>]*name=["']flashvars["']/i.exec(htmlText) ||
+                       /<embed[^>]*flashvars=["']([^"']*)["']/i.exec(htmlText);
+  if (fvParamMatch && fvParamMatch[1]) {
+    const fvParams = new URLSearchParams(fvParamMatch[1]);
+    for (const [k, v] of fvParams.entries()) {
+      extractedFlashvars[k] = v;
+    }
+  }
+
+  if (swfRawUrl) {
+    const fullSwfUrl = new URL(swfRawUrl, finalUrl).toString();
+    const parsedSwfUrl = new URL(fullSwfUrl);
+
+    for (const [k, v] of parsedSwfUrl.searchParams.entries()) {
+      if (k === 'config') {
+        extractedFlashvars[k] = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(v)}`;
+      } else {
+        extractedFlashvars[k] = v;
+      }
+    }
+
+    const cleanSwfUrl = `${parsedSwfUrl.origin}${parsedSwfUrl.pathname}`;
+    const baseUrl = cleanSwfUrl.substring(0, cleanSwfUrl.lastIndexOf('/') + 1);
+
+    return {
+      found: true,
+      cleanSwfUrl,
+      fullSwfUrl,
+      flashvars: extractedFlashvars,
+      baseUrl
+    };
+  }
+
+  return { found: false };
+}
+
 // 1. HTTP Server for Status, Smart Inspector, Chrome Sync, and CORS Proxy
 const server = http.createServer(async (req, res) => {
   // Add universal CORS headers
@@ -76,7 +171,7 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify({
       status: 'active',
       service: 'Web Flash Player Network Bridge',
-      version: '1.2.0',
+      version: '1.5.0',
       wsPort: WS_PORT,
       uptime: process.uptime()
     }, null, 2));
@@ -87,39 +182,49 @@ const server = http.createServer(async (req, res) => {
   if (reqUrl.pathname === '/sync-zing-session') {
     try {
       const sid = reqUrl.searchParams.get('sid') || '737';
-      const script = `tell application "Google Chrome" to execute front window's active tab javascript "(() => { var xhr = new XMLHttpRequest(); xhr.open('GET', '/play-game?_svid=${sid}&checkAgree=True', false); xhr.send(null); return xhr.responseText; })()"`;
-      
-      const { stdout } = await execAsync(`osascript -e ${JSON.stringify(script)}`);
-      const sessionData = JSON.parse(stdout.trim());
+      const appleScript = `tell application "Google Chrome"
+  repeat with w in windows
+    repeat with t in tabs of w
+      if URL of t contains "id-levelup.gn.zing.vn" then
+        tell t to return (execute javascript "(() => { var xhr = new XMLHttpRequest(); xhr.open('GET', '/play-game?_svid=${sid}&checkAgree=True', false); xhr.send(null); return xhr.responseText; })()")
+      end if
+    end repeat
+  end repeat
+  return "NOT_FOUND"
+end tell`;
+
+      const outputText = await runAppleScript(appleScript);
+
+      if (outputText === 'NOT_FOUND' || !outputText) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: 'Không tìm thấy tab Gunny (id-levelup.gn.zing.vn) nào đang mở trong Chrome.' }));
+        return;
+      }
+
+      const sessionData = JSON.parse(outputText);
 
       if (sessionData.ret === 1 && sessionData.url) {
-        // Fetch the game Default.aspx to extract the exact Loading.swf and Flashvars
         const { response: pageRes } = await fetchWithRedirects(sessionData.url);
         let html = '';
         for await (const chunk of pageRes) html += chunk.toString('utf-8');
 
-        // Extract Loading.swf
-        const swfMatch = /src=['"]([^'"]+Loading\.swf[^'"]*)['"]/i.exec(html) || /value=['"]([^'"]+Loading\.swf[^'"]*)['"]/i.exec(html);
-        const flashvarsMatch = /flashvars=['"]([^'"]*)['"]/i.exec(html);
+        const extracted = extractFlashFromHtml(html, sessionData.url);
 
-        let swfUrl = swfMatch ? swfMatch[1] : null;
-        let flashvars = {};
-        if (flashvarsMatch) {
-          const params = new URLSearchParams(flashvarsMatch[1]);
-          for (const [k, v] of params.entries()) flashvars[k] = v;
+        if (extracted.found) {
+          const proxiedSwf = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(extracted.cleanSwfUrl)}`;
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            ok: true,
+            serverId: sid,
+            serverUrl: sessionData.url,
+            swfUrl: extracted.cleanSwfUrl,
+            proxiedSwfUrl: proxiedSwf,
+            flashvars: extracted.flashvars,
+            baseUrl: extracted.baseUrl,
+            message: 'Đã tự động đồng bộ phiên chơi từ Chrome thành công!'
+          }));
+          return;
         }
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          ok: true,
-          serverId: sid,
-          serverUrl: sessionData.url,
-          swfUrl: swfUrl || `https://res${sid}.gn.zing.vn/flash/Loading.swf`,
-          proxiedSwfUrl: `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(swfUrl || `https://res${sid}.gn.zing.vn/flash/Loading.swf`)}`,
-          flashvars,
-          message: 'Đã tự động đồng bộ phiên chơi từ Chrome thành công!'
-        }));
-        return;
       }
 
       res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -170,55 +275,29 @@ const server = http.createServer(async (req, res) => {
 
       // If it's HTML, parse it for SWF files & Flashvars
       const htmlText = buffer.toString('utf-8');
-      
+      const extracted = extractFlashFromHtml(htmlText, finalUrl);
+
+      if (extracted.found) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          ok: true,
+          type: 'html_with_flash',
+          finalUrl,
+          swfUrl: extracted.cleanSwfUrl,
+          proxiedSwfUrl: `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(extracted.cleanSwfUrl)}`,
+          flashvars: extracted.flashvars,
+          baseUrl: extracted.baseUrl,
+          message: 'Đã tìm thấy tệp Flash (.swf) và tham số Gunny nhúng trong trang web!'
+        }));
+        return;
+      }
+
       const isLoginPage = finalUrl.includes('login') || 
                           finalUrl.includes('id.zing.vn') || 
                           htmlText.includes('name="password"') || 
                           htmlText.includes('id="login"') ||
                           htmlText.includes('dang-nhap') ||
                           htmlText.includes('id-levelup');
-
-      // Search for SWF URLs in the HTML
-      const swfRegex = /(?:src|data|movie|value)=["']([^"']+\.swf(?:\?[^"']*)?)["']/gi;
-      const swfObjectRegex = /swfobject\.embedSWF\s*\(\s*["']([^"']+)["']/gi;
-      
-      const foundSwfs = [];
-      let match;
-      while ((match = swfRegex.exec(htmlText)) !== null) {
-        foundSwfs.push(match[1]);
-      }
-      while ((match = swfObjectRegex.exec(htmlText)) !== null) {
-        foundSwfs.push(match[1]);
-      }
-
-      // Search for flashvars in HTML
-      const flashvarsRegex = /flashvars\s*[:=]\s*["']([^"']+)["']/i;
-      let extractedFlashvars = {};
-
-      const fvMatch = flashvarsRegex.exec(htmlText);
-      if (fvMatch) {
-        const params = new URLSearchParams(fvMatch[1]);
-        for (const [k, v] of params.entries()) {
-          extractedFlashvars[k] = v;
-        }
-      }
-
-      if (foundSwfs.length > 0) {
-        const rawSwf = foundSwfs[0];
-        const resolvedSwfUrl = new URL(rawSwf, finalUrl).toString();
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          ok: true,
-          type: 'html_with_flash',
-          finalUrl,
-          swfUrl: resolvedSwfUrl,
-          allFoundSwfs: foundSwfs.map(s => new URL(s, finalUrl).toString()),
-          flashvars: extractedFlashvars,
-          message: 'Đã tìm thấy tệp Flash (.swf) nhúng trong trang web!'
-        }));
-        return;
-      }
 
       if (isLoginPage) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
