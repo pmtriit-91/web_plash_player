@@ -1,6 +1,6 @@
 /**
  * Universal Gunny & Flash Games WebSocket-to-TCP Proxy Bridge
- * Precision Config Rewriter & Binary Asset Preservation Proxy
+ * Intelligent Session Extraction & Smart Socket Routing Engine
  * Universal Agent OS - Web Flash Player Engine
  */
 
@@ -13,6 +13,11 @@ import { WebSocketServer, WebSocket } from 'ws';
 
 const HTTP_PORT = process.env.BRIDGE_HTTP_PORT || 8081;
 const WS_PORT = process.env.BRIDGE_WS_PORT || 8080;
+
+let lastDetectedGameServer = {
+  host: '15.235.193.106',
+  port: 25565
+};
 
 /**
  * Execute AppleScript cleanly via stdin
@@ -172,8 +177,9 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify({
       status: 'active',
       service: 'Universal Web Flash Player Bridge',
-      version: '4.5.0',
+      version: '5.0.0',
       wsPort: WS_PORT,
+      activeGameServer: lastDetectedGameServer,
       uptime: process.uptime()
     }, null, 2));
     return;
@@ -183,28 +189,29 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/sync-zing-session' || pathname === '/sync-gunny-session') {
     try {
       const sid = reqUrl.searchParams.get('sid') || '737';
+      
+      // Intelligent XHR session fetch to obtain a brand new pristine unconsumed session key
       const jsExtractDirect = `(() => {
-        var html = document.documentElement.innerHTML;
-        var swf = (typeof swfPath !== 'undefined') ? swfPath : '';
-        if (!swf) {
-          var el = document.querySelector('object, embed');
-          if (el) swf = el.getAttribute('data') || el.getAttribute('movie') || el.src || '';
+        var html = '';
+        try {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', window.location.href, false);
+          xhr.send(null);
+          html = xhr.responseText || '';
+        } catch(e) {
+          html = document.documentElement.innerHTML;
         }
-        if (!swf) {
-          var m = html.match(/(https?:\\/\\/[^"'\\s]+\\/Loading\\.swf)/i);
-          if (m) swf = m[1];
-        }
+        if (!html) html = document.documentElement.innerHTML;
+
+        var swf = '';
+        var mSwf = html.match(/swfPath\\s*=\\s*[\"']([^\"']+)[\"']/i) || html.match(/(https?:\\/\\/[^\"'\\s]+\\/Loading\\.swf)/i);
+        if (mSwf) swf = mSwf[1];
         if (!swf) swf = 'https://123gn.net/flash3/Loading.swf';
 
         var fv = null;
-        if (typeof flashvars !== 'undefined' && typeof flashvars === 'object') {
-          fv = Object.assign({}, flashvars);
-        }
-        if (!fv) {
-          var mFvObj = html.match(/flashvars\\s*=\\s*({[\\s\\S]*?});/i);
-          if (mFvObj) {
-            try { eval('fv = ' + mFvObj[1]); } catch(e){}
-          }
+        var mFvObj = html.match(/flashvars\\s*=\\s*({[\\s\\S]*?});/i);
+        if (mFvObj) {
+          try { eval('fv = ' + mFvObj[1]); } catch(e){}
         }
         if (!fv) {
           var mFvStr = html.match(/flashvars[\"'\s]*[:=][\"'\s]*([a-zA-Z0-9_=&%\\/:.\\-]+)/i);
@@ -250,6 +257,7 @@ end tell`;
         const extracted = extractFlashFromHtml(html, sessionUrl);
 
         if (extracted.found) {
+          lastDetectedGameServer = { host: `s${sid}.gn.zing.vn`, port: 9200 };
           const proxiedSwf = `http://localhost:${HTTP_PORT}/host/res${sid}.gn.zing.vn/flash/Loading.swf`;
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({
@@ -261,11 +269,13 @@ end tell`;
             proxiedSwfUrl: proxiedSwf,
             flashvars: extracted.flashvars,
             baseUrl: `http://localhost:${HTTP_PORT}/host/res${sid}.gn.zing.vn/flash/`,
+            gameServer: lastDetectedGameServer,
             message: 'Đã tự động đồng bộ phiên chơi Zing Gunny từ Chrome thành công!'
           }));
           return;
         }
       } else if (syncResult.type === 'direct' && syncResult.swfUrl) {
+        lastDetectedGameServer = { host: '15.235.193.106', port: 25565 };
         const cleanSwf = syncResult.swfUrl.replace(/([^:])\/\//g, '$1/');
         const parsedSwf = new URL(cleanSwf);
         const fv = syncResult.flashvars || {};
@@ -293,6 +303,7 @@ end tell`;
           proxiedSwfUrl: proxiedSwf,
           flashvars: fv,
           baseUrl: baseUrl,
+          gameServer: lastDetectedGameServer,
           message: `Đã tự động đồng bộ phiên chơi Gunny (${new URL(syncResult.pageUrl).hostname}) từ Chrome!`
         }));
         return;
@@ -337,7 +348,7 @@ end tell`;
 
   // Handle 404 fallbacks for private server legacy trainer files
   if (pathname.endsWith('/tutorial.swf')) {
-    targetUrl = targetUrl.replace(/\/tutorial\.swf/i, '/ui/spain/swf/Trainer.swf');
+    targetUrl = targetUrl ? targetUrl.replace(/\/tutorial\.swf/i, '/ui/spain/swf/Trainer.swf') : 'https://123gn.net/flash3/ui/spain/swf/Trainer.swf';
   }
 
   if (targetUrl) {
@@ -405,8 +416,16 @@ console.log(`[Bridge] WebSocket-to-TCP Gateway listening on ws://localhost:${WS_
 
 wss.on('connection', (ws, req) => {
   const reqUrl = new URL(req.url, `http://localhost:${WS_PORT}`);
-  const targetHost = reqUrl.searchParams.get('host') || '127.0.0.1';
-  const targetPort = parseInt(reqUrl.searchParams.get('port') || '9200', 10);
+  let targetHost = reqUrl.searchParams.get('host');
+  let targetPort = parseInt(reqUrl.searchParams.get('port'), 10);
+
+  // Intelligent fallback to active game server
+  if (!targetHost || targetHost === '127.0.0.1' || targetHost === 'localhost') {
+    targetHost = lastDetectedGameServer.host;
+  }
+  if (!targetPort || isNaN(targetPort) || (targetPort === 9200 && lastDetectedGameServer.port !== 9200)) {
+    targetPort = lastDetectedGameServer.port;
+  }
 
   console.log(`[Bridge] New client connected. Forwarding to TCP ${targetHost}:${targetPort}`);
 
