@@ -63,6 +63,17 @@ export class FlashContainer {
       quality: this.options.quality,
       wmode: this.options.wmode,
       allowScriptAccess: this.options.allowScriptAccess,
+      fontSources: [
+        '/fonts/Arial.ttf',
+        '/fonts/Arial-Bold.ttf',
+        '/fonts/Tahoma.ttf',
+        '/fonts/Tahoma-Bold.ttf'
+      ],
+      defaultFonts: {
+        sansSerif: ['Arial', 'Tahoma', 'Inter', 'sans-serif'],
+        serif: ['Times New Roman', 'serif'],
+        typewriter: ['Courier New', 'monospace']
+      },
       socketProxy: [
         {
           host: '127.0.0.1',

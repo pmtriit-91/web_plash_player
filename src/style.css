@@ -1,5 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap');
 
+@font-face {
+  font-family: 'Arial';
+  src: url('/fonts/Arial.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Arial';
+  src: url('/fonts/Arial-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Tahoma';
+  src: url('/fonts/Tahoma.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Tahoma';
+  src: url('/fonts/Tahoma-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'FlashFallbackFont';
+  src: url('/fonts/Arial.ttf') format('truetype');
+}
+
 :root {
   --bg-primary: #080b12;
   --bg-secondary: #0f1422;
