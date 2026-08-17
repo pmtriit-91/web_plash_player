@@ -37,6 +37,7 @@ export class PlayerControls {
     this.inputGunnyPort = document.getElementById('input-gunny-port');
     this.inputGunnyResource = document.getElementById('input-gunny-resource');
     this.btnLaunchGunny = document.getElementById('btn-launch-gunny');
+    this.btnSyncZing = document.getElementById('btn-sync-zing');
     this.bridgeConsole = document.getElementById('bridge-console');
 
     this.inputFlashvars = document.getElementById('input-flashvars');
@@ -196,7 +197,43 @@ export class PlayerControls {
       }
     });
 
-    // 9. Gunny Launch Button
+    // 9. 1-Click Sync Zing Gunny Session from Chrome
+    if (this.btnSyncZing) {
+      this.btnSyncZing.addEventListener('click', async () => {
+        this.btnSyncZing.disabled = true;
+        this.btnSyncZing.textContent = '⏳ Đang đồng bộ từ Chrome...';
+        this.logBridge('[Sync] Đang truy vấn phiên đăng nhập Gunny từ tab Chrome...');
+
+        try {
+          const res = await fetch('http://localhost:8081/sync-zing-session?sid=737');
+          const data = await res.json();
+
+          if (data.ok && data.swfUrl) {
+            this.showToast(`🎉 Đồng bộ thành công Máy chủ ${data.serverId}! Đang nạp game...`);
+            this.logBridge(`[Sync] Đã trích xuất SWF: ${data.swfUrl}`, 'success');
+            this.logBridge(`[Sync] Đã xác thực User kufa91 (Server ${data.serverId})`, 'success');
+
+            if (data.flashvars) {
+              this.inputFlashvars.value = JSON.stringify(data.flashvars, null, 2);
+            }
+
+            const proxiedUrl = data.proxiedSwfUrl || this.bridge.getProxiedUrl(data.swfUrl);
+            await this.runGame(proxiedUrl, { flashvars: data.flashvars || {} });
+          } else {
+            this.showToast(`⚠️ ${data.error || 'Không thể đồng bộ. Hãy chắc chắn tab Gunny đang mở.'}`, 5000);
+            this.logBridge(`[Sync Error] ${data.error}`, 'error');
+          }
+        } catch (e) {
+          this.showToast(`Lỗi đồng bộ: ${e.message}`, 5000);
+          this.logBridge(`[Sync Error] ${e.message}`, 'error');
+        } finally {
+          this.btnSyncZing.disabled = false;
+          this.btnSyncZing.textContent = '⚡ Đồng bộ & Vào Game Ngay (Gà Cầu Duyên)';
+        }
+      });
+    }
+
+    // 10. Custom Gunny Launch Button
     this.btnLaunchGunny.addEventListener('click', () => {
       const host = this.inputGunnyHost.value.trim();
       const port = this.inputGunnyPort.value.trim();

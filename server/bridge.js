@@ -1,5 +1,5 @@
 /**
- * Gunny & Flash Games WebSocket-to-TCP Proxy Bridge + Smart Asset & CORS Proxy
+ * Gunny & Flash Games WebSocket-to-TCP Proxy Bridge + Smart Asset & Chrome Session Sync Proxy
  * Universal Agent OS - Web Flash Player Engine
  */
 
@@ -7,7 +7,11 @@ import http from 'http';
 import https from 'https';
 import net from 'net';
 import { URL } from 'url';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import { WebSocketServer, WebSocket } from 'ws';
+
+const execAsync = promisify(exec);
 
 const HTTP_PORT = process.env.BRIDGE_HTTP_PORT || 8081;
 const WS_PORT = process.env.BRIDGE_WS_PORT || 8080;
@@ -51,7 +55,7 @@ async function fetchWithRedirects(targetUrl, maxRedirects = 5, customHeaders = {
   throw new Error('Too many redirects');
 }
 
-// 1. HTTP Server for Status, Smart Inspector, and CORS Proxy
+// 1. HTTP Server for Status, Smart Inspector, Chrome Sync, and CORS Proxy
 const server = http.createServer(async (req, res) => {
   // Add universal CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -72,10 +76,58 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify({
       status: 'active',
       service: 'Web Flash Player Network Bridge',
-      version: '1.1.0',
+      version: '1.2.0',
       wsPort: WS_PORT,
       uptime: process.uptime()
     }, null, 2));
+    return;
+  }
+
+  // Chrome 1-Click Session Sync: /sync-zing-session?sid=737
+  if (reqUrl.pathname === '/sync-zing-session') {
+    try {
+      const sid = reqUrl.searchParams.get('sid') || '737';
+      const script = `tell application "Google Chrome" to execute front window's active tab javascript "(() => { var xhr = new XMLHttpRequest(); xhr.open('GET', '/play-game?_svid=${sid}&checkAgree=True', false); xhr.send(null); return xhr.responseText; })()"`;
+      
+      const { stdout } = await execAsync(`osascript -e ${JSON.stringify(script)}`);
+      const sessionData = JSON.parse(stdout.trim());
+
+      if (sessionData.ret === 1 && sessionData.url) {
+        // Fetch the game Default.aspx to extract the exact Loading.swf and Flashvars
+        const { response: pageRes } = await fetchWithRedirects(sessionData.url);
+        let html = '';
+        for await (const chunk of pageRes) html += chunk.toString('utf-8');
+
+        // Extract Loading.swf
+        const swfMatch = /src=['"]([^'"]+Loading\.swf[^'"]*)['"]/i.exec(html) || /value=['"]([^'"]+Loading\.swf[^'"]*)['"]/i.exec(html);
+        const flashvarsMatch = /flashvars=['"]([^'"]*)['"]/i.exec(html);
+
+        let swfUrl = swfMatch ? swfMatch[1] : null;
+        let flashvars = {};
+        if (flashvarsMatch) {
+          const params = new URLSearchParams(flashvarsMatch[1]);
+          for (const [k, v] of params.entries()) flashvars[k] = v;
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          ok: true,
+          serverId: sid,
+          serverUrl: sessionData.url,
+          swfUrl: swfUrl || `https://res${sid}.gn.zing.vn/flash/Loading.swf`,
+          proxiedSwfUrl: `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(swfUrl || `https://res${sid}.gn.zing.vn/flash/Loading.swf`)}`,
+          flashvars,
+          message: 'Đã tự động đồng bộ phiên chơi từ Chrome thành công!'
+        }));
+        return;
+      }
+
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: 'Không lấy được phiên chơi. Hãy chắc chắn tab Chrome đang mở trang chọn server Gunny.' }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: e.message }));
+    }
     return;
   }
 
@@ -96,7 +148,6 @@ const server = http.createServer(async (req, res) => {
       const chunks = [];
       for await (const chunk of proxyRes) {
         chunks.push(chunk);
-        // Limit initial inspection buffer to 1MB
         if (chunks.reduce((acc, c) => acc + c.length, 0) > 1024 * 1024) break;
       }
       const buffer = Buffer.concat(chunks);
@@ -120,7 +171,6 @@ const server = http.createServer(async (req, res) => {
       // If it's HTML, parse it for SWF files & Flashvars
       const htmlText = buffer.toString('utf-8');
       
-      // Check if it redirected to a login page (like Zing ID login)
       const isLoginPage = finalUrl.includes('login') || 
                           finalUrl.includes('id.zing.vn') || 
                           htmlText.includes('name="password"') || 
@@ -141,9 +191,8 @@ const server = http.createServer(async (req, res) => {
         foundSwfs.push(match[1]);
       }
 
-      // Search for flashvars in HTML / JS scripts
+      // Search for flashvars in HTML
       const flashvarsRegex = /flashvars\s*[:=]\s*["']([^"']+)["']/i;
-      const flashvarsObjRegex = /flashvars\s*[:=]\s*({[\s\S]*?})/i;
       let extractedFlashvars = {};
 
       const fvMatch = flashvarsRegex.exec(htmlText);
@@ -177,7 +226,7 @@ const server = http.createServer(async (req, res) => {
           ok: false,
           type: 'login_required',
           finalUrl,
-          message: 'Trang web này yêu cầu Đăng nhập tài khoản (Zing ID/Session Cookie). Không thể tải trực tiếp nếu chưa đăng nhập. Vui lòng đăng nhập trên trình duyệt để lấy link Loading.swf và flashvars trực tiếp!'
+          message: 'Trang web này yêu cầu Đăng nhập tài khoản (Zing ID/Session Cookie).'
         }));
         return;
       }
@@ -187,7 +236,7 @@ const server = http.createServer(async (req, res) => {
         ok: false,
         type: 'html_no_flash',
         finalUrl,
-        message: 'Trang web không chứa tệp Flash (.SWF) nào hoặc tệp yêu cầu quyền truy cập đặc biệt.'
+        message: 'Trang web không chứa tệp Flash (.SWF) nào.'
       }));
 
     } catch (err) {
