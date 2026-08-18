@@ -157,7 +157,23 @@ export class PlayerControls {
       this.btnLoadUrl.innerHTML = '<span>Đang phân tích URL...</span>';
 
       try {
-        // Inspect URL via Bridge Inspector
+        if (!rawUrl.toLowerCase().endsWith('.swf')) {
+          // 1. Try Smart Game URL Sniffer first
+          const sniffRes = await fetch(`http://localhost:8081/sniff-game-url?url=${encodeURIComponent(rawUrl)}`);
+          if (sniffRes.ok) {
+            const sniffData = await sniffRes.json();
+            if (sniffData.ok && sniffData.proxiedSwfUrl) {
+              this.showToast(`🎉 Đã tự động phân tích game từ ${sniffData.domain}!`);
+              if (sniffData.flashvars && Object.keys(sniffData.flashvars).length > 0) {
+                this.inputFlashvars.value = JSON.stringify(sniffData.flashvars, null, 2);
+              }
+              await this.runGame(sniffData.proxiedSwfUrl, { flashvars: sniffData.flashvars || {}, baseUrl: sniffData.baseUrl });
+              return;
+            }
+          }
+        }
+
+        // 2. Inspect URL via Bridge Inspector
         const inspectRes = await fetch(`http://localhost:8081/inspect-url?url=${encodeURIComponent(rawUrl)}`);
         if (inspectRes.ok) {
           const info = await inspectRes.json();
@@ -175,7 +191,7 @@ export class PlayerControls {
             await this.runGame(targetUrl, { flashvars: info.flashvars || this.getParsedFlashvars() });
           } else if (info.type === 'login_required') {
             this.showToast(`⚠️ Yêu cầu Đăng nhập: ${info.message}`, 6000);
-            alert(`⚠️ CẢNH BÁO XÁC THỰC (LOGIN REQUIRED):\n\nĐường dẫn "${rawUrl}" là trang xác thực/đăng nhập của Zing ID (yêu cầu Cookie đăng nhập của tài khoản).\n\n👉 Để chơi Gunny Zing trên Web Player:\n1. Mở game trên trình duyệt và đăng nhập tài khoản Zing.\n2. Nhấn F12 (Network) -> Tìm tệp "Loading.swf" và copy đường link trực tiếp cùng Flashvars (user, key, v, config).\n3. Dán link Loading.swf vào Web Flash Player để chơi mượt mà!`);
+            alert(`⚠️ CẢNH BÁO XÁC THỰC (LOGIN REQUIRED):\n\nĐường dẫn "${rawUrl}" là trang xác thực/đăng nhập của Zing ID (yêu cầu Cookie đăng nhập của tài khoản).\n\n👉 Để chơi Gunny Zing trên Web Player:\n1. Mở game trên trình duyệt và đăng nhập tài khoản Zing.\n2. Nhấn nút "⚡ Đồng bộ & Vào Game Ngay" tại Tab "Gunny Bridge" để vào thẳng game!`);
           } else {
             this.showToast(`⚠️ ${info.message || 'Không tìm thấy tệp Flash (.swf)'}`, 5000);
           }

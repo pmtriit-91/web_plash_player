@@ -69,10 +69,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       card.classList.add('active');
 
       if (preset.isGunny) {
-        // Switch to Gunny tab
-        const gunnyTabBtn = document.querySelector('[data-tab="tab-gunny"]');
-        if (gunnyTabBtn) gunnyTabBtn.click();
-        controls.showToast(`Đã chọn cấu hình mẫu: ${preset.name}`);
+        controls.showToast(`⚡ Đang kết nối ${preset.name}...`);
+        const btnSync = document.getElementById('btn-sync-zing');
+        if (btnSync) {
+          btnSync.click();
+        } else {
+          controls.runGame(preset.swfUrl, { flashvars: preset.flashvars });
+        }
       } else {
         controls.showToast(`Đang nạp preset: ${preset.name}...`);
         controls.runGame(preset.swfUrl, { flashvars: preset.flashvars });

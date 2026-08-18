@@ -318,6 +318,80 @@ end tell`;
     return;
   }
 
+  // Universal Smart URL Sniffer / Auto-Detector: /sniff-game-url?url=<encoded>
+  if (pathname === '/sniff-game-url') {
+    const rawUrl = reqUrl.searchParams.get('url');
+    if (!rawUrl) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: 'Tham số url là bắt buộc.' }));
+      return;
+    }
+
+    try {
+      console.log(`[Bridge] Sniffing game URL: ${rawUrl}`);
+      const { response: pageRes } = await fetchWithRedirects(rawUrl);
+      let html = '';
+      for await (const chunk of pageRes) html += chunk.toString('utf-8');
+
+      // 1. Extract SWF Path
+      let swf = '';
+      const mSwf = html.match(/swfPath\s*=\s*["']([^"']+)["']/i) || 
+                    html.match(/(https?:\/\/[^"'\s]+\/Loading\.swf)/i) ||
+                    html.match(/src\s*=\s*["']([^"']+\.swf[^"']*)["']/i);
+      if (mSwf) swf = mSwf[1];
+      if (!swf) {
+        const parsedDomain = new URL(rawUrl);
+        swf = `${parsedDomain.origin}/flash3/Loading.swf`;
+      }
+
+      // 2. Extract Flashvars
+      let fv = {};
+      const mFvObj = html.match(/flashvars\s*=\s*({[\s\S]*?});/i);
+      if (mFvObj) {
+        try { eval('fv = ' + mFvObj[1]); } catch(e){}
+      }
+      if (!fv || Object.keys(fv).length === 0) {
+        const mFvStr = html.match(/flashvars["'\s]*[:=]["'\s]*([a-zA-Z0-9_=&%\/:.\-]+)/i);
+        if (mFvStr) {
+          const sp = new URLSearchParams(mFvStr[1].replace(/&amp;/g, '&'));
+          for (const pair of sp.entries()) fv[pair[0]] = pair[1];
+        }
+      }
+
+      const parsedSwf = new URL(swf, rawUrl);
+      const cleanSwf = parsedSwf.href.replace(/([^:])\/\//g, '$1/');
+      const proxiedSwf = `http://localhost:${HTTP_PORT}/host/${parsedSwf.host}${parsedSwf.pathname}`;
+      const baseFolder = parsedSwf.pathname.substring(0, parsedSwf.pathname.lastIndexOf('/') + 1);
+      const baseUrl = `http://localhost:${HTTP_PORT}/host/${parsedSwf.host}${baseFolder}`;
+
+      if (fv.config) {
+        try {
+          const parsedConfig = new URL(fv.config, rawUrl);
+          fv.config = `http://localhost:${HTTP_PORT}/host/${parsedConfig.host}${parsedConfig.pathname}`;
+        } catch(e) {
+          fv.config = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(fv.config)}`;
+        }
+      }
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        ok: true,
+        swfUrl: cleanSwf,
+        proxiedSwfUrl: proxiedSwf,
+        flashvars: fv,
+        baseUrl: baseUrl,
+        domain: parsedSwf.host,
+        message: `Đã tự động phân tích và trích xuất cấu hình game từ ${parsedSwf.host}!`
+      }));
+      return;
+    } catch(err) {
+      console.error('[Bridge] Error sniffing game URL:', err);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: `Lỗi kết nối tới URL: ${err.message}` }));
+      return;
+    }
+  }
+
   // Universal Host-based Path Proxy Routing: /host/<domain>/<path>?<query>
   let targetUrl = null;
 
