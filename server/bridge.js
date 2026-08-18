@@ -401,15 +401,22 @@ end tell`;
       let html = '';
       for await (const chunk of pageRes) html += chunk.toString('utf-8');
 
-      // 1. Extract SWF Path
+      // 1. Extract SWF Path from Flash portals (Newgrounds, Kongregate, ArmorGames, Gunny...)
       let swf = '';
-      const mSwf = html.match(/swfPath\s*=\s*["']([^"']+)["']/i) || 
-                    html.match(/(https?:\/\/[^"'\s]+\/Loading\.swf)/i) ||
-                    html.match(/src\s*=\s*["']([^"']+\.swf[^"']*)["']/i);
-      if (mSwf) swf = mSwf[1];
-      if (!swf) {
-        const parsedDomain = new URL(rawUrl);
-        swf = `${parsedDomain.origin}/flash3/Loading.swf`;
+      const mSwf = html.match(/swf\s*:\s*["']([^"']+\.swf(\?[^"']*)?)["']/i) ||
+                    html.match(/swfPath\s*=\s*["']([^"']+)["']/i) || 
+                    html.match(/["'](https?:\/\/[^"'\s]+\.swf(\?[^"'\s]*)?)["']/i) ||
+                    html.match(/src\s*=\s*["']([^"']+\.swf[^"']*)["']/i) ||
+                    html.match(/(https?:\/\/[^"'\s]+\.swf)/i);
+      if (mSwf) {
+        swf = mSwf[1];
+      } else {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          ok: false,
+          error: 'Trang web này sử dụng công nghệ HTML5/WebGL hiện đại (không có tệp Flash .swf). Web Flash Player chỉ hỗ trợ chạy các tệp định dạng Adobe Flash (.swf).'
+        }));
+        return;
       }
 
       // 2. Extract Flashvars
