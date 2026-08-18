@@ -58,6 +58,7 @@ export class FlashContainer {
       autoplay: 'on',
       unmuteOverlay: 'visible',
       letterbox: 'on',
+      preferredRenderer: 'wgpu-webgl',
       warnOnUnsupportedContent: false,
       logLevel: 'warn',
       quality: this.options.quality,
