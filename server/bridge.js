@@ -185,55 +185,118 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Universal Gunny 1-Click Session Sync from Chrome (Zing, 123gn.net, Private Servers)
+  // Universal Gunny 1-Click Dynamic Session Sync from Chrome (Any Server / Any Domain)
   if (pathname === '/sync-zing-session' || pathname === '/sync-gunny-session') {
     try {
       const sid = reqUrl.searchParams.get('sid') || '737';
       
-      // Intelligent XHR session fetch to obtain a brand new pristine unconsumed session key
-      const jsExtractDirect = `(() => {
-        var html = '';
+      // Universal Dynamic Chrome Tab Inspector (No hardcoded domain branches)
+      const jsUniversalSniffer = `(() => {
         try {
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', window.location.href, false);
-          xhr.send(null);
-          html = xhr.responseText || '';
-        } catch(e) {
-          html = document.documentElement.innerHTML;
-        }
-        if (!html) html = document.documentElement.innerHTML;
+          const loc = window.location;
+          const ignoreDomains = ['localhost', '127.0.0.1', 'google.com', 'youtube.com', 'github.com', 'chatgpt.com', 'facebook.com', 'speedtest.net'];
+          if (ignoreDomains.some(d => loc.hostname.includes(d))) return null;
 
-        var swf = '';
-        var mSwf = html.match(/swfPath\\s*=\\s*[\"']([^\"']+)[\"']/i) || html.match(/(https?:\\/\\/[^\"'\\s]+\\/Loading\\.swf)/i);
-        if (mSwf) swf = mSwf[1];
-        if (!swf) swf = 'https://123gn.net/flash3/Loading.swf';
-
-        var fv = null;
-        var mFvObj = html.match(/flashvars\\s*=\\s*({[\\s\\S]*?});/i);
-        if (mFvObj) {
-          try { eval('fv = ' + mFvObj[1]); } catch(e){}
-        }
-        if (!fv) {
-          var mFvStr = html.match(/flashvars[\"'\s]*[:=][\"'\s]*([a-zA-Z0-9_=&%\\/:.\\-]+)/i);
-          if (mFvStr) {
-            var sp = new URLSearchParams(mFvStr[1].replace(/&amp;/g, '&'));
-            fv = {};
-            for (var pair of sp.entries()) fv[pair[0]] = pair[1];
+          // 1. Dynamic Token & FlashData extraction (JWT / CMS based private servers)
+          var token = localStorage.getItem('token');
+          var flashDataStr = localStorage.getItem('flashData');
+          var fData = null;
+          if (flashDataStr) {
+            try { fData = JSON.parse(flashDataStr); } catch(e){}
           }
+          if (!fData && token) {
+            var sids = [1004, 1001, 1002, 1003, 1, 2, 3];
+            for (var s of sids) {
+              try {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/launcher/api/create-flashvars/' + s, false);
+                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                xhr.send(null);
+                if (xhr.status === 200) {
+                  fData = JSON.parse(xhr.responseText);
+                  if (fData && fData.swfPath) break;
+                }
+              } catch(e){}
+            }
+          }
+          if (fData && fData.swfPath) {
+            return JSON.stringify({
+              type: 'dynamic_token',
+              swfUrl: fData.swfPath,
+              flashvars: fData.flashvars || {},
+              pageUrl: loc.href,
+              domain: loc.hostname
+            });
+          }
+
+          // 2. Dynamic Zing API session check
+          if (loc.hostname.includes('zing.vn')) {
+            try {
+              var xhrZing = new XMLHttpRequest();
+              xhrZing.open('GET', '/play-game?_svid=${sid}&checkAgree=True', false);
+              xhrZing.send(null);
+              var zingRes = JSON.parse(xhrZing.responseText);
+              if (zingRes && zingRes.ret === 1) {
+                return JSON.stringify({ type: 'zing', data: zingRes, pageUrl: loc.href, domain: loc.hostname });
+              }
+            } catch(e){}
+          }
+
+          // 3. Dynamic HTML & Flashvars inspection
+          var html = '';
+          try {
+            var xhrDoc = new XMLHttpRequest();
+            xhrDoc.open('GET', loc.href, false);
+            xhrDoc.send(null);
+            html = xhrDoc.responseText || '';
+          } catch(e) {
+            html = document.documentElement.innerHTML;
+          }
+          if (!html) html = document.documentElement.innerHTML;
+
+          var swf = '';
+          var mSwf = html.match(/swfPath\\s*=\\s*[\"']([^\"']+)[\"']/i) || 
+                     html.match(/(https?:\\/\\/[^\"'\\s]+\\/Loading\\.swf[a-zA-Z0-9_=&%/?.-]*)/i) ||
+                     html.match(/src\\s*=\\s*[\"']([^\"']+\\.swf[^\"']*)[\"']/i);
+          if (mSwf) swf = mSwf[1];
+
+          var fv = null;
+          var mFvObj = html.match(/flashvars\\s*=\\s*({[\\s\\S]*?});/i);
+          if (mFvObj) {
+            try { eval('fv = ' + mFvObj[1]); } catch(e){}
+          }
+          if (!fv) {
+            var mFvStr = html.match(/flashvars[\"'\s]*[:=][\"'\s]*([a-zA-Z0-9_=&%\\/:.\\-]+)/i);
+            if (mFvStr) {
+              var sp = new URLSearchParams(mFvStr[1].replace(/&amp;/g, '&'));
+              fv = {};
+              for (var pair of sp.entries()) fv[pair[0]] = pair[1];
+            }
+          }
+
+          if (swf || (fv && Object.keys(fv).length > 0)) {
+            if (!swf) swf = loc.origin + '/flash3/Loading.swf';
+            return JSON.stringify({
+              type: 'dynamic_direct',
+              swfUrl: new URL(swf, loc.href).href,
+              flashvars: fv || {},
+              pageUrl: loc.href,
+              domain: loc.hostname
+            });
+          }
+
+          return null;
+        } catch(err) {
+          return null;
         }
-        return JSON.stringify({ type: 'direct', swfUrl: swf, flashvars: fv || {}, pageUrl: window.location.href });
       })()`;
 
       const appleScript = `tell application "Google Chrome"
   repeat with w in windows
     repeat with t in tabs of w
-      set tabUrl to URL of t
-      if tabUrl contains "gun321.vip" or tabUrl contains "gun321" then
-        tell t to return (execute javascript "(() => { var token = localStorage.getItem('token'); var xhr = new XMLHttpRequest(); xhr.open('GET', '/launcher/api/create-flashvars/1004', false); if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token); xhr.send(null); var resObj = null; try { resObj = JSON.parse(xhr.responseText); } catch(e){} if (resObj && resObj.swfPath) { return JSON.stringify({ type: 'gun321', swfUrl: resObj.swfPath, flashvars: resObj.flashvars, pageUrl: window.location.href, host: '103.92.25.226', port: 30303 }); } return 'NOT_FOUND'; })()")
-      else if tabUrl contains "123gn.net" or tabUrl contains "/play/" or tabUrl contains "Loading.swf" then
-        tell t to return (execute javascript ${JSON.stringify(jsExtractDirect)})
-      else if tabUrl contains "id-levelup.gn.zing.vn" then
-        tell t to return (execute javascript "(() => { var xhr = new XMLHttpRequest(); xhr.open('GET', '/play-game?_svid=${sid}&checkAgree=True', false); xhr.send(null); return JSON.stringify({ type: 'zing', data: JSON.parse(xhr.responseText) }); })()")
+      set res to (execute t javascript ${JSON.stringify(jsUniversalSniffer)})
+      if res is not "" and res is not "null" and res is not missing value then
+        return res
       end if
     end repeat
   end repeat
@@ -244,7 +307,7 @@ end tell`;
 
       if (outputText === 'NOT_FOUND' || !outputText) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: false, error: 'Không tìm thấy tab Gunny (Zing hoặc 123gn.net) nào đang mở trong Chrome.' }));
+        res.end(JSON.stringify({ ok: false, error: 'Không tìm thấy tab web game nào đang mở trong Chrome.' }));
         return;
       }
 
@@ -276,16 +339,15 @@ end tell`;
           }));
           return;
         }
-      } else if ((syncResult.type === 'direct' || syncResult.type === 'gun321') && syncResult.swfUrl) {
-        lastDetectedGameServer = syncResult.type === 'gun321' ? { host: syncResult.host || '103.92.25.226', port: syncResult.port || 30303 } : { host: '15.235.193.106', port: 25565 };
+      } else if ((syncResult.type === 'dynamic_direct' || syncResult.type === 'dynamic_token') && syncResult.swfUrl) {
         const cleanSwf = syncResult.swfUrl.replace(/([^:])\/\//g, '$1/');
-        const parsedSwf = new URL(cleanSwf);
+        const parsedSwf = new URL(cleanSwf, syncResult.pageUrl);
         const fv = syncResult.flashvars || {};
         
-        // Proxy config URL cleanly through /host/
+        // Proxy config URL cleanly through dynamic /host/
         if (fv.config) {
           try {
-            const parsedConfig = new URL(fv.config);
+            const parsedConfig = new URL(fv.config, syncResult.pageUrl);
             fv.config = `http://localhost:${HTTP_PORT}/host/${parsedConfig.host}${parsedConfig.pathname}`;
           } catch (e) {
             fv.config = `http://localhost:${HTTP_PORT}/proxy?url=${encodeURIComponent(fv.config)}`;
@@ -299,14 +361,14 @@ end tell`;
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           ok: true,
-          serverType: syncResult.type === 'gun321' ? 'gun321' : 'private',
+          serverType: 'universal_dynamic',
           serverUrl: syncResult.pageUrl,
           swfUrl: cleanSwf,
           proxiedSwfUrl: proxiedSwf,
           flashvars: fv,
           baseUrl: baseUrl,
           gameServer: lastDetectedGameServer,
-          message: `Đã tự động đồng bộ phiên chơi Gunny (${new URL(syncResult.pageUrl).hostname}) từ Chrome!`
+          message: `Đã tự động đồng bộ phiên chơi Gunny (${syncResult.domain || parsedSwf.host}) từ Chrome!`
         }));
         return;
       }
