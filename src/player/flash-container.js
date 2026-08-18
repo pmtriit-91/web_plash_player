@@ -199,19 +199,33 @@ export class FlashContainer {
     this.playerInstance.style.height = '100%';
 
     switch (mode) {
+      case '5:3':
+      case 'gunny':
+        this.playerInstance.style.aspectRatio = '5 / 3';
+        this.playerInstance.style.width = 'auto';
+        this.playerInstance.style.height = '100%';
+        this.playerInstance.style.maxWidth = '100%';
+        this.playerInstance.style.maxHeight = '100%';
+        break;
       case '4:3':
         this.playerInstance.style.aspectRatio = '4 / 3';
+        this.playerInstance.style.width = 'auto';
+        this.playerInstance.style.height = '100%';
+        this.playerInstance.style.maxWidth = '100%';
         this.playerInstance.style.maxHeight = '100%';
-        this.playerInstance.style.maxWidth = 'calc(100vh * (4/3))';
         break;
       case '16:9':
         this.playerInstance.style.aspectRatio = '16 / 9';
+        this.playerInstance.style.width = 'auto';
+        this.playerInstance.style.height = '100%';
+        this.playerInstance.style.maxWidth = '100%';
         this.playerInstance.style.maxHeight = '100%';
-        this.playerInstance.style.maxWidth = 'calc(100vh * (16/9))';
         break;
       case 'original':
-        this.playerInstance.style.width = 'auto';
-        this.playerInstance.style.height = 'auto';
+        this.playerInstance.style.width = '1000px';
+        this.playerInstance.style.height = '600px';
+        this.playerInstance.style.maxWidth = '100%';
+        this.playerInstance.style.maxHeight = '100%';
         break;
       case 'stretch':
         this.playerInstance.style.width = '100%';
@@ -220,9 +234,11 @@ export class FlashContainer {
         break;
       case 'fit':
       default:
-        this.playerInstance.style.width = '100%';
+        this.playerInstance.style.aspectRatio = '5 / 3';
+        this.playerInstance.style.width = 'auto';
         this.playerInstance.style.height = '100%';
-        this.playerInstance.style.objectFit = 'contain';
+        this.playerInstance.style.maxWidth = '100%';
+        this.playerInstance.style.maxHeight = '100%';
         break;
     }
   }

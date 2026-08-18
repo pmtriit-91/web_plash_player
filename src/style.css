@@ -331,13 +331,14 @@ body {
 /* Flash Canvas Viewport */
 .viewport-area {
   flex: 1;
-  min-height: 540px;
+  min-height: 600px;
   background: #020408;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  padding: 4px;
 }
 
 #flash-container {
