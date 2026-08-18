@@ -65,3 +65,7 @@ This ledger tracks all major tasks, implementations, bug fixes, and verification
   - *Outcome*: Authored `documentation-map.md`, `task-ledger.md`, `roadmap.md`, `architecture-map.md`, `known-decisions.md`.
   - *Scope*: `.agents/project/`.
   - *Evidence*: All historical tasks, decisions, and future plans durably recorded in repository-local authority.
+- **TASK-013: Ruffle WASM Engine Nightly Upgrade & Terrain Blending Diagnostics**
+  - *Outcome*: Upgraded Ruffle WASM runtime to `@ruffle-rs/ruffle@0.6.0-nightly.2026.8.18` with `wgpu-webgl` advanced shader backend. Documented `BlendMode.ERASE` alpha subtraction rasterization pipeline.
+  - *Scope*: `package.json`, `public/ruffle/`, `index.html`, `src/player/flash-container.js`.
+  - *Evidence*: 60 FPS verified, updated WASM binaries active.
