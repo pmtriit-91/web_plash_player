@@ -411,10 +411,33 @@ end tell`;
       if (mSwf) {
         swf = mSwf[1];
       } else {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
+        // Check for HTML5 / WebGL embed (e.g. Newgrounds game_drop, itch.io, crazygames)
+        const mHtml5 = html.match(/(https?[:\/\\]+uploads\.ungrounded\.net[:\/\\]+alternate[:\/\\]+[^"'\s>]+)/i) ||
+                      html.match(/src=\\?"(https?:\/\/uploads\.ungrounded\.net\/[^"'\s>]+)\\?"/i) ||
+                      html.match(/<iframe[^>]*id=["']game_drop["'][^>]*src=["']([^"']+)["']/i) ||
+                      html.match(/<iframe[^>]*src=["'](https?:\/\/(?!.*passport)[^"']+)["']/i);
+        if (mHtml5) {
+          let embedUrl = mHtml5[1].replace(/\\/g, '').replace(/&amp;/g, '&').replace(/"/g, '');
+          if (embedUrl.startsWith('//')) embedUrl = 'https:' + embedUrl;
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            ok: true,
+            type: 'html5',
+            gameUrl: embedUrl,
+            domain: new URL(rawUrl).hostname,
+            message: 'Đã tự động phát hiện Web Game HTML5/WebGL!'
+          }));
+          return;
+        }
+
+        // Fallback: load the webpage directly as an embedded web game
+        res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
-          ok: false,
-          error: 'Trang web này sử dụng công nghệ HTML5/WebGL hiện đại (không có tệp Flash .swf). Web Flash Player chỉ hỗ trợ chạy các tệp định dạng Adobe Flash (.swf).'
+          ok: true,
+          type: 'html5',
+          gameUrl: rawUrl,
+          domain: new URL(rawUrl).hostname,
+          message: 'Tự động chạy trang web ở chế độ Web Gaming Canvas!'
         }));
         return;
       }

@@ -195,6 +195,35 @@ export class FlashContainer {
     }
   }
 
+  loadHtml5Game(url) {
+    this.emit('loadStart', { source: url, type: 'html5' });
+    this.destroyCurrentPlayer();
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'html5-game-instance';
+    iframe.className = 'w-full h-full flash-canvas-element';
+    iframe.style.border = 'none';
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.borderRadius = '8px';
+    iframe.src = url;
+    iframe.allow = 'autoplay; fullscreen; microphone; camera; gamepad; clipboard-read; clipboard-write';
+    iframe.setAttribute('allowfullscreen', 'true');
+
+    this.container.innerHTML = '';
+    this.container.appendChild(iframe);
+    this.playerInstance = iframe;
+    this.currentSource = url;
+    this.isLoaded = true;
+
+    this.applyScaleMode(this.options.scaleMode);
+    this.startFpsTracker();
+
+    this.emit('loadSuccess', { source: url, type: 'html5' });
+    this.emit('stateChange', { status: 'running', source: url, type: 'html5' });
+    return true;
+  }
+
   applyScaleMode(mode) {
     this.options.scaleMode = mode;
     this.container.dataset.scaleMode = mode;

@@ -162,13 +162,20 @@ export class PlayerControls {
           const sniffRes = await fetch(`http://localhost:8081/sniff-game-url?url=${encodeURIComponent(rawUrl)}`);
           if (sniffRes.ok) {
             const sniffData = await sniffRes.json();
-            if (sniffData.ok && sniffData.proxiedSwfUrl) {
-              this.showToast(`🎉 Đã tự động phân tích game từ ${sniffData.domain}!`);
-              if (sniffData.flashvars && Object.keys(sniffData.flashvars).length > 0) {
-                this.inputFlashvars.value = JSON.stringify(sniffData.flashvars, null, 2);
+            if (sniffData.ok) {
+              if (sniffData.type === 'html5') {
+                this.showToast(`🎮 Đang tải Web Game HTML5 (${sniffData.domain})...`);
+                this.flashContainer.loadHtml5Game(sniffData.gameUrl);
+                return;
               }
-              await this.runGame(sniffData.proxiedSwfUrl, { flashvars: sniffData.flashvars || {}, baseUrl: sniffData.baseUrl });
-              return;
+              if (sniffData.proxiedSwfUrl) {
+                this.showToast(`🎉 Đã tự động phân tích game từ ${sniffData.domain}!`);
+                if (sniffData.flashvars && Object.keys(sniffData.flashvars).length > 0) {
+                  this.inputFlashvars.value = JSON.stringify(sniffData.flashvars, null, 2);
+                }
+                await this.runGame(sniffData.proxiedSwfUrl, { flashvars: sniffData.flashvars || {}, baseUrl: sniffData.baseUrl });
+                return;
+              }
             }
           }
         }
