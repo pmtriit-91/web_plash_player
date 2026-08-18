@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "project_id": "web-flash-player",
+  "genesis_revision": 2,
+  "genesis_state": "confirmed",
+  "source_sha256": "8c7aac1ef335237fdb5b05226f986930515316baa085e4bfd6e3115174d8c47d",
+  "generated_at": "2026-08-18T02:21:52Z",
+  "reason_codes": [],
+  "claims": {
+    "identity": {
+      "name": "Web Flash Player Pro",
+      "engine": "Universal Agent OS 9.1 Engine",
+      "project_id": "web-flash-player"
+    },
+    "problem": "Adobe Flash Player was deprecated, breaking legacy games (Gunny, DDTank) and interactive SWF media on modern browsers without insecure desktop plugins.",
+    "primary_user": "Retro web gamers, Gunny / DDTank community players, Flash game archivists and web developers.",
+    "why_now": "Modern WebAssembly (Ruffle) combined with local WebSocket-to-TCP network bridging and Host-based path reverse proxying enables pure in-browser multiplayer Flash gameplay at 60 FPS without external desktop launchers.",
+    "input": "SWF files, Flashvars parameters, live game URLs (Zing Gunny, 123gn.net private server, DDTank custom servers), custom TCP socket host/port coordinates.",
+    "core_transformation": "Compiles and runs ActionScript 2/3 in WASM/WebGL; bridges raw TCP socket packets over WebSockets; proxies and rewrites cross-origin configuration while preserving pristine ZLIB binary streams.",
+    "output": "Smooth 60 FPS WebGL game viewport with full Vietnamese Unicode fonts, responsive gaming keyboard controls, live TCP multiplayer interaction, and comprehensive status monitoring.",
+    "desired_outcome": "Zero-friction, 1-click sync and gameplay for any Gunny server (official or private) directly inside modern browsers with premium glassmorphism dark UI.",
+    "success": "100% verified gameplay on Zing Server 737 and 123gn.net private server, 60 FPS rendering, clear Vietnamese typography, and full Agent OS integrity compliance.",
+    "acceptance_evidence": "Zing Server 737 tutorial battle verified, 123gn.net private server full login & mail/guild loaded at 60 FPS, zero build errors.",
+    "failure_conditions": "Black screen rendering, binary corruption of compressed game XMLs, unmapped socket proxy ports, or browser window hijacking.",
+    "scope": "Frontend Ruffle WASM integration, Node.js Universal Bridge, Dynamic Reverse Proxy, Session Synchronization, Game Presets, Gaming Controls.",
+    "non_goals": "Modifying server-side backend logic, altering remote game databases, or creating unofficial game server emulators.",
+    "invariants": [
+      "Preserve Agent OS ownership boundaries, keep binary game assets untouched, never alter client global configs, maintain reversible code changes."
+    ],
+    "constraints": [
+      "Modern web browser with WebAssembly and WebGL2 support; Node.js runtime for bridge server; local ports 5173, 8080, 8081."
+    ]
+  }
+}

@@ -1,0 +1,392 @@
+{
+  "schema_version": 1,
+  "project_id": "web-flash-player",
+  "document_id": "genesis-web-flash-player",
+  "revision": 2,
+  "claims": {
+    "identity": [
+      {
+        "claim_id": "identity-v1",
+        "value": {
+          "name": "Web Flash Player Pro",
+          "engine": "Universal Agent OS 9.1 Engine",
+          "project_id": "web-flash-player"
+        },
+        "authority": "binding",
+        "confidence": "verified",
+        "evidence": [
+          {
+            "kind": "binding",
+            "ref": ".agents/project/project-binding.json",
+            "sha256": "c8d5cda75bc8e1ebf6c87f3c0decdb050503573f3dcf30f1271a9d0ea189042d",
+            "git_commit": null
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "ada4e439ccfdd7db62b7c69a599ef0079d550d02eedd5e7b8822b971f6fda75e"
+        }
+      }
+    ],
+    "problem": [
+      {
+        "claim_id": "problem-v1",
+        "value": "Adobe Flash Player was deprecated, breaking legacy games (Gunny, DDTank) and interactive SWF media on modern browsers without insecure desktop plugins.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "package.json",
+            "sha256": "9e9b4b46e9e2251ac50c70497e544d179686a78ef514ecc323779bece21cc898",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "29a389d6dcb629b6a7b9aacf53a88380ee845230a40b479f3160e52697f89ef9"
+        }
+      }
+    ],
+    "primary_user": [
+      {
+        "claim_id": "primary-user-v1",
+        "value": "Retro web gamers, Gunny / DDTank community players, Flash game archivists and web developers.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "index.html",
+            "sha256": "3ffd3eae7275ae839aa859b8b07425f3fe9602f98160a9ac7f8a13cc4383cf70",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "f4dd0a3230b37b2eac32bd5e503963bca702de6d0967de9495abf590a6bf215b"
+        }
+      }
+    ],
+    "why_now": [
+      {
+        "claim_id": "why-now-v1",
+        "value": "Modern WebAssembly (Ruffle) combined with local WebSocket-to-TCP network bridging and Host-based path reverse proxying enables pure in-browser multiplayer Flash gameplay at 60 FPS without external desktop launchers.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "server/bridge.js",
+            "sha256": "7b104503f4959684526a1ee04cc89d39c94eb592aa8c00a6fc6c14e65d36aff4",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "3d006b75ff15c055dd24c03cac9a41516be3c283bf66185700dd9490915bf56e"
+        }
+      }
+    ],
+    "input": [
+      {
+        "claim_id": "input-v1",
+        "value": "SWF files, Flashvars parameters, live game URLs (Zing Gunny, 123gn.net private server, DDTank custom servers), custom TCP socket host/port coordinates.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "src/player/presets.js",
+            "sha256": "063035332851bb96d7520502639f8a203d4821080966435366711b0c58b251d3",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "bae267d83218f60222cdaa88531ce6d6101aea769fb639e483955418535c1d20"
+        }
+      }
+    ],
+    "core_transformation": [
+      {
+        "claim_id": "core-transformation-v1",
+        "value": "Compiles and runs ActionScript 2/3 in WASM/WebGL; bridges raw TCP socket packets over WebSockets; proxies and rewrites cross-origin configuration while preserving pristine ZLIB binary streams.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "src/player/flash-container.js",
+            "sha256": "fb37101d3260b9ea3cb8adb93c7943beb88be865860fd449ffbcf278eb9cd948",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "b3d9fb06f4b9b9f5bb4ce36c772dc0a81ce702e03d4eeb06dc6778f9e9d9f999"
+        }
+      }
+    ],
+    "output": [
+      {
+        "claim_id": "output-v1",
+        "value": "Smooth 60 FPS WebGL game viewport with full Vietnamese Unicode fonts, responsive gaming keyboard controls, live TCP multiplayer interaction, and comprehensive status monitoring.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "src/player/controls.js",
+            "sha256": "3c395b6aa73211b638394f7b1499d23a687833eb972eba6721d5f034e22187f8",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "9155a0c9efc13d8f33ac93e8e6c669244d7ce2a83dc0cdd97f2901deb7a4c3e2"
+        }
+      }
+    ],
+    "desired_outcome": [
+      {
+        "claim_id": "desired-outcome-v1",
+        "value": "Zero-friction, 1-click sync and gameplay for any Gunny server (official or private) directly inside modern browsers with premium glassmorphism dark UI.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "index.html",
+            "sha256": "3ffd3eae7275ae839aa859b8b07425f3fe9602f98160a9ac7f8a13cc4383cf70",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "bc99330657763dcbf82c426a010a291d5f9af4ce540f13d0c086ffa74a3b290a"
+        }
+      }
+    ],
+    "success": [
+      {
+        "claim_id": "success-v1",
+        "value": "100% verified gameplay on Zing Server 737 and 123gn.net private server, 60 FPS rendering, clear Vietnamese typography, and full Agent OS integrity compliance.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "server/bridge.js",
+            "sha256": "7b104503f4959684526a1ee04cc89d39c94eb592aa8c00a6fc6c14e65d36aff4",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "17785543433029d5337575f53f9e03451da409cb1eb04ee5a0b03fb268a7b6b7"
+        }
+      }
+    ],
+    "acceptance_evidence": [
+      {
+        "claim_id": "acceptance-evidence-v1",
+        "value": "Zing Server 737 tutorial battle verified, 123gn.net private server full login & mail/guild loaded at 60 FPS, zero build errors.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "package.json",
+            "sha256": "9e9b4b46e9e2251ac50c70497e544d179686a78ef514ecc323779bece21cc898",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "f6b388b9911763b4d720dee5618b2ddd36c0fb42df922854d633b7fe84fbc9e4"
+        }
+      }
+    ],
+    "failure_conditions": [
+      {
+        "claim_id": "failure-conditions-v1",
+        "value": "Black screen rendering, binary corruption of compressed game XMLs, unmapped socket proxy ports, or browser window hijacking.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "server/bridge.js",
+            "sha256": "7b104503f4959684526a1ee04cc89d39c94eb592aa8c00a6fc6c14e65d36aff4",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "95128b2e9dc9dcec253474b2d5c08633fb70c498eb47b3ac871af2536741e230"
+        }
+      }
+    ],
+    "scope": [
+      {
+        "claim_id": "scope-v1",
+        "value": "Frontend Ruffle WASM integration, Node.js Universal Bridge, Dynamic Reverse Proxy, Session Synchronization, Game Presets, Gaming Controls.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "package.json",
+            "sha256": "9e9b4b46e9e2251ac50c70497e544d179686a78ef514ecc323779bece21cc898",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "2845f49b1d729c037dd71fd48d2e7f3bea115c3f44576a495a28b0fab514a585"
+        }
+      }
+    ],
+    "non_goals": [
+      {
+        "claim_id": "non-goals-v1",
+        "value": "Modifying server-side backend logic, altering remote game databases, or creating unofficial game server emulators.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "AGENTS.md",
+            "sha256": "105c28833eb2943c977ad9b68af8cf561c07db6d53048862ce5f59cb7a9389da",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "e4fe6c9e8d7ecf9b045e8446d376ce47a6d2e2c0aba0e20c0ead1bde338dbf02"
+        }
+      }
+    ],
+    "invariants": [
+      {
+        "claim_id": "invariants-v1",
+        "value": "Preserve Agent OS ownership boundaries, keep binary game assets untouched, never alter client global configs, maintain reversible code changes.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": ".agents/core/runtime-kernel.md",
+            "sha256": "3f4543287558438598772874377691b904942b8b97b4f66e48f1594a2a681858",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "96d5ab97bf8bf9e0769323c03fa549c056bb8431dc790f38c5b19d4de6a5b3d3"
+        }
+      }
+    ],
+    "constraints": [
+      {
+        "claim_id": "constraints-v1",
+        "value": "Modern web browser with WebAssembly and WebGL2 support; Node.js runtime for bridge server; local ports 5173, 8080, 8081.",
+        "authority": "user-confirmed",
+        "confidence": "confirmed",
+        "evidence": [
+          {
+            "kind": "repository-file",
+            "ref": "package.json",
+            "sha256": "9e9b4b46e9e2251ac50c70497e544d179686a78ef514ecc323779bece21cc898",
+            "git_commit": "0fce262a67079c6a1333e95bf0f82040fb66f9df"
+          }
+        ],
+        "supersedes": [],
+        "created_at": "2026-08-18T02:20:00Z",
+        "updated_at": "2026-08-18T02:21:47Z",
+        "confirmation": {
+          "event_id": "confirm-3cedf7c1f1b556be58228913",
+          "receipt_ref": ".agents/project/genesis-confirmations/confirm-3cedf7c1f1b556be58228913.json",
+          "receipt_sha256": "ea882d82bd383c78129f0246198b08640ebafc654283e0cb8a3ccbc9fbcfe538",
+          "basis_sha256": "f9e6578341d1a4ed84a795bdf6869dffc0a11e5e5088aa67cee0c81192d88b41"
+        }
+      }
+    ],
+    "assumptions": [],
+    "unknowns": []
+  },
+  "extensions": {},
+  "created_at": "2026-08-18T02:20:00Z",
+  "updated_at": "2026-08-18T02:21:47Z"
+}

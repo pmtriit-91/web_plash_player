@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "receipt_id": "confirm-3cedf7c1f1b556be58228913",
+  "project_id": "web-flash-player",
+  "document_id": "genesis-web-flash-player",
+  "issued_for_revision": 2,
+  "confirmed_by_role": "owner",
+  "confirmed_at": "2026-08-18T02:21:47Z",
+  "plan_sha256": "3cedf7c1f1b556be582289132b0428f4a9a24bae4b2ea48d8da75430a9d8eb6a",
+  "claim_bindings": [
+    {
+      "slot": "identity",
+      "claim_id": "identity-v1",
+      "basis_sha256": "ada4e439ccfdd7db62b7c69a599ef0079d550d02eedd5e7b8822b971f6fda75e"
+    },
+    {
+      "slot": "problem",
+      "claim_id": "problem-v1",
+      "basis_sha256": "29a389d6dcb629b6a7b9aacf53a88380ee845230a40b479f3160e52697f89ef9"
+    },
+    {
+      "slot": "primary_user",
+      "claim_id": "primary-user-v1",
+      "basis_sha256": "f4dd0a3230b37b2eac32bd5e503963bca702de6d0967de9495abf590a6bf215b"
+    },
+    {
+      "slot": "why_now",
+      "claim_id": "why-now-v1",
+      "basis_sha256": "3d006b75ff15c055dd24c03cac9a41516be3c283bf66185700dd9490915bf56e"
+    },
+    {
+      "slot": "input",
+      "claim_id": "input-v1",
+      "basis_sha256": "bae267d83218f60222cdaa88531ce6d6101aea769fb639e483955418535c1d20"
+    },
+    {
+      "slot": "core_transformation",
+      "claim_id": "core-transformation-v1",
+      "basis_sha256": "b3d9fb06f4b9b9f5bb4ce36c772dc0a81ce702e03d4eeb06dc6778f9e9d9f999"
+    },
+    {
+      "slot": "output",
+      "claim_id": "output-v1",
+      "basis_sha256": "9155a0c9efc13d8f33ac93e8e6c669244d7ce2a83dc0cdd97f2901deb7a4c3e2"
+    },
+    {
+      "slot": "desired_outcome",
+      "claim_id": "desired-outcome-v1",
+      "basis_sha256": "bc99330657763dcbf82c426a010a291d5f9af4ce540f13d0c086ffa74a3b290a"
+    },
+    {
+      "slot": "success",
+      "claim_id": "success-v1",
+      "basis_sha256": "17785543433029d5337575f53f9e03451da409cb1eb04ee5a0b03fb268a7b6b7"
+    },
+    {
+      "slot": "acceptance_evidence",
+      "claim_id": "acceptance-evidence-v1",
+      "basis_sha256": "f6b388b9911763b4d720dee5618b2ddd36c0fb42df922854d633b7fe84fbc9e4"
+    },
+    {
+      "slot": "failure_conditions",
+      "claim_id": "failure-conditions-v1",
+      "basis_sha256": "95128b2e9dc9dcec253474b2d5c08633fb70c498eb47b3ac871af2536741e230"
+    },
+    {
+      "slot": "scope",
+      "claim_id": "scope-v1",
+      "basis_sha256": "2845f49b1d729c037dd71fd48d2e7f3bea115c3f44576a495a28b0fab514a585"
+    },
+    {
+      "slot": "non_goals",
+      "claim_id": "non-goals-v1",
+      "basis_sha256": "e4fe6c9e8d7ecf9b045e8446d376ce47a6d2e2c0aba0e20c0ead1bde338dbf02"
+    },
+    {
+      "slot": "invariants",
+      "claim_id": "invariants-v1",
+      "basis_sha256": "96d5ab97bf8bf9e0769323c03fa549c056bb8431dc790f38c5b19d4de6a5b3d3"
+    },
+    {
+      "slot": "constraints",
+      "claim_id": "constraints-v1",
+      "basis_sha256": "f9e6578341d1a4ed84a795bdf6869dffc0a11e5e5088aa67cee0c81192d88b41"
+    }
+  ],
+  "raw_conversation_stored": false,
+  "content_sha256": "5b73ca8fc1b188dde0b177ad3c1d2ff2fae4d595f8924f04a48188738792f31f"
+}
