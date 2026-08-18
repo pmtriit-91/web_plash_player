@@ -56,35 +56,39 @@ async function fetchWithRedirects(targetUrl, maxRedirects = 5, customHeaders = {
     const isHttps = parsed.protocol === 'https:';
     const httpModule = isHttps ? https : http;
 
-    let referer = `${parsed.protocol}//${parsed.host}/`;
-    if (parsed.hostname.endsWith('zing.vn') || parsed.hostname.endsWith('vcdn.vn')) {
-      referer = 'https://id-levelup.gn.zing.vn/server-game';
-    } else if (parsed.hostname.includes('123gn.net')) {
-      referer = 'https://123gn.net/play/1001';
-    }
-
     const headers = {
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       'Accept': '*/*',
-      'Referer': referer,
+      'Referer': currentUrl,
       ...customHeaders
     };
 
-    const res = await new Promise((resolve, reject) => {
-      const req = httpModule.request(currentUrl, { method: 'GET', headers }, (res) => {
-        resolve(res);
+    try {
+      const res = await new Promise((resolve, reject) => {
+        const req = httpModule.request(currentUrl, { method: 'GET', headers, timeout: 6000 }, (res) => {
+          resolve(res);
+        });
+        req.on('error', reject);
+        req.on('timeout', () => { req.destroy(new Error('Timeout')); });
+        req.end();
       });
-      req.on('error', reject);
-      req.end();
-    });
 
-    if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-      currentUrl = new URL(res.headers.location, currentUrl).toString();
-      redirects++;
-      continue;
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        currentUrl = new URL(res.headers.location, currentUrl).toString();
+        redirects++;
+        continue;
+      }
+
+      return { response: res, finalUrl: currentUrl };
+    } catch (err) {
+      if (currentUrl.startsWith('https:')) {
+        // Fallback to HTTP for non-SSL private server subdomains (e.g. flash8.gun321.vip, quest8...)
+        currentUrl = currentUrl.replace('https:', 'http:');
+        redirects++;
+        continue;
+      }
+      throw err;
     }
-
-    return { response: res, finalUrl: currentUrl };
   }
 
   throw new Error('Too many redirects');
@@ -464,7 +468,7 @@ end tell`;
     const slashIdx = afterHost.indexOf('/');
     const targetHost = slashIdx !== -1 ? afterHost.substring(0, slashIdx) : afterHost;
     const targetPath = slashIdx !== -1 ? afterHost.substring(slashIdx) : '/';
-    const protocol = (targetHost.includes('127.0.0.1') || targetHost.includes('localhost')) ? 'http' : 'https';
+    const protocol = (targetHost.includes('127.0.0.1') || targetHost.includes('localhost') || targetHost.startsWith('flash') || targetHost.startsWith('quest')) ? 'http' : 'https';
     targetUrl = `${protocol}://${targetHost}${targetPath}${reqUrl.search}`;
   } else if (pathname.startsWith('/vcdn/')) {
     targetUrl = `https://gunny.vcdn.vn/${pathname.substring('/vcdn/'.length)}${reqUrl.search}`;
@@ -493,6 +497,27 @@ end tell`;
     try {
       const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
       
+      // Automatically capture active game server IP/Port from ServerList.ashx
+      if (pathname.endsWith('/ServerList.ashx') || pathname.endsWith('/LoginServerList.ashx')) {
+        let serverListXml = '';
+        for await (const chunk of proxyRes) {
+          serverListXml += chunk.toString('utf-8');
+        }
+        const ipMatch = /IP=["']([^"']+)["']\s+Port=["']([0-9]+)["']/i.exec(serverListXml);
+        if (ipMatch) {
+          lastDetectedGameServer = { host: ipMatch[1], port: parseInt(ipMatch[2], 10) };
+          console.log(`[Bridge] 🎯 Dynamically detected active game server TCP socket: ${lastDetectedGameServer.host}:${lastDetectedGameServer.port}`);
+        }
+        res.writeHead(200, {
+          'Content-Type': 'application/xml; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': '*',
+          'Cache-Control': 'no-cache'
+        });
+        res.end(serverListXml);
+        return;
+      }
+
       // ONLY rewrite plain text client configuration XML files (e.g. config.xml, config3.xml)
       // NEVER touch game template XMLs like PetConfigInfo.xml, BombConfig.xml, ServerConfig.xml
       const isClientConfigXml = /\/config[0-9]*\.xml/i.test(pathname);
