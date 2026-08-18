@@ -228,7 +228,9 @@ const server = http.createServer(async (req, res) => {
   repeat with w in windows
     repeat with t in tabs of w
       set tabUrl to URL of t
-      if tabUrl contains "123gn.net" or tabUrl contains "/play/" or tabUrl contains "Loading.swf" then
+      if tabUrl contains "gun321.vip" or tabUrl contains "gun321" then
+        tell t to return (execute javascript "(() => { var token = localStorage.getItem('token'); var xhr = new XMLHttpRequest(); xhr.open('GET', '/launcher/api/create-flashvars/1004', false); if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token); xhr.send(null); var resObj = null; try { resObj = JSON.parse(xhr.responseText); } catch(e){} if (resObj && resObj.swfPath) { return JSON.stringify({ type: 'gun321', swfUrl: resObj.swfPath, flashvars: resObj.flashvars, pageUrl: window.location.href, host: '103.92.25.226', port: 30303 }); } return 'NOT_FOUND'; })()")
+      else if tabUrl contains "123gn.net" or tabUrl contains "/play/" or tabUrl contains "Loading.swf" then
         tell t to return (execute javascript ${JSON.stringify(jsExtractDirect)})
       else if tabUrl contains "id-levelup.gn.zing.vn" then
         tell t to return (execute javascript "(() => { var xhr = new XMLHttpRequest(); xhr.open('GET', '/play-game?_svid=${sid}&checkAgree=True', false); xhr.send(null); return JSON.stringify({ type: 'zing', data: JSON.parse(xhr.responseText) }); })()")
@@ -274,8 +276,8 @@ end tell`;
           }));
           return;
         }
-      } else if (syncResult.type === 'direct' && syncResult.swfUrl) {
-        lastDetectedGameServer = { host: '15.235.193.106', port: 25565 };
+      } else if ((syncResult.type === 'direct' || syncResult.type === 'gun321') && syncResult.swfUrl) {
+        lastDetectedGameServer = syncResult.type === 'gun321' ? { host: syncResult.host || '103.92.25.226', port: syncResult.port || 30303 } : { host: '15.235.193.106', port: 25565 };
         const cleanSwf = syncResult.swfUrl.replace(/([^:])\/\//g, '$1/');
         const parsedSwf = new URL(cleanSwf);
         const fv = syncResult.flashvars || {};
@@ -297,7 +299,7 @@ end tell`;
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           ok: true,
-          serverType: 'private',
+          serverType: syncResult.type === 'gun321' ? 'gun321' : 'private',
           serverUrl: syncResult.pageUrl,
           swfUrl: cleanSwf,
           proxiedSwfUrl: proxiedSwf,
