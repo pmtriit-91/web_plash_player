@@ -164,8 +164,10 @@ export class PlayerControls {
             const sniffData = await sniffRes.json();
             if (sniffData.ok) {
               if (sniffData.type === 'html5') {
-                this.showToast(`🎮 Đang tải Web Game HTML5 (${sniffData.domain})...`);
-                this.flashContainer.loadHtml5Game(sniffData.gameUrl);
+                this.showToast(`🎮 Đang nạp Web Game HTML5 (${sniffData.domain})...`);
+                this.emptyState.style.display = 'none';
+                this.flashContainerEl.style.display = 'flex';
+                this.player.loadHtml5Game(sniffData.gameUrl);
                 return;
               }
               if (sniffData.proxiedSwfUrl) {
