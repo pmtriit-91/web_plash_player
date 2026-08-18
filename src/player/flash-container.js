@@ -58,6 +58,7 @@ export class FlashContainer {
       autoplay: 'on',
       unmuteOverlay: 'visible',
       letterbox: 'on',
+      openUrlMode: 'deny',
       preferredRenderer: 'wgpu-webgl',
       warnOnUnsupportedContent: false,
       logLevel: 'warn',
@@ -76,6 +77,14 @@ export class FlashContainer {
         typewriter: ['Courier New', 'monospace']
       },
       socketProxy: [
+        // Gun321 Game Server
+        { host: '103.92.25.226', port: 30303, proxyUrl: this.options.bridgeWsUrl },
+        { host: '103.92.25.226', port: 30203, proxyUrl: this.options.bridgeWsUrl },
+        { host: '103.92.25.226', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: '139.99.69.14', port: 30133, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'gun321.vip', port: 30303, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'gun321.vip', port: 30203, proxyUrl: this.options.bridgeWsUrl },
+
         // 123gn.net Game Server
         { host: '15.235.193.106', port: 25565, proxyUrl: this.options.bridgeWsUrl },
         { host: '15.235.193.106', port: 9200, proxyUrl: this.options.bridgeWsUrl },
