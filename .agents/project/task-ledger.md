@@ -69,3 +69,7 @@ This ledger tracks all major tasks, implementations, bug fixes, and verification
   - *Outcome*: Upgraded Ruffle WASM runtime to `@ruffle-rs/ruffle@0.6.0-nightly.2026.8.18` with `wgpu-webgl` advanced shader backend. Documented `BlendMode.ERASE` alpha subtraction rasterization pipeline.
   - *Scope*: `package.json`, `public/ruffle/`, `index.html`, `src/player/flash-container.js`.
   - *Evidence*: 60 FPS verified, updated WASM binaries active.
+- **TASK-014: Universal Dynamic Session Sniffer & Multi-Protocol Auto-Fallback**
+  - *Outcome*: Eliminated hardcoded domain branching in session sync with single generic Chrome tab inspector. Added automatic HTTPS-to-HTTP fallback for private server asset subdomains (e.g. `flash8.gun321.vip`) and dynamic `ServerList.ashx` TCP socket interception.
+  - *Scope*: `server/bridge.js`.
+  - *Evidence*: Verified 200 OK binary SWF stream and dynamic session sync on `gun321.vip`.
