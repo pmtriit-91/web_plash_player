@@ -514,11 +514,20 @@ end tell`;
       console.log(`[Bridge] Launching Native Flash Player 32 with URL: ${rawGameUrl}`);
       const flashBinaryPath = path.join(__dirname, '..', 'runtime', 'flash', 'Flash Player.app', 'Contents', 'MacOS', 'Flash Player');
       
-      const child = spawn(flashBinaryPath, [rawGameUrl], {
-        detached: true,
-        stdio: 'ignore'
-      });
-      child.unref();
+      // Cleanup previous background instances
+      spawn('pkill', ['-9', 'Flash Player']);
+
+      setTimeout(() => {
+        const child = spawn(flashBinaryPath, [rawGameUrl], {
+          detached: true,
+          stdio: 'ignore'
+        });
+        child.unref();
+
+        setTimeout(() => {
+          spawn('osascript', ['-e', 'tell application "Flash Player" to activate']);
+        }, 600);
+      }, 200);
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
