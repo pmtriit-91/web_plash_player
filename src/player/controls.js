@@ -214,6 +214,44 @@ export class PlayerControls {
       }
     });
 
+    // 5b. Reset & Clear Game Cache
+    this.btnClearCache = document.getElementById('btn-clear-cache');
+    if (this.btnClearCache) {
+      this.btnClearCache.addEventListener('click', async () => {
+        try {
+          this.showToast('⏳ Đang dọn dẹp bộ nhớ đệm Cache & Dữ liệu Game...');
+          
+          let bridgeMsg = '';
+          try {
+            const res = await fetch('http://localhost:8081/clear-cache').then(r => r.json());
+            if (res.ok) {
+              bridgeMsg = ` (${res.clearedEntries} tệp RAM)`;
+            }
+          } catch(e) {}
+
+          // Clear browser indexedDB for flash/ruffle
+          try {
+            if (window.indexedDB && window.indexedDB.databases) {
+              const dbs = await window.indexedDB.databases();
+              dbs.forEach(db => {
+                if (db.name && (db.name.includes('ruffle') || db.name.includes('flash'))) {
+                  window.indexedDB.deleteDatabase(db.name);
+                }
+              });
+            }
+          } catch(e) {}
+
+          if (this.player.isLoaded) {
+            this.player.restart();
+          }
+
+          this.showToast(`✨ Đã xóa sạch toàn bộ Cache Game thành công!${bridgeMsg}`, 4500);
+        } catch (err) {
+          this.showToast(`Lỗi xóa cache: ${err.message}`, 4000);
+        }
+      });
+    }
+
     // 6. Tabs Switcher
     this.tabButtons.forEach((btn) => {
       btn.addEventListener('click', () => {

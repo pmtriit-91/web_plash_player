@@ -504,6 +504,24 @@ end tell`;
     return;
   }
 
+  // Purge / Reset In-Memory RAM Asset Cache: /clear-cache or /reset-cache
+  if (pathname === '/clear-cache' || pathname === '/reset-cache') {
+    const totalEntries = assetCache.size;
+    assetCache.clear();
+    console.log(`[Bridge] Purged ${totalEntries} cached game assets from in-memory RAM.`);
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': '*'
+    });
+    res.end(JSON.stringify({
+      ok: true,
+      clearedEntries: totalEntries,
+      message: `Đã dọn dẹp ${totalEntries} tệp cache khỏi bộ nhớ RAM máy chủ.`
+    }));
+    return;
+  }
+
   // Native Adobe Flash Player 32 Standalone Runner: /launch-native-flash?url=<encoded>
   if (pathname === '/launch-native-flash') {
     const rawGameUrl = reqUrl.searchParams.get('url');
