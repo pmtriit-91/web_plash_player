@@ -677,6 +677,7 @@ end tell`;
   }
 
   if (targetUrl) {
+    console.log(`[Bridge Proxy] 📥 ${req.method} ${pathname}`);
     try {
       const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
       
