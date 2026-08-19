@@ -5,6 +5,22 @@
 
 export const GAME_PRESETS = [
   {
+    id: 'gunny-hoiuc',
+    name: 'Gunny Hồi Ức (S3 - Gà Vàng)',
+    category: 'Gunny Hồi Ức v2.3 ⚡',
+    description: 'Máy chủ Gunny Hồi Ức (gunnyhoiuc.com) v2.3 với kết nối trực tiếp Launcher API & Gateway 103.92.27.133:9200.',
+    isGunny: true,
+    isHoiUc: true,
+    swfUrl: 'http://localhost:8081/host/flash1.gunnyhoiuc.com:88/Loading.swf',
+    flashvars: {
+      user: 'bughunter001',
+      config: 'http://localhost:8081/host/flash1.gunnyhoiuc.com:88/config.xml'
+    },
+    width: 1000,
+    height: 600,
+    aspectRatio: '5:3'
+  },
+  {
     id: 'gunny-123gn',
     name: '123gn.net (Gà Thiện Xạ - S1001)',
     category: 'Private Server ⚡',

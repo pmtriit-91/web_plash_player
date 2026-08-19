@@ -68,7 +68,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.querySelectorAll('.preset-item').forEach((c) => c.classList.remove('active'));
       card.classList.add('active');
 
-      if (preset.isGunny) {
+      if (preset.isHoiUc) {
+        controls.showToast(`⚡ Đang kết nối ${preset.name}...`);
+        fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD')
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.ok) {
+              controls.showToast(`🎉 ${data.message}`);
+              controls.runGame(data.proxiedSwfUrl, { flashvars: data.flashvars });
+            } else {
+              controls.showToast(`Lỗi: ${data.error}`);
+            }
+          })
+          .catch((e) => {
+            controls.showToast(`Lỗi API: ${e.message}`);
+          });
+      } else if (preset.isGunny && preset.isZing) {
         controls.showToast(`⚡ Đang kết nối ${preset.name}...`);
         const btnSync = document.getElementById('btn-sync-zing');
         if (btnSync) {

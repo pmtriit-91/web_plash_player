@@ -77,8 +77,9 @@ async function fetchWithRedirects(targetUrl, maxRedirects = 5, customHeaders = {
     const isHttps = parsed.protocol === 'https:';
     const httpModule = isHttps ? https : http;
 
+    const isGunnyHoiUc = currentUrl.includes('gunnyhoiuc.com');
     const headers = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'User-Agent': isGunnyHoiUc ? 'GunnyLauncherLite' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       'Accept': '*/*',
       'Referer': currentUrl,
       ...customHeaders
@@ -406,6 +407,96 @@ end tell`;
     return;
   }
 
+  // 1-Click Login & Launcher Launcher API for Gunny Hồi Ức: /login-gunny-hoiuc?user=...&pass=...
+  if (pathname === '/login-gunny-hoiuc') {
+    const user = reqUrl.searchParams.get('user') || 'bughunter001';
+    const pass = reqUrl.searchParams.get('pass') || '123456@abcD';
+    try {
+      console.log(`[Bridge] 🚀 Authenticating with Gunny Hồi Ức API for user: ${user}`);
+      const loginPayload = JSON.stringify({ username: user, password: pass });
+      const loginReq = http.request('http://api2.gunnyhoiuc.com/api/login', {
+        method: 'POST',
+        headers: {
+          'User-Agent': 'GunnyLauncherLite',
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(loginPayload)
+        }
+      }, (loginRes) => {
+        let loginBody = '';
+        loginRes.on('data', c => loginBody += c);
+        loginRes.on('end', () => {
+          try {
+            const loginData = JSON.parse(loginBody);
+            if (!loginData.token) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ ok: false, error: loginData.message || 'Đăng nhập thất bại' }));
+              return;
+            }
+
+            const playPayload = JSON.stringify({ server_id: 1001 });
+            const playReq = http.request('http://api2.gunnyhoiuc.com/api/play', {
+              method: 'POST',
+              headers: {
+                'User-Agent': 'GunnyLauncherLite',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${loginData.token}`,
+                'Content-Length': Buffer.byteLength(playPayload)
+              }
+            }, (playRes) => {
+              let playBody = '';
+              playRes.on('data', c => playBody += c);
+              playRes.on('end', () => {
+                try {
+                  const playData = JSON.parse(playBody);
+                  if (playData.url) {
+                    const parsedGameUrl = new URL(playData.url);
+                    const fv = {};
+                    for (const [k, v] of parsedGameUrl.searchParams.entries()) {
+                      if (k === 'config') {
+                        fv[k] = `http://localhost:${HTTP_PORT}/host/flash1.gunnyhoiuc.com:88/config.xml${v.includes('?') ? v.substring(v.indexOf('?')) : ''}`;
+                      } else {
+                        fv[k] = v;
+                      }
+                    }
+                    lastDetectedGameServer = { host: '103.92.27.133', port: 9200 };
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({
+                      ok: true,
+                      swfUrl: `http://localhost:${HTTP_PORT}/host/flash1.gunnyhoiuc.com:88/Loading.swf`,
+                      proxiedSwfUrl: `http://localhost:${HTTP_PORT}/host/flash1.gunnyhoiuc.com:88/Loading.swf`,
+                      flashvars: fv,
+                      baseUrl: `http://localhost:${HTTP_PORT}/host/flash1.gunnyhoiuc.com:88/`,
+                      serverHost: '103.92.27.133',
+                      serverPort: 9200,
+                      message: `Đã kết nối thành công Gunny Hồi Ức (S3 - Gà Vàng) cho tài khoản ${user}!`
+                    }));
+                  } else {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ ok: false, error: 'Không lấy được link vào game từ server.' }));
+                  }
+                } catch(e) {
+                  res.writeHead(500, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ ok: false, error: e.message }));
+                }
+              });
+            });
+            playReq.write(playPayload);
+            playReq.end();
+          } catch(e) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: false, error: e.message }));
+          }
+        });
+      });
+      loginReq.write(loginPayload);
+      loginReq.end();
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: e.message }));
+    }
+    return;
+  }
+
   // Universal Smart URL Sniffer / Auto-Detector: /sniff-game-url?url=<encoded>
   if (pathname === '/sniff-game-url') {
     const rawUrl = reqUrl.searchParams.get('url');
@@ -545,11 +636,17 @@ end tell`;
       
       // Automatically capture active game server IP/Port from ServerList.ashx
       if (pathname.endsWith('/ServerList.ashx') || pathname.endsWith('/LoginServerList.ashx')) {
-        const serverListXml = await readTextResponse(proxyRes);
-        const ipMatch = /IP=["']([^"']+)["']\s+Port=["']([0-9]+)["']/i.exec(serverListXml);
-        if (ipMatch) {
-          lastDetectedGameServer = { host: ipMatch[1], port: parseInt(ipMatch[2], 10) };
-          console.log(`[Bridge] 🎯 Dynamically detected active game server TCP socket: ${lastDetectedGameServer.host}:${lastDetectedGameServer.port}`);
+        let serverListXml = await readTextResponse(proxyRes);
+        if (targetUrl.includes('gunnyhoiuc.com')) {
+          lastDetectedGameServer = { host: '103.92.27.133', port: 9200 };
+          serverListXml = serverListXml.replace(/Port=["'][0-9]+["']/gi, 'Port="9200"');
+          console.log(`[Bridge] 🎯 Remapped Gunny Hồi Ức game server to TCP socket 103.92.27.133:9200`);
+        } else {
+          const ipMatch = /IP=["']([^"']+)["']\s+Port=["']([0-9]+)["']/i.exec(serverListXml);
+          if (ipMatch) {
+            lastDetectedGameServer = { host: ipMatch[1], port: parseInt(ipMatch[2], 10) };
+            console.log(`[Bridge] 🎯 Dynamically detected active game server TCP socket: ${lastDetectedGameServer.host}:${lastDetectedGameServer.port}`);
+          }
         }
         res.writeHead(200, {
           'Content-Type': 'application/xml; charset=utf-8',
