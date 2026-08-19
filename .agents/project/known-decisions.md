@@ -38,3 +38,24 @@ This document records the foundational architectural decisions, technical trade-
 - **Context**: Ruffle WebAssembly cannot access local OS system fonts, causing Vietnamese diacritics to render as empty boxes or broken glyphs.
 - **Decision**: Bundle `Arial.ttf` and `Tahoma.ttf` in `public/fonts/` and register them synchronously in Ruffle's `fontSources` configuration before player mount.
 - **Consequences**: Crystal-clear Vietnamese typography across all game menus, chat dialogues, and damage text.
+
+---
+
+## ADR-006: Device Font Renderer (`deviceFontRenderer: 'canvas'`) for Complex Diacritics
+- **Context**: When SWF files embed an incomplete subset of a font (ASCII 32-127 only), Ruffle's default `deviceFontRenderer: 'embedded'` skips missing composite tone glyphs (`ạ`, `ậ`, `ầ`, `ưở`, `ồ` in Unicode range `\u1EA0-\u1EF9`).
+- **Decision**: Set `deviceFontRenderer: 'canvas'` in `window.RufflePlayer.config` and `loadConfig`, delegating missing font glyph rasterization to the browser's HTML5 Canvas 2D engine with full Vietnamese fallback fonts (`Arial`, `Tahoma`, `Inter`, `sans-serif`).
+- **Consequences**: 100% full Vietnamese diacritic text rendering without missing characters across all in-game notifications.
+
+---
+
+## ADR-007: Gunny Launcher API Session & Direct TCP Socket Gateway Interception
+- **Context**: Private servers like Gunny Hồi Ức protect asset servers behind launcher-specific User-Agents (`GunnyLauncherLite`) and require JWT bearer auth on internal APIs (`api2.gunnyhoiuc.com/api/login` and `/api/play`).
+- **Decision**: Implement `/login-gunny-hoiuc` on the bridge to automate the launcher login handshake, spoof User-Agent on proxy requests, rewrite internal `ServerList.ashx` ports from `9131` to `9200`, and route socket tuples `(103.92.27.133, 9200)` via `socketProxy`.
+- **Consequences**: Fully seamless 1-click preset launch into live game servers without external desktop `.exe` launchers.
+
+---
+
+## ADR-008: Destructible Terrain Rasterization & BlendMode.ERASE Pipeline
+- **Context**: Gunny's ActionScript 3 map engine (`MapView.as`) uses `BitmapData.draw(craterShape, matrix, null, BlendMode.ERASE)` on `_ground:BitmapData` to carve transparent holes through destructible terrain. In WebGL WASM runtimes, if offscreen framebuffers treat erase blending as solid draws or if `cacheAsBitmap` textures are not invalidated, craters render as solid opaque disks (orange/grey) instead of transparent holes.
+- **Decision**: Track rendering across multiple backends (`wgpu-webgl`, `canvas`, `webgl`), keep Ruffle core updated to latest nightly releases, and provide a dynamic Graphics Renderer Switcher in the UI.
+- **Consequences**: Enables systematic diagnostics, graceful fallbacks for complex blend modes, and clear architectural tracking for future Ruffle engine improvements.

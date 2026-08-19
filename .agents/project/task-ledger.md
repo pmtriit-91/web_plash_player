@@ -73,3 +73,15 @@ This ledger tracks all major tasks, implementations, bug fixes, and verification
   - *Outcome*: Eliminated hardcoded domain branching in session sync with single generic Chrome tab inspector. Added automatic HTTPS-to-HTTP fallback for private server asset subdomains (e.g. `flash8.gun321.vip`) and dynamic `ServerList.ashx` TCP socket interception.
   - *Scope*: `server/bridge.js`.
   - *Evidence*: Verified 200 OK binary SWF stream and dynamic session sync on `gun321.vip`.
+- **TASK-015: Gunny Hồi Ức (`gunnyhoiuc.com` - Version 2.3) Reverse Engineering & Login Bridge**
+  - *Outcome*: Analyzed Windows Launcher (`GunnyLauncherLite.exe`), implemented `/login-gunny-hoiuc` endpoint in `server/bridge.js`, mapped `User-Agent: GunnyLauncherLite` bypass, redirected `tutorial.swf` -> `ui/vietnam/swf/Trainer.swf`, and mapped `103.92.27.133` (ports `9131`, `9200`, `9300`) in `socketProxy`.
+  - *Scope*: `server/bridge.js`, `index.html`, `src/player/presets.js`, `src/player/flash-container.js`.
+  - *Evidence*: 100% login success into live battle and PvP arena with account `bughunter001`.
+- **TASK-016: Vietnamese Unicode Diacritics Resolution via Canvas2D Device Font Engine**
+  - *Outcome*: Enabled `deviceFontRenderer: 'canvas'` and defined `sans`, `sansSerif`, `serif`, `typewriter` fallback lists.
+  - *Scope*: `index.html`, `src/player/flash-container.js`.
+  - *Evidence*: Solved broken compound diacritics ("Bn đã nhn phn thưng này ri" -> "Bạn đã nhận phần thưởng này rồi"). Verified 100% in live battle chat notices.
+- **TASK-017: Destructible Terrain BlendMode.ERASE & Alpha Subtraction Invalidation Investigation**
+  - *Outcome*: Upgraded Ruffle WASM runtime to `@ruffle-rs/ruffle@0.6.0-nightly.2026.8.19`, added dynamic Graphics Renderer Switcher (`wgpu-webgl`, `canvas`, `webgl`) to player toolbar, and documented offscreen framebuffer alpha clearing mechanics for crater shapes.
+  - *Scope*: `package.json`, `public/ruffle/`, `index.html`, `src/player/controls.js`, `src/player/flash-container.js`, `.agents/project/context/`.
+  - *Evidence*: In-depth audit report and architectural records established in Agent OS Project Memory.
