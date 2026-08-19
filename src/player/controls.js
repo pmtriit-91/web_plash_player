@@ -310,7 +310,7 @@ export class PlayerControls {
             await this.runGame(targetUrl, { flashvars: info.flashvars || this.getParsedFlashvars() });
           } else if (info.type === 'login_required') {
             this.showToast(`⚠️ Yêu cầu Đăng nhập: ${info.message}`, 6000);
-            alert(`⚠️ CẢNH BÁO XÁC THỰC (LOGIN REQUIRED):\n\nĐường dẫn "${rawUrl}" là trang xác thực/đăng nhập của Zing ID (yêu cầu Cookie đăng nhập của tài khoản).\n\n👉 Để chơi Gunny Zing trên Web Player:\n1. Mở game trên trình duyệt và đăng nhập tài khoản Zing.\n2. Nhấn nút "⚡ Đồng bộ & Vào Game Ngay" tại Tab "Gunny Bridge" để vào thẳng game!`);
+            alert(`⚠️ CẢNH BÁO XÁC THỰC (LOGIN REQUIRED):\n\nĐường dẫn "${rawUrl}" là trang xác thực/đăng nhập của Zing ID (yêu cầu Cookie đăng nhập của tài khoản).\n\n👉 Để chơi Gunny Zing trên Web Player:\n1. Mở game trên trình duyệt và đăng nhập tài khoản Zing.\n2. Nhấn nút "⚡ Đồng bộ & Vào Game Ngay" tại Tab "Bridge" để vào thẳng game!`);
           } else {
             this.showToast(`⚠️ ${info.message || 'Không tìm thấy tệp Flash (.swf) trong trang web này.'}`, 5000);
           }
