@@ -8,9 +8,13 @@ import http from 'http';
 import https from 'https';
 import net from 'net';
 import zlib from 'zlib';
-import { URL } from 'url';
+import path from 'path';
+import { fileURLToPath, URL } from 'url';
 import { spawn } from 'child_process';
 import { WebSocketServer, WebSocket } from 'ws';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const HTTP_PORT = process.env.BRIDGE_HTTP_PORT || 8081;
 const WS_PORT = process.env.BRIDGE_WS_PORT || 8080;

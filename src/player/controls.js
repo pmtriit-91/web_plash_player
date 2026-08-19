@@ -86,7 +86,8 @@ export class PlayerControls {
               const r = await fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD').then(res => res.json());
               if (r.ok) {
                 const params = new URLSearchParams(r.flashvars).toString();
-                targetUrl = `http://localhost:8081${r.proxiedSwfUrl}?${params}`;
+                const baseSwf = r.proxiedSwfUrl.startsWith('http') ? r.proxiedSwfUrl : `http://localhost:8081${r.proxiedSwfUrl}`;
+                targetUrl = `${baseSwf}?${params}`;
               }
             }
 
