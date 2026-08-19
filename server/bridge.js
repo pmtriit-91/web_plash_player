@@ -91,7 +91,7 @@ async function fetchWithRedirects(targetUrl, maxRedirects = 5, customHeaders = {
 
     try {
       const res = await new Promise((resolve, reject) => {
-        const req = httpModule.request(currentUrl, { method: 'GET', headers, timeout: 6000 }, (res) => {
+        const req = httpModule.request(currentUrl, { method: 'GET', headers, timeout: 3500 }, (res) => {
           resolve(res);
         });
         req.on('error', reject);
@@ -745,8 +745,14 @@ end tell`;
 
       proxyRes.pipe(res);
     } catch (err) {
-      res.writeHead(502, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Proxy request failed', details: err.message, targetUrl }));
+      if (!res.headersSent) {
+        res.writeHead(404, { 
+          'Content-Type': 'text/plain',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': '*'
+        });
+        res.end('Asset Not Found');
+      }
     }
     return;
   }
