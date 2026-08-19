@@ -19,6 +19,9 @@ const __dirname = path.dirname(__filename);
 const HTTP_PORT = process.env.BRIDGE_HTTP_PORT || 8081;
 const WS_PORT = process.env.BRIDGE_WS_PORT || 8080;
 
+// High-Speed In-Memory Asset Cache for Instant 100% Battle Loading
+const assetCache = new Map();
+
 let lastDetectedGameServer = {
   host: '15.235.193.106',
   port: 25565
@@ -678,6 +681,13 @@ end tell`;
 
   if (targetUrl) {
     console.log(`[Bridge Proxy] 📥 ${req.method} ${pathname}`);
+    if (req.method === 'GET' && assetCache.has(targetUrl)) {
+      const cached = assetCache.get(targetUrl);
+      res.writeHead(cached.status, cached.headers);
+      res.end(cached.body);
+      return;
+    }
+
     try {
       const { response: proxyRes, finalUrl } = await fetchWithRedirects(targetUrl);
       
@@ -734,17 +744,35 @@ end tell`;
         return;
       }
 
-      // Stream ALL binary assets and data XML files untouched
-      res.writeHead(proxyRes.statusCode || 200, {
+      // Stream ALL binary assets and data XML files untouched with RAM caching
+      const responseHeaders = {
         'Content-Type': proxyRes.headers['content-type'] || 'application/octet-stream',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': '*',
         'Access-Control-Expose-Headers': '*',
         'Cache-Control': 'public, max-age=86400',
         'X-Final-Url': finalUrl
+      };
+
+      res.writeHead(proxyRes.statusCode || 200, responseHeaders);
+
+      const chunks = [];
+      proxyRes.on('data', (chunk) => {
+        chunks.push(chunk);
+        res.write(chunk);
       });
 
-      proxyRes.pipe(res);
+      proxyRes.on('end', () => {
+        res.end();
+        const fullBody = Buffer.concat(chunks);
+        if (proxyRes.statusCode === 200 && fullBody.length > 0 && fullBody.length < 30000000) {
+          assetCache.set(targetUrl, {
+            status: 200,
+            headers: responseHeaders,
+            body: fullBody
+          });
+        }
+      });
     } catch (err) {
       if (!res.headersSent) {
         res.writeHead(404, { 
