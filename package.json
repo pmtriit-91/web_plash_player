@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "bridge": "node server/bridge.js",
+    "app": "electron electron/main.cjs",
     "start": "node server/bridge.js & vite"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@ruffle-rs/ruffle": "^0.5.0",
+    "electron": "^43.4.1",
     "vite": "^6.2.0"
   }
 }
