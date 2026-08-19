@@ -514,7 +514,8 @@ end tell`;
       console.log(`[Bridge] Launching Native Flash Player 32 with URL: ${rawGameUrl}`);
       const flashAppPath = path.join(__dirname, '..', 'runtime', 'flash', 'Flash Player.app');
       
-      const child = spawn('open', ['-a', flashAppPath, '--args', rawGameUrl], {
+      const script = `tell application "${flashAppPath}"\nopen location "${rawGameUrl}"\nactivate\nend tell`;
+      const child = spawn('osascript', ['-e', script], {
         detached: true,
         stdio: 'ignore'
       });
