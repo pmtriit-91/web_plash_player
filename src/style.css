@@ -833,10 +833,46 @@ body {
   border: 1px solid rgba(157, 78, 221, 0.3);
 }
 
+.preset-account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 1px 0;
+}
+
+.preset-account-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.preset-account-badge svg {
+  color: var(--neon-cyan);
+}
+
+.preset-status-pill {
+  font-size: 0.72rem;
+  color: var(--neon-green);
+  background: rgba(0, 230, 118, 0.1);
+  border: 1px solid rgba(0, 230, 118, 0.25);
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .preset-desc {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  line-height: 1.4;
+  line-height: 1.38;
 }
 
 /* Form Inputs */
