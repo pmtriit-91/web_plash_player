@@ -211,12 +211,13 @@ body {
   max-width: 1780px;
   width: 100%;
   margin: 0 auto;
-  transition: grid-template-columns 0.35s cubic-bezier(0.4, 0, 0.2, 1), gap 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .main-layout.sidebar-collapsed {
   grid-template-columns: 1fr 0px;
   gap: 0;
+  max-width: 1280px;
 }
 
 .sidebar-panel {
@@ -454,7 +455,8 @@ body {
 .viewport-area {
   flex: 1;
   min-height: 600px;
-  height: calc(100vh - 140px);
+  height: 640px;
+  max-height: 720px;
   background: #020408;
   position: relative;
   display: flex;
