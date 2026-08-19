@@ -134,19 +134,26 @@ export class PlayerControls {
           this.showToast('🔥 Đang mở game bằng Adobe Flash Player 32 Gốc...');
           try {
             let targetUrl = '';
-            if (this.currentSwfUrl) {
+            if (this.currentSwfUrl && typeof this.currentSwfUrl === 'string') {
               targetUrl = this.currentSwfUrl.startsWith('http') ? this.currentSwfUrl : `http://localhost:8081${this.currentSwfUrl}`;
               if (this.currentCustomConfig && this.currentCustomConfig.flashvars) {
                 const params = new URLSearchParams(this.currentCustomConfig.flashvars).toString();
                 targetUrl += (targetUrl.includes('?') ? '&' : '?') + params;
               }
             } else {
-              // Default to Gunny Hồi Ức
-              const r = await fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD').then(res => res.json());
-              if (r.ok) {
-                const params = new URLSearchParams(r.flashvars).toString();
-                const baseSwf = r.proxiedSwfUrl.startsWith('http') ? r.proxiedSwfUrl : `http://localhost:8081${r.proxiedSwfUrl}`;
+              // Try syncing active session from Chrome first
+              const syncRes = await fetch('http://localhost:8081/sync-gunny-session').then(res => res.json()).catch(() => null);
+              if (syncRes && syncRes.ok && syncRes.proxiedSwfUrl) {
+                const params = new URLSearchParams(syncRes.flashvars).toString();
+                const baseSwf = syncRes.proxiedSwfUrl.startsWith('http') ? syncRes.proxiedSwfUrl : `http://localhost:8081${syncRes.proxiedSwfUrl}`;
                 targetUrl = `${baseSwf}?${params}`;
+              } else {
+                const r = await fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD').then(res => res.json());
+                if (r.ok) {
+                  const params = new URLSearchParams(r.flashvars).toString();
+                  const baseSwf = r.proxiedSwfUrl.startsWith('http') ? r.proxiedSwfUrl : `http://localhost:8081${r.proxiedSwfUrl}`;
+                  targetUrl = `${baseSwf}?${params}`;
+                }
               }
             }
 
@@ -170,19 +177,26 @@ export class PlayerControls {
           this.showToast('🗗 Đang tách cửa sổ độc lập (Mở thêm tài khoản mới)...');
           try {
             let targetUrl = '';
-            if (this.currentSwfUrl) {
+            if (this.currentSwfUrl && typeof this.currentSwfUrl === 'string') {
               targetUrl = this.currentSwfUrl.startsWith('http') ? this.currentSwfUrl : `http://localhost:8081${this.currentSwfUrl}`;
               if (this.currentCustomConfig && this.currentCustomConfig.flashvars) {
                 const params = new URLSearchParams(this.currentCustomConfig.flashvars).toString();
                 targetUrl += (targetUrl.includes('?') ? '&' : '?') + params;
               }
             } else {
-              // Fetch a fresh session for multi-account login
-              const r = await fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD').then(res => res.json());
-              if (r.ok) {
-                const params = new URLSearchParams(r.flashvars).toString();
-                const baseSwf = r.proxiedSwfUrl.startsWith('http') ? r.proxiedSwfUrl : `http://localhost:8081${r.proxiedSwfUrl}`;
+              // Try syncing active session from Chrome first
+              const syncRes = await fetch('http://localhost:8081/sync-gunny-session').then(res => res.json()).catch(() => null);
+              if (syncRes && syncRes.ok && syncRes.proxiedSwfUrl) {
+                const params = new URLSearchParams(syncRes.flashvars).toString();
+                const baseSwf = syncRes.proxiedSwfUrl.startsWith('http') ? syncRes.proxiedSwfUrl : `http://localhost:8081${syncRes.proxiedSwfUrl}`;
                 targetUrl = `${baseSwf}?${params}`;
+              } else {
+                const r = await fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD').then(res => res.json());
+                if (r.ok) {
+                  const params = new URLSearchParams(r.flashvars).toString();
+                  const baseSwf = r.proxiedSwfUrl.startsWith('http') ? r.proxiedSwfUrl : `http://localhost:8081${r.proxiedSwfUrl}`;
+                  targetUrl = `${baseSwf}?${params}`;
+                }
               }
             }
 
@@ -495,6 +509,8 @@ export class PlayerControls {
   }
 
   async runGame(source, config = {}) {
+    this.currentSwfUrl = source;
+    this.currentCustomConfig = config;
     this.emptyState.style.display = 'none';
     this.flashContainerEl.style.display = 'flex';
 

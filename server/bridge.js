@@ -685,7 +685,10 @@ end tell`;
     const slashIdx = afterHost.indexOf('/');
     const targetHost = slashIdx !== -1 ? afterHost.substring(0, slashIdx) : afterHost;
     const targetPath = slashIdx !== -1 ? afterHost.substring(slashIdx) : '/';
-    const protocol = (targetHost.includes('127.0.0.1') || targetHost.includes('localhost') || targetHost.startsWith('flash') || targetHost.startsWith('quest')) ? 'http' : 'https';
+    let protocol = 'https';
+    if (targetHost.includes('127.0.0.1') || targetHost.includes('localhost') || targetHost.includes(':88') || targetHost.includes(':89') || targetHost.includes('gunnyhoiuc.com')) {
+      protocol = 'http';
+    }
     targetUrl = `${protocol}://${targetHost}${targetPath}${reqUrl.search}`;
   } else if (pathname.startsWith('/vcdn/')) {
     targetUrl = `https://gunny.vcdn.vn/${pathname.substring('/vcdn/'.length)}${reqUrl.search}`;
