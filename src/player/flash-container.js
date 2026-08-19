@@ -103,10 +103,27 @@ export class FlashContainer {
         { host: 'quest737.gn.zing.vn', port: 9201, proxyUrl: this.options.bridgeWsUrl },
         { host: 'gunny.vcdn.vn', port: 9200, proxyUrl: this.options.bridgeWsUrl },
 
+        // Gunny Hồi Ức Game Server
+        { host: '103.92.27.133', port: 9131, proxyUrl: this.options.bridgeWsUrl },
+        { host: '103.92.27.133', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: '103.92.27.133', port: 9300, proxyUrl: this.options.bridgeWsUrl },
+        { host: '103.92.27.133', port: 25565, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'gunnyhoiuc.com', port: 9131, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'gunnyhoiuc.com', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'gunnyhoiuc.com', port: 9300, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'flash1.gunnyhoiuc.com', port: 9131, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'flash1.gunnyhoiuc.com', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'quest1.gunnyhoiuc.com', port: 9131, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'quest1.gunnyhoiuc.com', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'resource.gunnyhoiuc.com', port: 9131, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'resource.gunnyhoiuc.com', port: 9200, proxyUrl: this.options.bridgeWsUrl },
+
         // Local Dev & Generic Servers
+        { host: '127.0.0.1', port: 9131, proxyUrl: this.options.bridgeWsUrl },
         { host: '127.0.0.1', port: 9200, proxyUrl: this.options.bridgeWsUrl },
         { host: '127.0.0.1', port: 9201, proxyUrl: this.options.bridgeWsUrl },
         { host: '127.0.0.1', port: 25565, proxyUrl: this.options.bridgeWsUrl },
+        { host: 'localhost', port: 9131, proxyUrl: this.options.bridgeWsUrl },
         { host: 'localhost', port: 9200, proxyUrl: this.options.bridgeWsUrl },
         { host: 'localhost', port: 9201, proxyUrl: this.options.bridgeWsUrl },
         { host: 'localhost', port: 25565, proxyUrl: this.options.bridgeWsUrl }

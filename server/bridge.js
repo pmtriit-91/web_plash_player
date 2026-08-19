@@ -665,9 +665,9 @@ end tell`;
       if (isClientConfigXml) {
         const xmlContent = await readTextResponse(proxyRes);
 
-        // Universal XML Rewriter: replaces any https://domain.com/path with http://localhost:8081/host/domain.com/path
+        const trainerPath = (targetUrl && targetUrl.includes('gunnyhoiuc.com')) ? 'ui/vietnam/swf/Trainer.swf' : 'ui/spain/swf/Trainer.swf';
         let rewrittenXml = xmlContent
-          .replace(/<TRAINER_PATH\s+value=["']tutorial\.swf["']\s*\/>/gi, '<TRAINER_PATH value="ui/spain/swf/Trainer.swf" />')
+          .replace(/<TRAINER_PATH\s+value=["']tutorial\.swf["']\s*\/>/gi, `<TRAINER_PATH value="${trainerPath}" />`)
           .replace(
             /value=["'](https?:\/\/([^"'\/]+)([^"']*))["']/gi,
             (match, fullUrl, host, restPath) => {
@@ -720,14 +720,20 @@ wss.on('connection', (ws, req) => {
   let targetPort = parseInt(reqUrl.searchParams.get('port'), 10);
 
   // Intelligent fallback to active game server
-  if (!targetHost || targetHost === '127.0.0.1' || targetHost === 'localhost') {
+  if (targetHost === '103.92.27.133' || (targetHost && targetHost.includes('gunnyhoiuc.com'))) {
+    targetHost = '103.92.27.133';
+    if (targetPort === 9131 || !targetPort || isNaN(targetPort)) {
+      targetPort = 9200;
+    }
+  } else if (!targetHost || targetHost === '127.0.0.1' || targetHost === 'localhost') {
     targetHost = lastDetectedGameServer.host;
   }
+
   if (!targetPort || isNaN(targetPort) || (targetPort === 9200 && lastDetectedGameServer.port !== 9200)) {
     targetPort = lastDetectedGameServer.port;
   }
 
-  console.log(`[Bridge] New client connected. Forwarding to TCP ${targetHost}:${targetPort}`);
+  console.log(`[Bridge] 🔌 New Flash Socket client connected. Forwarding to TCP ${targetHost}:${targetPort}`);
 
   const tcpSocket = net.createConnection({ host: targetHost, port: targetPort }, () => {
     console.log(`[Bridge] TCP connected to ${targetHost}:${targetPort}`);
