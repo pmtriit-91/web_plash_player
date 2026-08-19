@@ -416,8 +416,13 @@ end tell`;
 
   // 1-Click Login & Launcher Launcher API for Gunny Hồi Ức: /login-gunny-hoiuc?user=...&pass=...
   if (pathname === '/login-gunny-hoiuc') {
-    const user = reqUrl.searchParams.get('user') || 'bughunter001';
-    const pass = reqUrl.searchParams.get('pass') || '123456@abcD';
+    const user = reqUrl.searchParams.get('user');
+    const pass = reqUrl.searchParams.get('pass');
+    if (!user || !pass) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: 'Thiếu thông tin tài khoản đăng nhập (user/pass)' }));
+      return;
+    }
     try {
       console.log(`[Bridge] 🚀 Authenticating with Gunny Hồi Ức API for user: ${user}`);
       const loginPayload = JSON.stringify({ username: user, password: pass });

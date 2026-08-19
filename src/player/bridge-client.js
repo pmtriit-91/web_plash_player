@@ -3,8 +3,10 @@
  * Monitors Bridge Health and provides WebSocket-to-TCP tunnels for Flash Games
  */
 
+import { CONFIG, buildApiUrl } from '../config.js';
+
 export class BridgeClient {
-  constructor(bridgeHttpUrl = 'http://localhost:8081', bridgeWsUrl = 'ws://localhost:8080') {
+  constructor(bridgeHttpUrl = CONFIG.BRIDGE_HTTP_URL, bridgeWsUrl = CONFIG.BRIDGE_WS_URL) {
     this.httpUrl = bridgeHttpUrl;
     this.wsUrl = bridgeWsUrl;
     this.isAlive = false;
@@ -22,7 +24,8 @@ export class BridgeClient {
 
   async checkHealth() {
     try {
-      const response = await fetch(`${this.httpUrl}/health`, { method: 'GET', signal: AbortSignal.timeout(2000) });
+      const healthUrl = buildApiUrl('/health');
+      const response = await fetch(healthUrl, { method: 'GET', signal: AbortSignal.timeout(2000) });
       if (response.ok) {
         const data = await response.json();
         this.notify({ alive: true, data, error: null });
@@ -38,7 +41,7 @@ export class BridgeClient {
   getProxiedUrl(targetUrl) {
     if (!targetUrl) return '';
     if (targetUrl.startsWith('data:') || targetUrl.startsWith('blob:')) return targetUrl;
-    return `${this.httpUrl}/proxy?url=${encodeURIComponent(targetUrl)}`;
+    return buildApiUrl('/proxy', { url: targetUrl });
   }
 
   createSocketTunnel(host, port) {

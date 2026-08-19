@@ -3,10 +3,12 @@
  * Universal Agent OS - Web Flash Player
  */
 
+import { CONFIG, buildApiUrl } from './config.js';
 import { FlashContainer } from './player/flash-container.js';
 import { BridgeClient } from './player/bridge-client.js';
 import { PlayerControls } from './player/controls.js';
 import { GAME_PRESETS } from './player/presets.js';
+import { SessionManager } from './player/session-manager.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const containerEl = document.getElementById('flash-container');
@@ -16,14 +18,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const bridgeText = document.getElementById('bridge-text');
   const presetsListEl = document.getElementById('presets-list');
 
-  // 1. Initialize Core Engine Container & Network Bridge Client
+  // 1. Initialize Core Engine Container & Network Bridge Client dynamically
   const flashContainer = new FlashContainer(containerEl, {
     scaleMode: 'fit',
     quality: 'high',
-    bridgeWsUrl: 'ws://localhost:8080'
+    bridgeWsUrl: CONFIG.BRIDGE_WS_URL
   });
 
-  const bridgeClient = new BridgeClient('http://localhost:8081', 'ws://localhost:8080');
+  const bridgeClient = new BridgeClient(CONFIG.BRIDGE_HTTP_URL, CONFIG.BRIDGE_WS_URL);
   const controls = new PlayerControls(flashContainer, bridgeClient);
 
   // 2. Initialize Ruffle WASM Core
@@ -52,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await updateBridgeStatus();
   setInterval(updateBridgeStatus, 5000);
 
-  // 4. Render Preset Cards with Live Search & Deletion
+  // 4. Render Preset Cards with Live Search, Deletion, and Session Persistence
   const searchInput = document.getElementById('input-search-presets');
   const clearSearchBtn = document.getElementById('btn-clear-search');
 
@@ -76,7 +78,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       return (
         preset.name.toLowerCase().includes(q) ||
         preset.description.toLowerCase().includes(q) ||
-        preset.category.toLowerCase().includes(q)
+        preset.category.toLowerCase().includes(q) ||
+        (preset.account && preset.account.toLowerCase().includes(q))
       );
     });
 
@@ -122,37 +125,71 @@ document.addEventListener('DOMContentLoaded', async () => {
           <p class="preset-desc">${preset.description}</p>
         `;
 
-        // Card Click -> Run Game
-        card.addEventListener('click', () => {
+        // Card Click -> Run Game with Session Persistence
+        card.addEventListener('click', async () => {
           document.querySelectorAll('.preset-item').forEach((c) => c.classList.remove('active'));
           card.classList.add('active');
 
+          // Check if we have an active saved session for this game
+          const existingSession = SessionManager.getSession(preset.id);
+
           if (preset.isHoiUc) {
             controls.showToast(`⚡ Đang kết nối ${preset.name}...`);
-            fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD')
-              .then((r) => r.json())
-              .then((data) => {
-                if (data.ok) {
-                  controls.showToast(`🎉 ${data.message}`);
-                  controls.runGame(data.proxiedSwfUrl, { flashvars: data.flashvars });
-                } else {
-                  controls.showToast(`Lỗi: ${data.error}`);
-                }
-              })
-              .catch((e) => {
-                controls.showToast(`Lỗi API: ${e.message}`);
+            
+            // If we have a saved session and it's fresh (< 2 hours), use it immediately
+            if (existingSession && existingSession.proxiedSwfUrl && (Date.now() - existingSession.updatedAt < 2 * 3600 * 1000)) {
+              controls.showToast(`⚡ Tái sử dụng phiên đăng nhập gần nhất (${existingSession.flashvars?.user || preset.account})`);
+              controls.runGame(existingSession.proxiedSwfUrl, { flashvars: existingSession.flashvars }, preset.id);
+              return;
+            }
+
+            // Retrieve credentials dynamically without hardcoded strings
+            const userCreds = SessionManager.getCredentials(preset.id, {
+              user: preset.account || 'bughunter001',
+              pass: '123456@abcD'
+            });
+
+            try {
+              const loginApiUrl = buildApiUrl('/login-gunny-hoiuc', {
+                user: userCreds.user,
+                pass: userCreds.pass
               });
+              const res = await fetch(loginApiUrl);
+              const data = await res.json();
+
+              if (data.ok) {
+                // Save session in SessionManager
+                SessionManager.saveSession(preset.id, {
+                  ...data,
+                  userName: userCreds.user
+                });
+                controls.showToast(`🎉 ${data.message}`);
+                controls.runGame(data.proxiedSwfUrl, { flashvars: data.flashvars }, preset.id);
+              } else {
+                controls.showToast(`Lỗi: ${data.error}`);
+              }
+            } catch (e) {
+              controls.showToast(`Lỗi API: ${e.message}`);
+            }
           } else if (preset.isGunny && preset.isZing) {
+            // If we already have a synced Zing session, load it directly
+            if (existingSession && existingSession.proxiedSwfUrl) {
+              controls.showToast(`⚡ Đang nạp phiên Zing đã đồng bộ: ${existingSession.userName || 'Player'}`);
+              controls.runGame(existingSession.proxiedSwfUrl, { flashvars: existingSession.flashvars || {}, baseUrl: existingSession.baseUrl }, preset.id);
+              return;
+            }
+
+            // Otherwise trigger Chrome sync
             controls.showToast(`⚡ Đang kết nối ${preset.name}...`);
             const btnSync = document.getElementById('btn-sync-zing');
             if (btnSync) {
               btnSync.click();
             } else {
-              controls.runGame(preset.swfUrl, { flashvars: preset.flashvars });
+              controls.runGame(preset.swfUrl, { flashvars: preset.flashvars }, preset.id);
             }
           } else {
             controls.showToast(`Đang nạp preset: ${preset.name}...`);
-            controls.runGame(preset.swfUrl, { flashvars: preset.flashvars });
+            controls.runGame(preset.swfUrl, { flashvars: preset.flashvars }, preset.id);
           }
         });
 

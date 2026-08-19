@@ -3,13 +3,20 @@
  * Universal Agent OS - Web Flash Player
  */
 
+import { CONFIG, buildApiUrl } from '../config.js';
+import { SessionManager } from './session-manager.js';
+
 export class PlayerControls {
   constructor(flashContainer, bridgeClient) {
     this.player = flashContainer;
     this.bridge = bridgeClient;
 
+    this.currentSwfUrl = null;
+    this.currentCustomConfig = {};
+
     this.initDOMElements();
     this.bindEvents();
+    this.restoreActiveSessionState();
   }
 
   initDOMElements() {
@@ -53,6 +60,40 @@ export class PlayerControls {
     this.toastContainer = document.getElementById('toast-container');
   }
 
+  restoreActiveSessionState() {
+    const activeSession = SessionManager.getActiveSession();
+    if (activeSession && activeSession.flashvars) {
+      this.inputFlashvars.value = JSON.stringify(activeSession.flashvars, null, 2);
+    }
+  }
+
+  /**
+   * Resolve full target launch URL with query/flashvars
+   * @returns {string|null}
+   */
+  getActiveLaunchUrl() {
+    if (this.currentSwfUrl && typeof this.currentSwfUrl === 'string') {
+      let targetUrl = this.currentSwfUrl.startsWith('http') ? this.currentSwfUrl : buildApiUrl(this.currentSwfUrl);
+      if (this.currentCustomConfig && this.currentCustomConfig.flashvars) {
+        const params = new URLSearchParams(this.currentCustomConfig.flashvars).toString();
+        targetUrl += (targetUrl.includes('?') ? '&' : '?') + params;
+      }
+      return targetUrl;
+    }
+
+    // Consult SessionManager for active persisted session
+    const activeSession = SessionManager.getActiveSession();
+    if (activeSession && activeSession.proxiedSwfUrl) {
+      const baseSwf = activeSession.proxiedSwfUrl.startsWith('http')
+        ? activeSession.proxiedSwfUrl
+        : buildApiUrl(activeSession.proxiedSwfUrl);
+      const params = activeSession.flashvars ? new URLSearchParams(activeSession.flashvars).toString() : '';
+      return params ? `${baseSwf}?${params}` : baseSwf;
+    }
+
+    return null;
+  }
+
   bindEvents() {
     // 1. Web Stage Fullscreen Toggle (Toàn màn hình cho khung game, không F11 trình duyệt)
     this.playerStageCard = document.getElementById('player-stage-card');
@@ -71,7 +112,6 @@ export class PlayerControls {
           ? `<path d="M4 14h6v6m10-10h-6V4m0 6 7-7M10 14l-7 7"/>`
           : `<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>`;
       }
-      // Re-apply aspect ratio
       setTimeout(() => {
         this.player.applyScaleMode(this.player.options.scaleMode);
       }, 100);
@@ -84,7 +124,6 @@ export class PlayerControls {
         this.showToast(isFull ? '⛶ Đã mở rộng khung game toàn màn hình (Bấm Esc hoặc click lại để thu nhỏ)' : '⛶ Đã thu nhỏ về khung chuẩn');
       });
 
-      // Listen for ESC key to exit web fullscreen
       window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && this.playerStageCard.classList.contains('is-web-fullscreen')) {
           this.playerStageCard.classList.remove('is-web-fullscreen');
@@ -123,99 +162,58 @@ export class PlayerControls {
     // 2b. Renderer Change (WebGL / Canvas2D Software / WebGPU)
     if (this.selectRenderer) {
       this.selectRenderer.addEventListener('change', (e) => {
-        const renderer = e.target.value;
         this.player.setRenderer(e.target.value);
         this.showToast(`Đã chuyển bộ xử lý đồ họa: ${e.target.options[e.target.selectedIndex].text}`);
       });
+    }
 
-      // 3.1. Native Flash Player 32 Runner
-      if (this.btnNativeFlash) {
-        this.btnNativeFlash.addEventListener('click', async () => {
-          this.showToast('🔥 Đang mở game bằng Adobe Flash Player 32 Gốc...');
-          try {
-            let targetUrl = '';
-            if (this.currentSwfUrl && typeof this.currentSwfUrl === 'string') {
-              targetUrl = this.currentSwfUrl.startsWith('http') ? this.currentSwfUrl : `http://localhost:8081${this.currentSwfUrl}`;
-              if (this.currentCustomConfig && this.currentCustomConfig.flashvars) {
-                const params = new URLSearchParams(this.currentCustomConfig.flashvars).toString();
-                targetUrl += (targetUrl.includes('?') ? '&' : '?') + params;
-              }
-            } else {
-              // Try syncing active session from Chrome first
-              const syncRes = await fetch('http://localhost:8081/sync-gunny-session').then(res => res.json()).catch(() => null);
-              if (syncRes && syncRes.ok && syncRes.proxiedSwfUrl) {
-                const params = new URLSearchParams(syncRes.flashvars).toString();
-                const baseSwf = syncRes.proxiedSwfUrl.startsWith('http') ? syncRes.proxiedSwfUrl : `http://localhost:8081${syncRes.proxiedSwfUrl}`;
-                targetUrl = `${baseSwf}?${params}`;
-              } else {
-                const r = await fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD').then(res => res.json());
-                if (r.ok) {
-                  const params = new URLSearchParams(r.flashvars).toString();
-                  const baseSwf = r.proxiedSwfUrl.startsWith('http') ? r.proxiedSwfUrl : `http://localhost:8081${r.proxiedSwfUrl}`;
-                  targetUrl = `${baseSwf}?${params}`;
-                }
-              }
-            }
-
-            if (targetUrl) {
-              const res = await fetch(`http://localhost:8081/launch-native-flash?url=${encodeURIComponent(targetUrl)}`).then(r => r.json());
-              if (res.ok) {
-                this.showToast('🎉 Đã mở Adobe Flash Player 32 Gốc thành công!');
-              } else {
-                this.showToast(`Lỗi: ${res.error}`);
-              }
-            }
-          } catch (e) {
-            this.showToast(`Lỗi khởi chạy Flash: ${e.message}`);
+    // 3.1. Native Flash Player 32 Runner
+    if (this.btnNativeFlash) {
+      this.btnNativeFlash.addEventListener('click', async () => {
+        this.showToast('🔥 Đang mở game bằng Adobe Flash Player 32 Gốc...');
+        try {
+          const targetUrl = this.getActiveLaunchUrl();
+          if (!targetUrl) {
+            this.showToast('Vui lòng chọn hoặc nạp game trước khi mở Flash 32!');
+            return;
           }
-        });
-      }
 
-      // 3.2. Pop-out Standalone Window for Multi-Account (Multi-boxing)
-      if (this.btnPopoutWindow) {
-        this.btnPopoutWindow.addEventListener('click', async () => {
-          this.showToast('🗗 Đang tách cửa sổ độc lập (Mở thêm tài khoản mới)...');
-          try {
-            let targetUrl = '';
-            if (this.currentSwfUrl && typeof this.currentSwfUrl === 'string') {
-              targetUrl = this.currentSwfUrl.startsWith('http') ? this.currentSwfUrl : `http://localhost:8081${this.currentSwfUrl}`;
-              if (this.currentCustomConfig && this.currentCustomConfig.flashvars) {
-                const params = new URLSearchParams(this.currentCustomConfig.flashvars).toString();
-                targetUrl += (targetUrl.includes('?') ? '&' : '?') + params;
-              }
-            } else {
-              // Try syncing active session from Chrome first
-              const syncRes = await fetch('http://localhost:8081/sync-gunny-session').then(res => res.json()).catch(() => null);
-              if (syncRes && syncRes.ok && syncRes.proxiedSwfUrl) {
-                const params = new URLSearchParams(syncRes.flashvars).toString();
-                const baseSwf = syncRes.proxiedSwfUrl.startsWith('http') ? syncRes.proxiedSwfUrl : `http://localhost:8081${syncRes.proxiedSwfUrl}`;
-                targetUrl = `${baseSwf}?${params}`;
-              } else {
-                const r = await fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD').then(res => res.json());
-                if (r.ok) {
-                  const params = new URLSearchParams(r.flashvars).toString();
-                  const baseSwf = r.proxiedSwfUrl.startsWith('http') ? r.proxiedSwfUrl : `http://localhost:8081${r.proxiedSwfUrl}`;
-                  targetUrl = `${baseSwf}?${params}`;
-                }
-              }
-            }
-
-            if (targetUrl) {
-              // Launch with multi=true to preserve existing windows
-              const res = await fetch(`http://localhost:8081/launch-native-flash?multi=true&url=${encodeURIComponent(targetUrl)}`).then(r => r.json());
-              if (res.ok) {
-                this.showToast('✨ Đã mở thêm một cửa sổ game mới (Hỗ trợ chơi nhiều nick)!');
-              } else {
-                // Fallback to browser popup if native bridge fails
-                window.open(targetUrl, '_blank', 'width=1016,height=656,menubar=no,toolbar=no,location=no,status=no,resizable=yes');
-                this.showToast('✨ Đã mở cửa sổ Web Popup độc lập!');
-              }
-            }
-          } catch (e) {
-            this.showToast(`Lỗi tách cửa sổ: ${e.message}`);
+          const launchApiUrl = buildApiUrl('/launch-native-flash', { url: targetUrl });
+          const res = await fetch(launchApiUrl).then(r => r.json());
+          if (res.ok) {
+            this.showToast('🎉 Đã mở Adobe Flash Player 32 Gốc thành công!');
+          } else {
+            this.showToast(`Lỗi: ${res.error}`);
           }
-        });
-      }
+        } catch (e) {
+          this.showToast(`Lỗi khởi chạy Flash: ${e.message}`);
+        }
+      });
+    }
+
+    // 3.2. Pop-out Standalone Window for Multi-Account (Multi-boxing)
+    if (this.btnPopoutWindow) {
+      this.btnPopoutWindow.addEventListener('click', async () => {
+        this.showToast('🗗 Đang tách cửa sổ độc lập (Mở thêm tài khoản mới)...');
+        try {
+          const targetUrl = this.getActiveLaunchUrl();
+          if (!targetUrl) {
+            this.showToast('Vui lòng chọn hoặc nạp game trước khi tách cửa sổ!');
+            return;
+          }
+
+          const launchApiUrl = buildApiUrl('/launch-native-flash', { multi: 'true', url: targetUrl });
+          const res = await fetch(launchApiUrl).then(r => r.json()).catch(() => ({ ok: false }));
+          if (res.ok) {
+            this.showToast('✨ Đã mở thêm một cửa sổ game mới (Hỗ trợ chơi nhiều nick)!');
+          } else {
+            window.open(targetUrl, '_blank', 'width=1016,height=656,menubar=no,toolbar=no,location=no,status=no,resizable=yes');
+            this.showToast('✨ Đã mở cửa sổ Web Popup độc lập!');
+          }
+        } catch (e) {
+          this.showToast(`Lỗi tách cửa sổ: ${e.message}`);
+        }
+      });
     }
 
     // 3. Volume & Mute
@@ -272,7 +270,8 @@ export class PlayerControls {
           
           let bridgeMsg = '';
           try {
-            const res = await fetch('http://localhost:8081/clear-cache').then(r => r.json());
+            const clearUrl = buildApiUrl('/clear-cache');
+            const res = await fetch(clearUrl).then(r => r.json());
             if (res.ok) {
               bridgeMsg = ` (${res.clearedEntries} tệp RAM)`;
             }
@@ -356,7 +355,8 @@ export class PlayerControls {
       try {
         if (!rawUrl.toLowerCase().endsWith('.swf')) {
           // 1. Try Smart Game URL Sniffer first
-          const sniffRes = await fetch(`http://localhost:8081/sniff-game-url?url=${encodeURIComponent(rawUrl)}`);
+          const sniffApiUrl = buildApiUrl('/sniff-game-url', { url: rawUrl });
+          const sniffRes = await fetch(sniffApiUrl);
           if (sniffRes.ok) {
             const sniffData = await sniffRes.json();
             if (sniffData.ok) {
@@ -372,7 +372,8 @@ export class PlayerControls {
                 if (sniffData.flashvars && Object.keys(sniffData.flashvars).length > 0) {
                   this.inputFlashvars.value = JSON.stringify(sniffData.flashvars, null, 2);
                 }
-                await this.runGame(sniffData.proxiedSwfUrl, { flashvars: sniffData.flashvars || {}, baseUrl: sniffData.baseUrl });
+                SessionManager.saveSession('custom-sniffed', sniffData);
+                await this.runGame(sniffData.proxiedSwfUrl, { flashvars: sniffData.flashvars || {}, baseUrl: sniffData.baseUrl }, 'custom-sniffed');
                 return;
               }
             }
@@ -380,7 +381,8 @@ export class PlayerControls {
         }
 
         // 2. Inspect URL via Bridge Inspector
-        const inspectRes = await fetch(`http://localhost:8081/inspect-url?url=${encodeURIComponent(rawUrl)}`);
+        const inspectApiUrl = buildApiUrl('/inspect-url', { url: rawUrl });
+        const inspectRes = await fetch(inspectApiUrl);
         if (inspectRes.ok) {
           const info = await inspectRes.json();
 
@@ -431,12 +433,20 @@ export class PlayerControls {
         this.logBridge('[Sync] Đang truy vấn phiên đăng nhập Gunny từ trình duyệt Chrome...');
 
         try {
-          const res = await fetch('http://localhost:8081/sync-gunny-session');
+          const syncUrl = buildApiUrl('/sync-gunny-session');
+          const res = await fetch(syncUrl);
           const data = await res.json();
 
           if (data.ok && data.swfUrl) {
             const serverName = data.serverType === 'zing' ? `Zing Server ${data.serverId}` : new URL(data.serverUrl).hostname;
             const userName = (data.flashvars && data.flashvars.user) ? data.flashvars.user : 'Player';
+
+            // Persist session in SessionManager
+            SessionManager.saveSession('gunny-zing-737', {
+              ...data,
+              serverName,
+              userName
+            });
 
             this.showToast(`🎉 Đồng bộ thành công ${serverName}! (${userName})`);
             this.logBridge(`[Sync] Đã trích xuất SWF: ${data.swfUrl}`, 'success');
@@ -447,7 +457,7 @@ export class PlayerControls {
             }
 
             const proxiedUrl = data.proxiedSwfUrl || this.bridge.getProxiedUrl(data.swfUrl);
-            await this.runGame(proxiedUrl, { flashvars: data.flashvars || {}, baseUrl: data.baseUrl });
+            await this.runGame(proxiedUrl, { flashvars: data.flashvars || {}, baseUrl: data.baseUrl }, 'gunny-zing-737');
           } else {
             this.showToast(`⚠️ ${data.error || 'Không thể đồng bộ. Hãy chắc chắn tab Gunny đang mở.'}`, 5000);
             this.logBridge(`[Sync Error] ${data.error}`, 'error');
@@ -462,37 +472,37 @@ export class PlayerControls {
       });
     }
 
-    // 10. Custom Gunny Launch Button
+    // 10. Custom Socket Launch Button
     this.btnLaunchGunny.addEventListener('click', () => {
       const host = this.inputGunnyHost.value.trim();
       const port = this.inputGunnyPort.value.trim();
       const resource = this.inputGunnyResource.value.trim();
 
-      this.logBridge(`[Gunny] Chuẩn bị khởi chạy kết nối TCP -> ${host}:${port}`);
-      this.logBridge(`[Gunny] Tài nguyên: ${resource}`);
+      this.logBridge(`[Socket] Chuẩn bị khởi chạy kết nối TCP -> ${host}:${port}`);
+      this.logBridge(`[Socket] Tài nguyên: ${resource}`);
 
-      const loadingSwf = `${resource}Loading.swf`;
+      const loadingSwf = `${resource.replace(/\/+$/, '')}/Loading.swf`;
       const proxiedLoadingSwf = this.bridge.getProxiedUrl(loadingSwf);
 
-      const gunnyVars = {
-        user: 'admin',
-        key: 'gunny_key_demo',
-        config: `${resource}config.xml`,
+      const customVars = {
+        user: 'player',
+        key: 'session_key_demo',
+        config: `${resource.replace(/\/+$/, '')}/config.xml`,
         v: '1000'
       };
 
-      this.showToast(`Đang kết nối Server Gunny (${host}:${port})...`);
-      this.runGame(proxiedLoadingSwf, { flashvars: gunnyVars });
+      this.showToast(`Đang kết nối Server (${host}:${port})...`);
+      this.runGame(proxiedLoadingSwf, { flashvars: customVars });
     });
 
-    // 10. FPS Tracker Event
+    // 11. FPS Tracker Event
     this.player.on('fpsUpdate', ({ fps }) => {
       if (this.fpsCounter) {
         this.fpsCounter.textContent = `${fps} FPS`;
       }
     });
 
-    // 11. Prevent default browser scrolling on Game Keys (Space, Arrows) during gameplay
+    // 12. Prevent default browser scrolling on Game Keys (Space, Arrows) during gameplay
     window.addEventListener('keydown', (e) => {
       const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
       if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') return;
@@ -508,9 +518,12 @@ export class PlayerControls {
     this.runGame(file, { flashvars: this.getParsedFlashvars() });
   }
 
-  async runGame(source, config = {}) {
+  async runGame(source, config = {}, presetId = null) {
     this.currentSwfUrl = source;
     this.currentCustomConfig = config;
+    if (presetId) {
+      SessionManager.setActiveSessionId(presetId);
+    }
     this.emptyState.style.display = 'none';
     this.flashContainerEl.style.display = 'flex';
 
@@ -528,7 +541,6 @@ export class PlayerControls {
     try {
       return JSON.parse(raw);
     } catch (e) {
-      // Parse as query string format: a=1&b=2
       const params = new URLSearchParams(raw);
       const obj = {};
       for (const [key, value] of params.entries()) {

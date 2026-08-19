@@ -1,7 +1,9 @@
 /**
  * Presets Library for Web Flash Player
- * Includes Gunny / DDTank server configs, retro game benchmarks, and sample SWFs
+ * Universal game definitions with dynamic proxy routing and customizable credentials
  */
+
+import { buildHostProxiedUrl } from '../config.js';
 
 export const GAME_PRESETS = [
   {
@@ -14,10 +16,14 @@ export const GAME_PRESETS = [
     description: 'Máy chủ Gunny Hồi Ức v2.3 với kết nối tốc độ cao và bộ giải mã đồ họa 60 FPS.',
     isGunny: true,
     isHoiUc: true,
-    swfUrl: 'http://localhost:8081/host/flash1.gunnyhoiuc.com:88/Loading.swf',
-    flashvars: {
-      user: 'bughunter001',
-      config: 'http://localhost:8081/host/flash1.gunnyhoiuc.com:88/config.xml'
+    get swfUrl() {
+      return buildHostProxiedUrl('flash1.gunnyhoiuc.com:88', '/Loading.swf');
+    },
+    get flashvars() {
+      return {
+        user: 'bughunter001',
+        config: buildHostProxiedUrl('flash1.gunnyhoiuc.com:88', '/config.xml')
+      };
     },
     width: 1000,
     height: 600,
@@ -31,12 +37,16 @@ export const GAME_PRESETS = [
     accountType: 'Private Auth',
     statusText: '🔑 Smart Gateway Token',
     description: 'Máy chủ Gunny Private hồi ức với bộ định tuyến Smart Socket Gateway và bảo mật tự động.',
-    swfUrl: 'http://localhost:8081/host/123gn.net/flash3/Loading.swf',
+    get swfUrl() {
+      return buildHostProxiedUrl('123gn.net', '/flash3/Loading.swf');
+    },
     isGunny: true,
     isPrivate: true,
     serverUrl: 'https://123gn.net/play/1001',
-    flashvars: {
-      config: 'http://localhost:8081/host/123gn.net/flash3/config3.xml'
+    get flashvars() {
+      return {
+        config: buildHostProxiedUrl('123gn.net', '/flash3/config3.xml')
+      };
     },
     width: 1000,
     height: 600,
@@ -50,12 +60,16 @@ export const GAME_PRESETS = [
     accountType: 'Zing ID Account',
     statusText: '🔗 Đồng bộ từ Chrome',
     description: 'Máy chủ chính thức Zing Gunny. Tự động đồng bộ 1-click trực tiếp từ phiên đăng nhập trình duyệt.',
-    swfUrl: 'http://localhost:8081/host/res737.gn.zing.vn/flash/Loading.swf',
+    get swfUrl() {
+      return buildHostProxiedUrl('res737.gn.zing.vn', '/flash/Loading.swf');
+    },
     isGunny: true,
     isZing: true,
     serverUrl: 'https://id-levelup.gn.zing.vn',
-    flashvars: {
-      config: 'http://localhost:8081/host/s737.gn.zing.vn/config.xml'
+    get flashvars() {
+      return {
+        config: buildHostProxiedUrl('s737.gn.zing.vn', '/config.xml')
+      };
     },
     width: 1000,
     height: 600,
