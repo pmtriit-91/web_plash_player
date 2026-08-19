@@ -22,6 +22,9 @@ export class PlayerControls {
     this.btnMute = document.getElementById('btn-mute');
     this.btnScreenshot = document.getElementById('btn-screenshot');
     this.btnRestart = document.getElementById('btn-restart');
+    this.btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+    this.mainLayout = document.getElementById('main-layout');
+    this.iconSidebarToggle = document.getElementById('icon-sidebar-toggle');
     this.fpsCounter = document.getElementById('fps-counter');
 
     this.dropzone = document.getElementById('dropzone');
@@ -55,6 +58,26 @@ export class PlayerControls {
     this.btnFullscreen.addEventListener('click', () => {
       this.player.toggleFullscreen();
     });
+
+    // 1b. Sidebar Collapse / Expand Toggle
+    if (this.btnToggleSidebar && this.mainLayout) {
+      const isStoredCollapsed = localStorage.getItem('web_flash_sidebar_collapsed') === 'true';
+      if (isStoredCollapsed) {
+        this.mainLayout.classList.add('sidebar-collapsed');
+        this.btnToggleSidebar.classList.add('active');
+      }
+
+      this.btnToggleSidebar.addEventListener('click', () => {
+        const isCollapsed = this.mainLayout.classList.toggle('sidebar-collapsed');
+        this.btnToggleSidebar.classList.toggle('active', isCollapsed);
+        localStorage.setItem('web_flash_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+        
+        this.showToast(isCollapsed ? '◧ Đã thu gọn sidebar (Toàn cảnh game)' : '◨ Đã mở lại sidebar');
+        setTimeout(() => {
+          this.player.applyScaleMode(this.player.options.scaleMode);
+        }, 360);
+      });
+    }
 
     // 2. Scale Mode Change
     this.selectScale.addEventListener('change', (e) => {
