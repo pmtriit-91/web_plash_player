@@ -15,6 +15,7 @@ export class PlayerControls {
   initDOMElements() {
     this.btnFullscreen = document.getElementById('btn-fullscreen');
     this.selectScale = document.getElementById('select-scale');
+    this.selectRenderer = document.getElementById('select-renderer');
     this.sliderVolume = document.getElementById('slider-volume');
     this.btnMute = document.getElementById('btn-mute');
     this.btnScreenshot = document.getElementById('btn-screenshot');
@@ -58,6 +59,15 @@ export class PlayerControls {
       this.player.applyScaleMode(e.target.value);
       this.showToast(`Đã đổi tỷ lệ khung hình: ${e.target.options[e.target.selectedIndex].text}`);
     });
+
+    // 2b. Renderer Change (WebGL / Canvas2D Software / WebGPU)
+    if (this.selectRenderer) {
+      this.selectRenderer.addEventListener('change', (e) => {
+        const renderer = e.target.value;
+        this.player.setRenderer(renderer);
+        this.showToast(`Đã đổi bộ xử lý đồ họa: ${e.target.options[e.target.selectedIndex].text}`);
+      });
+    }
 
     // 3. Volume & Mute
     this.sliderVolume.addEventListener('input', (e) => {

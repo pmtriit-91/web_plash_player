@@ -326,11 +326,15 @@ export class FlashContainer {
       } else if (this.container.webkitRequestFullscreen) {
         this.container.webkitRequestFullscreen();
       }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
     }
+  }
+
+  setRenderer(renderer) {
+    this.options.preferredRenderer = renderer;
+    if (window.RufflePlayer && window.RufflePlayer.config) {
+      window.RufflePlayer.config.preferredRenderer = renderer;
+    }
+    console.log(`[FlashContainer] Graphics Renderer changed to: ${renderer}`);
   }
 
   captureScreenshot() {
