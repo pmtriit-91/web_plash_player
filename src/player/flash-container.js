@@ -60,10 +60,11 @@ export class FlashContainer {
       letterbox: 'on',
       openUrlMode: 'deny',
       preferredRenderer: 'wgpu-webgl',
+      deviceFontRenderer: 'canvas',
       warnOnUnsupportedContent: false,
       logLevel: 'warn',
-      quality: this.options.quality,
-      wmode: this.options.wmode,
+      quality: 'high',
+      wmode: 'transparent',
       allowScriptAccess: this.options.allowScriptAccess,
       fontSources: [
         '/fonts/Arial.ttf',
@@ -72,6 +73,7 @@ export class FlashContainer {
         '/fonts/Tahoma-Bold.ttf'
       ],
       defaultFonts: {
+        sans: ['Arial', 'Tahoma', 'Inter', 'sans-serif'],
         sansSerif: ['Arial', 'Tahoma', 'Inter', 'sans-serif'],
         serif: ['Times New Roman', 'serif'],
         typewriter: ['Courier New', 'monospace']
@@ -175,9 +177,10 @@ export class FlashContainer {
         parameters: customConfig.flashvars || {},
         allowScriptAccess: true,
         openUrlMode: 'deny',
+        deviceFontRenderer: 'canvas',
         socketProxy: (window.RufflePlayer && window.RufflePlayer.config && window.RufflePlayer.config.socketProxy) ? window.RufflePlayer.config.socketProxy : [],
-        wmode: this.options.wmode,
-        quality: this.options.quality,
+        wmode: 'transparent',
+        quality: 'high',
         autoplay: 'on',
         ...customConfig
       };
