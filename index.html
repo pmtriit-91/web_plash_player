@@ -19,7 +19,11 @@
       openUrlMode: 'deny',
       preferredRenderer: 'wgpu-webgl',
       deviceFontRenderer: 'canvas',
-      wmode: 'transparent',
+      playerRuntime: 'flashPlayer',
+      playerVersion: 32,
+      compatibilityRules: false,
+      backgroundColor: null,
+      wmode: 'direct',
       fontSources: [
         '/fonts/Arial.ttf',
         '/fonts/Arial-Bold.ttf',
@@ -145,8 +149,8 @@
 
           <select class="scale-select" id="select-renderer" title="Bộ xử lý đồ họa (Renderer)">
             <option value="wgpu-webgl" selected>⚡ WebGL2 Engine (Mặc định)</option>
-            <option value="canvas">🎨 Canvas 2D Engine (Khắc phục Map/Erase)</option>
-            <option value="webgl">🚀 WebGL Cổ điển</option>
+            <option value="webgl">🚀 WebGL Cổ điển (Direct)</option>
+            <option value="webgpu">🔮 WebGPU Engine (Mới)</option>
           </select>
         </div>
 

@@ -42,18 +42,17 @@ public class MapView extends Sprite {
 
 ---
 
-## 3. Verified Hypotheses & Solution Pathways
+## 3. Verified Hypotheses & Testing Matrix
 
-### Pathway A: Runtime Flash Emulation Parameters
-- Configure Ruffle with `playerRuntime: 'flashPlayer'`, `playerVersion: 32`, and `compatibilityRules: false` to force AVM2 Stage3D/BitmapData modern behavior and bypass AVM1 legacy quirks.
-
-### Pathway B: WebGL Canvas Alpha Channel Compositing
-- Ensure the underlying HTML5 `<canvas>` element created by Ruffle has `{ alpha: true, premultipliedAlpha: false }` so that cleared alpha pixels properly composite against CSS and HTML parent containers.
-
-### Pathway C: Software Canvas2D Fallback
-- For devices where WGPU WebGL2 shaders fail offscreen alpha blending, provide a Software Canvas2D renderer option (`preferredRenderer: 'canvas'`), which natively supports `globalCompositeOperation = 'destination-out'`.
+| Experiment | Configuration | Empirical Result | Technical Cause / Finding |
+| :--- | :--- | :---: | :--- |
+| **Option 1** | `playerRuntime: 'flashPlayer'`, `playerVersion: 32`, `compatibilityRules: false`, `wmode: 'transparent'` | ❌ Lỗi vẫn còn (Hình tròn màu cam đặc trên map) | AVM2 emulation flags alone do not alter WGPU offscreen shader blending logic. |
+| **Option 2** | `preferredRenderer: 'canvas'` (Canvas 2D Software Engine) | ❌ Đứng ở 100% Loading | Gunny 2.3 ActionScript 3 client requires WebGL / Stage3D hardware acceleration context during initialization. Canvas 2D lacks Stage3D. |
+| **Option 3** | `preferredRenderer: 'wgpu-webgl'`, `webgl`, `webgpu` + `wmode: 'direct'` | ❌ Lỗi vẫn còn (Hình tròn màu cam đặc trên map) | Ruffle WASM's `BitmapData.draw` offscreen rendering pipeline (`operations.rs`) currently renders vector shape fill colors instead of executing alpha clearing for `BlendMode::Erase`. |
 
 ---
 
-## 4. Continuity & Future Session Handoff
-This document serves as primary authority for any future task or agent session investigating Gunny terrain destruction, `BitmapData.draw`, or Ruffle shader blending.
+## 4. Architectural Ground Truth & Conclusion
+- **Root Cause Identified**: In Ruffle WASM's AVM2 implementation (`core/src/bitmap/operations.rs`), `BitmapData.draw(source, ..., BlendMode.ERASE)` offscreen passes for vector shapes currently execute normal fill rasterization rather than alpha channel subtraction on the destination bitmap buffer.
+- **Upstream Dependency**: Full destructible terrain transparency requires Ruffle's upstream implementation of offscreen vector `BlendMode::Erase` shaders.
+- **Continuity Status**: All findings, test evidence, and decompiled ActionScript 3 architecture are permanently committed and bound to Universal Agent OS V9.1.0 Project Authority.
