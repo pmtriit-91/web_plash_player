@@ -251,7 +251,6 @@ body {
 }
 
 /* Player HUD Toolbar */
-/* Player HUD Toolbar */
 .player-toolbar {
   height: 56px;
   background: rgba(10, 15, 28, 0.92);
@@ -259,16 +258,23 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  gap: 12px;
+  padding: 0 12px;
+  gap: 8px;
   box-sizing: border-box;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.player-toolbar::-webkit-scrollbar {
+  display: none;
 }
 
 .toolbar-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   height: 36px;
+  flex-shrink: 0;
 }
 
 .tool-btn {
@@ -346,6 +352,27 @@ body {
   border-color: #06b6d4;
   color: #f0f9ff;
   box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+}
+
+.tool-btn.btn-toggle-sidebar-styled {
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.35);
+  color: var(--neon-cyan);
+  font-weight: 600;
+  padding: 0 10px;
+}
+
+.tool-btn.btn-toggle-sidebar-styled:hover {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 14px var(--neon-cyan-glow);
+}
+
+.tool-btn.btn-toggle-sidebar-styled.active {
+  background: var(--neon-cyan);
+  color: #080b12;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 16px var(--neon-cyan-glow);
 }
 
 .scale-select {
