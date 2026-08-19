@@ -81,9 +81,7 @@ This ledger tracks all major tasks, implementations, bug fixes, and verification
   - *Outcome*: Enabled `deviceFontRenderer: 'canvas'` and defined `sans`, `sansSerif`, `serif`, `typewriter` fallback lists.
   - *Scope*: `index.html`, `src/player/flash-container.js`.
   - *Evidence*: Solved broken compound diacritics ("Bn đã nhn phn thưng này ri" -> "Bạn đã nhận phần thưởng này rồi"). Verified 100% in live battle chat notices.
-- **TASK-017**: Destructible Terrain Rasterization & Offscreen Alpha Blending Shader Audit. `[CLOSED]`
-  - Audited Ruffle WASM `core/src/bitmap/operations.rs` `BitmapData.draw` and WebGL context blend equations. Empirical tests proved `preferredRenderer: 'canvas'` stalls at 100% due to missing Stage3D, and WASM WebGL offscreen blending requires upstream `BlendMode::Erase` shader support.
-- **TASK-018**: Native Adobe Flash Player 32 Standalone Runner Integration (Direction B). `[CLOSED]`
-  - Integrated official Adobe Flash Player 32.0.0.371 macOS 64-bit standalone projector into `runtime/flash/Flash Player.app`. Added `/launch-native-flash` endpoint to bridge server and 1-Click launcher button to HUD toolbar. Successfully verified native Flash gameplay with 100% original graphics and font rendering. framebuffer alpha clearing mechanics for crater shapes.
-  - *Scope*: `package.json`, `public/ruffle/`, `index.html`, `src/player/controls.js`, `src/player/flash-container.js`, `.agents/project/context/`.
-  - *Evidence*: In-depth audit report and architectural records established in Agent OS Project Memory.
+- **TASK-019**: HUD Toolbar Harmonization, Scale Mode Fixes, and Multi-Boxing Popout Support. `[CLOSED]`
+  - *Outcome*: Standardized all HUD toolbar controls to 36px height with unified 8px border radius, seamless Cyberpunk dark-mode styling, and clear grouping. Fixed mathematical aspect ratio calculations in `applyScaleMode` for 5:3, 16:9, 4:3, original, fit, and stretch. Implemented multi-instance pop-out standalone window support (`open -n`) in `server/bridge.js` and `src/player/controls.js` enabling simultaneous multi-account gameplay (Multi-boxing).
+  - *Scope*: `index.html`, `src/style.css`, `src/player/flash-container.js`, `src/player/controls.js`, `server/bridge.js`.
+  - *Evidence*: `npm run build` succeeded (0 errors), `agent_os_lifecycle.py doctor` verified `state: BOUND`.

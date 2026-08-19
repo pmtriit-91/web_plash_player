@@ -130,58 +130,69 @@
       
       <!-- Player HUD Toolbar -->
       <div class="player-toolbar">
-        <div class="toolbar-group">
-          <button class="tool-btn" id="btn-fullscreen" title="Toàn màn hình">
+         <div class="toolbar-group">
+          <button class="tool-btn" id="btn-fullscreen" title="Toàn màn hình (F11)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
             </svg>
             <span>Toàn màn hình</span>
           </button>
 
-          <select class="scale-select" id="select-scale" title="Tỷ lệ khung hình">
+          <select class="scale-select" id="select-scale" title="Tỷ lệ khung hình hiển thị">
             <option value="5:3" selected>⭐ Chuẩn Gunny 5:3 (1000x600)</option>
             <option value="fit">Tự động vừa khung (Fit)</option>
-            <option value="original">Kích thước chuẩn gốc 1000x600 px</option>
-            <option value="16:9">Tỷ lệ 16:9 (Màn hình rộng)</option>
-            <option value="4:3">Tỷ lệ 4:3 (Màn hình vuông)</option>
+            <option value="original">Kích thước chuẩn gốc (1000x600)</option>
+            <option value="16:9">Tỷ lệ 16:9 (Màn rộng)</option>
+            <option value="4:3">Tỷ lệ 4:3 (Màn vuông)</option>
             <option value="stretch">Kéo dãn toàn khung (Stretch)</option>
           </select>
 
-          <select class="scale-select" id="select-renderer" title="Bộ xử lý đồ họa (Renderer)">
-            <option value="wgpu-webgl" selected>⚡ WebGL2 Engine (Mặc định)</option>
-            <option value="webgl">🚀 WebGL Cổ điển (Direct)</option>
-            <option value="webgpu">🔮 WebGPU Engine (Mới)</option>
+          <select class="scale-select" id="select-renderer" title="Bộ xử lý đồ họa">
+            <option value="wgpu-webgl" selected>⚡ WebGL2 Engine</option>
+            <option value="webgl">🚀 WebGL Direct</option>
+            <option value="webgpu">🔮 WebGPU Engine</option>
           </select>
 
-          <button class="tool-btn" id="btn-native-flash" title="Mở game bằng Adobe Flash Player 32 Gốc (Chuẩn 100% Không lỗi Map)" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(249, 115, 22, 0.25)); border-color: rgba(249, 115, 22, 0.6); color: #fb923c; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; gap: 4px; display: inline-flex; align-items: center;">
-            🔥 Mở Flash 32 Gốc
+          <button class="tool-btn btn-flash-engine" id="btn-native-flash" title="Mở game bằng Adobe Flash Player 32 Gốc (Không lỗi Map)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>Flash 32 Gốc</span>
+          </button>
+
+          <button class="tool-btn btn-popout-engine" id="btn-popout-window" title="Tách ra cửa sổ riêng / Mở thêm tài khoản mới (Multi-boxing)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+            <span>Tách Cửa Sổ</span>
           </button>
         </div>
 
         <div class="toolbar-group">
           <!-- Volume Group -->
           <div class="volume-slider-group">
-            <button class="tool-btn" id="btn-mute" style="border:none; padding: 2px 4px;">
+            <button class="tool-btn btn-icon-only" id="btn-mute" title="Bật/Tắt âm thanh">
               <svg id="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                 <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
               </svg>
             </button>
-            <input type="range" id="slider-volume" class="volume-slider" min="0" max="1" step="0.05" value="1">
+            <input type="range" id="slider-volume" class="volume-slider" min="0" max="1" step="0.05" value="1" title="Âm lượng">
           </div>
 
-          <button class="tool-btn" id="btn-screenshot" title="Chụp ảnh màn hình">
+          <button class="tool-btn btn-icon-only" id="btn-screenshot" title="Chụp ảnh màn hình (PNG)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
               <circle cx="12" cy="13" r="4"/>
             </svg>
           </button>
 
-          <button class="tool-btn" id="btn-restart" title="Khởi động lại Game">
+          <button class="tool-btn btn-icon-only" id="btn-restart" title="Tải lại Game (F5 / Reload)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="1 4 1 10 7 10"/>
-              <polyline points="23 20 23 14 17 14"/>
-              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
             </svg>
           </button>
         </div>

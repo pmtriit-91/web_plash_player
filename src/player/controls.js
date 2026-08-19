@@ -17,6 +17,7 @@ export class PlayerControls {
     this.selectScale = document.getElementById('select-scale');
     this.selectRenderer = document.getElementById('select-renderer');
     this.btnNativeFlash = document.getElementById('btn-native-flash');
+    this.btnPopoutWindow = document.getElementById('btn-popout-window');
     this.sliderVolume = document.getElementById('slider-volume');
     this.btnMute = document.getElementById('btn-mute');
     this.btnScreenshot = document.getElementById('btn-screenshot');
@@ -101,6 +102,45 @@ export class PlayerControls {
             }
           } catch (e) {
             this.showToast(`Lỗi khởi chạy Flash: ${e.message}`);
+          }
+        });
+      }
+
+      // 3.2. Pop-out Standalone Window for Multi-Account (Multi-boxing)
+      if (this.btnPopoutWindow) {
+        this.btnPopoutWindow.addEventListener('click', async () => {
+          this.showToast('🗗 Đang tách cửa sổ độc lập (Mở thêm tài khoản mới)...');
+          try {
+            let targetUrl = '';
+            if (this.currentSwfUrl) {
+              targetUrl = this.currentSwfUrl.startsWith('http') ? this.currentSwfUrl : `http://localhost:8081${this.currentSwfUrl}`;
+              if (this.currentCustomConfig && this.currentCustomConfig.flashvars) {
+                const params = new URLSearchParams(this.currentCustomConfig.flashvars).toString();
+                targetUrl += (targetUrl.includes('?') ? '&' : '?') + params;
+              }
+            } else {
+              // Fetch a fresh session for multi-account login
+              const r = await fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD').then(res => res.json());
+              if (r.ok) {
+                const params = new URLSearchParams(r.flashvars).toString();
+                const baseSwf = r.proxiedSwfUrl.startsWith('http') ? r.proxiedSwfUrl : `http://localhost:8081${r.proxiedSwfUrl}`;
+                targetUrl = `${baseSwf}?${params}`;
+              }
+            }
+
+            if (targetUrl) {
+              // Launch with multi=true to preserve existing windows
+              const res = await fetch(`http://localhost:8081/launch-native-flash?multi=true&url=${encodeURIComponent(targetUrl)}`).then(r => r.json());
+              if (res.ok) {
+                this.showToast('✨ Đã mở thêm một cửa sổ game mới (Hỗ trợ chơi nhiều nick)!');
+              } else {
+                // Fallback to browser popup if native bridge fails
+                window.open(targetUrl, '_blank', 'width=1016,height=656,menubar=no,toolbar=no,location=no,status=no,resizable=yes');
+                this.showToast('✨ Đã mở cửa sổ Web Popup độc lập!');
+              }
+            }
+          } catch (e) {
+            this.showToast(`Lỗi tách cửa sổ: ${e.message}`);
           }
         });
       }
