@@ -54,10 +54,45 @@ export class PlayerControls {
   }
 
   bindEvents() {
-    // 1. Fullscreen Toggle
-    this.btnFullscreen.addEventListener('click', () => {
-      this.player.toggleFullscreen();
-    });
+    // 1. Web Stage Fullscreen Toggle (Toàn màn hình cho khung game, không F11 trình duyệt)
+    this.playerStageCard = document.getElementById('player-stage-card');
+    this.iconFullscreen = document.getElementById('icon-fullscreen');
+    this.textFullscreen = document.getElementById('text-fullscreen');
+
+    const updateFullscreenUI = (isFull) => {
+      if (this.btnFullscreen) {
+        this.btnFullscreen.classList.toggle('active', isFull);
+      }
+      if (this.textFullscreen) {
+        this.textFullscreen.textContent = isFull ? 'Thu nhỏ' : 'Toàn màn hình';
+      }
+      if (this.iconFullscreen) {
+        this.iconFullscreen.innerHTML = isFull
+          ? `<path d="M4 14h6v6m10-10h-6V4m0 6 7-7M10 14l-7 7"/>`
+          : `<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>`;
+      }
+      // Re-apply aspect ratio
+      setTimeout(() => {
+        this.player.applyScaleMode(this.player.options.scaleMode);
+      }, 100);
+    };
+
+    if (this.btnFullscreen && this.playerStageCard) {
+      this.btnFullscreen.addEventListener('click', () => {
+        const isFull = this.playerStageCard.classList.toggle('is-web-fullscreen');
+        updateFullscreenUI(isFull);
+        this.showToast(isFull ? '⛶ Đã mở rộng khung game toàn màn hình (Bấm Esc hoặc click lại để thu nhỏ)' : '⛶ Đã thu nhỏ về khung chuẩn');
+      });
+
+      // Listen for ESC key to exit web fullscreen
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.playerStageCard.classList.contains('is-web-fullscreen')) {
+          this.playerStageCard.classList.remove('is-web-fullscreen');
+          updateFullscreenUI(false);
+          this.showToast('⛶ Đã thu nhỏ về khung chuẩn');
+        }
+      });
+    }
 
     // 1b. Sidebar Collapse / Expand Toggle
     if (this.btnToggleSidebar && this.mainLayout) {
