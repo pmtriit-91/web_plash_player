@@ -81,7 +81,9 @@ This ledger tracks all major tasks, implementations, bug fixes, and verification
   - *Outcome*: Enabled `deviceFontRenderer: 'canvas'` and defined `sans`, `sansSerif`, `serif`, `typewriter` fallback lists.
   - *Scope*: `index.html`, `src/player/flash-container.js`.
   - *Evidence*: Solved broken compound diacritics ("Bn đã nhn phn thưng này ri" -> "Bạn đã nhận phần thưởng này rồi"). Verified 100% in live battle chat notices.
-- **TASK-017: Destructible Terrain BlendMode.ERASE & Alpha Subtraction Invalidation Investigation**
-  - *Outcome*: Upgraded Ruffle WASM runtime to `@ruffle-rs/ruffle@0.6.0-nightly.2026.8.19`, added dynamic Graphics Renderer Switcher (`wgpu-webgl`, `canvas`, `webgl`) to player toolbar, and documented offscreen framebuffer alpha clearing mechanics for crater shapes.
+- **TASK-017**: Destructible Terrain Rasterization & Offscreen Alpha Blending Shader Audit. `[CLOSED]`
+  - Audited Ruffle WASM `core/src/bitmap/operations.rs` `BitmapData.draw` and WebGL context blend equations. Empirical tests proved `preferredRenderer: 'canvas'` stalls at 100% due to missing Stage3D, and WASM WebGL offscreen blending requires upstream `BlendMode::Erase` shader support.
+- **TASK-018**: Native Adobe Flash Player 32 Standalone Runner Integration (Direction B). `[CLOSED]`
+  - Integrated official Adobe Flash Player 32.0.0.371 macOS 64-bit standalone projector into `runtime/flash/Flash Player.app`. Added `/launch-native-flash` endpoint to bridge server and 1-Click launcher button to HUD toolbar. Successfully verified native Flash gameplay with 100% original graphics and font rendering. framebuffer alpha clearing mechanics for crater shapes.
   - *Scope*: `package.json`, `public/ruffle/`, `index.html`, `src/player/controls.js`, `src/player/flash-container.js`, `.agents/project/context/`.
   - *Evidence*: In-depth audit report and architectural records established in Agent OS Project Memory.

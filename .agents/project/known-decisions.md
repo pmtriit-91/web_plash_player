@@ -55,7 +55,11 @@ This document records the foundational architectural decisions, technical trade-
 
 ---
 
-## ADR-008: Destructible Terrain Rasterization & BlendMode.ERASE Pipeline
-- **Context**: Gunny's ActionScript 3 map engine (`MapView.as`) uses `BitmapData.draw(craterShape, matrix, null, BlendMode.ERASE)` on `_ground:BitmapData` to carve transparent holes through destructible terrain. In WebGL WASM runtimes, if offscreen framebuffers treat erase blending as solid draws or if `cacheAsBitmap` textures are not invalidated, craters render as solid opaque disks (orange/grey) instead of transparent holes.
-- **Decision**: Track rendering across multiple backends (`wgpu-webgl`, `canvas`, `webgl`), keep Ruffle core updated to latest nightly releases, and provide a dynamic Graphics Renderer Switcher in the UI.
+### ADR-008: Destructible Terrain BlendMode.ERASE Invalidation
+- **Context**: In Gunny / DDTank 2.3 battles, bomb craters render as solid color circles instead of transparent holes.
+- **Decision**: Primary cause identified as Ruffle WASM `core/src/bitmap/operations.rs` `BitmapData.draw` offscreen shader rasterization of vector shapes. Primary graphics engine remains WebGL (`wgpu-webgl` or `webgl`) for Stage3D compatibility.
+
+### ADR-009: Native Adobe Flash Player 32 Standalone Runner Architecture
+- **Context**: Users requiring 100% authentic legacy Flash rendering (including pristine pixel-perfect destructible terrain and zero shader discrepancies) on desktop environments.
+- **Decision**: Integrated official Adobe Flash Player 32 standalone projector (`runtime/flash/Flash Player.app`) orchestrated by local Bridge API `/launch-native-flash`. Provides 1-click execution bypassing browser extension hijacking while maintaining full security bypass and asset proxying.
 - **Consequences**: Enables systematic diagnostics, graceful fallbacks for complex blend modes, and clear architectural tracking for future Ruffle engine improvements.
