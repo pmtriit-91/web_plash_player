@@ -16,6 +16,7 @@ export class PlayerControls {
     this.btnFullscreen = document.getElementById('btn-fullscreen');
     this.selectScale = document.getElementById('select-scale');
     this.selectRenderer = document.getElementById('select-renderer');
+    this.btnNativeFlash = document.getElementById('btn-native-flash');
     this.sliderVolume = document.getElementById('slider-volume');
     this.btnMute = document.getElementById('btn-mute');
     this.btnScreenshot = document.getElementById('btn-screenshot');
@@ -64,9 +65,44 @@ export class PlayerControls {
     if (this.selectRenderer) {
       this.selectRenderer.addEventListener('change', (e) => {
         const renderer = e.target.value;
-        this.player.setRenderer(renderer);
-        this.showToast(`Đã đổi bộ xử lý đồ họa: ${e.target.options[e.target.selectedIndex].text}`);
+        this.player.setRenderer(e.target.value);
+        this.showToast(`Đã chuyển bộ xử lý đồ họa: ${e.target.options[e.target.selectedIndex].text}`);
       });
+
+      // 3.1. Native Flash Player 32 Runner
+      if (this.btnNativeFlash) {
+        this.btnNativeFlash.addEventListener('click', async () => {
+          this.showToast('🔥 Đang mở game bằng Adobe Flash Player 32 Gốc...');
+          try {
+            let targetUrl = '';
+            if (this.currentSwfUrl) {
+              targetUrl = this.currentSwfUrl.startsWith('http') ? this.currentSwfUrl : `http://localhost:8081${this.currentSwfUrl}`;
+              if (this.currentCustomConfig && this.currentCustomConfig.flashvars) {
+                const params = new URLSearchParams(this.currentCustomConfig.flashvars).toString();
+                targetUrl += (targetUrl.includes('?') ? '&' : '?') + params;
+              }
+            } else {
+              // Default to Gunny Hồi Ức
+              const r = await fetch('http://localhost:8081/login-gunny-hoiuc?user=bughunter001&pass=123456%40abcD').then(res => res.json());
+              if (r.ok) {
+                const params = new URLSearchParams(r.flashvars).toString();
+                targetUrl = `http://localhost:8081${r.proxiedSwfUrl}?${params}`;
+              }
+            }
+
+            if (targetUrl) {
+              const res = await fetch(`http://localhost:8081/launch-native-flash?url=${encodeURIComponent(targetUrl)}`).then(r => r.json());
+              if (res.ok) {
+                this.showToast('🎉 Đã mở Adobe Flash Player 32 Gốc thành công!');
+              } else {
+                this.showToast(`Lỗi: ${res.error}`);
+              }
+            }
+          } catch (e) {
+            this.showToast(`Lỗi khởi chạy Flash: ${e.message}`);
+          }
+        });
+      }
     }
 
     // 3. Volume & Mute

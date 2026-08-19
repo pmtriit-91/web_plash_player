@@ -497,6 +497,39 @@ end tell`;
     return;
   }
 
+  // Native Adobe Flash Player 32 Standalone Runner: /launch-native-flash?url=<encoded>
+  if (pathname === '/launch-native-flash') {
+    const rawGameUrl = reqUrl.searchParams.get('url');
+    if (!rawGameUrl) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: 'Tham số url là bắt buộc.' }));
+      return;
+    }
+
+    try {
+      console.log(`[Bridge] Launching Native Flash Player 32 with URL: ${rawGameUrl}`);
+      const flashAppPath = path.join(__dirname, '..', 'runtime', 'flash', 'Flash Player.app');
+      
+      const child = spawn('open', ['-a', flashAppPath, '--args', rawGameUrl], {
+        detached: true,
+        stdio: 'ignore'
+      });
+      child.unref();
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        ok: true,
+        message: 'Đã mở Adobe Flash Player 32 Standalone thành công!',
+        url: rawGameUrl
+      }));
+    } catch(err) {
+      console.error('[Bridge] Error launching native Flash Player:', err);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: err.message }));
+    }
+    return;
+  }
+
   // Universal Smart URL Sniffer / Auto-Detector: /sniff-game-url?url=<encoded>
   if (pathname === '/sniff-game-url') {
     const rawUrl = reqUrl.searchParams.get('url');
