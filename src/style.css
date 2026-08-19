@@ -454,13 +454,15 @@ body {
 .viewport-area {
   flex: 1;
   min-height: 600px;
+  height: calc(100vh - 140px);
   background: #020408;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: 4px;
+  padding: 8px;
+  box-sizing: border-box;
 }
 
 #flash-container {
@@ -470,6 +472,12 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
+  overflow: hidden;
+}
+
+.flash-canvas-element, ruffle-player {
+  display: block;
+  margin: auto;
 }
 
 /* Empty State / Welcome Dropzone */

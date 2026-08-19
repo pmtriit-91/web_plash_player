@@ -255,42 +255,39 @@ export class FlashContainer {
 
   applyScaleMode(mode) {
     this.options.scaleMode = mode;
-    this.container.dataset.scaleMode = mode;
-
+    if (this.container) {
+      this.container.setAttribute('data-scale-mode', mode);
+    }
     if (!this.playerInstance) return;
 
     // Reset styles
     this.playerInstance.style.boxShadow = 'none';
     this.playerInstance.style.objectFit = 'contain';
+    this.playerInstance.style.display = 'block';
+    this.playerInstance.style.margin = 'auto';
 
     switch (mode) {
       case '5:3':
       case 'gunny':
-        this.playerInstance.style.width = '100%';
-        this.playerInstance.style.height = '100%';
-        this.playerInstance.style.maxWidth = 'calc(min(100%, (100vh - 180px) * (5 / 3)))';
-        this.playerInstance.style.maxHeight = 'calc(min(100%, 100vw * (3 / 5)))';
         this.playerInstance.style.aspectRatio = '5 / 3';
-        this.playerInstance.style.display = 'block';
-        this.playerInstance.style.margin = 'auto';
+        this.playerInstance.style.width = 'auto';
+        this.playerInstance.style.height = 'auto';
+        this.playerInstance.style.maxWidth = '100%';
+        this.playerInstance.style.maxHeight = '100%';
         break;
       case '4:3':
-        this.playerInstance.style.width = '100%';
-        this.playerInstance.style.height = '100%';
-        this.playerInstance.style.maxWidth = 'calc(min(100%, (100vh - 180px) * (4 / 3)))';
-        this.playerInstance.style.maxHeight = 'calc(min(100%, 100vw * (3 / 4)))';
         this.playerInstance.style.aspectRatio = '4 / 3';
-        this.playerInstance.style.display = 'block';
-        this.playerInstance.style.margin = 'auto';
+        this.playerInstance.style.width = 'auto';
+        this.playerInstance.style.height = 'auto';
+        this.playerInstance.style.maxWidth = '100%';
+        this.playerInstance.style.maxHeight = '100%';
         break;
       case '16:9':
-        this.playerInstance.style.width = '100%';
-        this.playerInstance.style.height = '100%';
-        this.playerInstance.style.maxWidth = 'calc(min(100%, (100vh - 180px) * (16 / 9)))';
-        this.playerInstance.style.maxHeight = 'calc(min(100%, 100vw * (9 / 16)))';
         this.playerInstance.style.aspectRatio = '16 / 9';
-        this.playerInstance.style.display = 'block';
-        this.playerInstance.style.margin = 'auto';
+        this.playerInstance.style.width = 'auto';
+        this.playerInstance.style.height = 'auto';
+        this.playerInstance.style.maxWidth = '100%';
+        this.playerInstance.style.maxHeight = '100%';
         break;
       case 'original':
         this.playerInstance.style.width = '1000px';
@@ -298,8 +295,6 @@ export class FlashContainer {
         this.playerInstance.style.maxWidth = '100%';
         this.playerInstance.style.maxHeight = '100%';
         this.playerInstance.style.aspectRatio = '5 / 3';
-        this.playerInstance.style.display = 'block';
-        this.playerInstance.style.margin = 'auto';
         this.playerInstance.style.boxShadow = '0 10px 30px rgba(0,0,0,0.7)';
         break;
       case 'stretch':
@@ -308,7 +303,6 @@ export class FlashContainer {
         this.playerInstance.style.maxWidth = '100%';
         this.playerInstance.style.maxHeight = '100%';
         this.playerInstance.style.aspectRatio = 'unset';
-        this.playerInstance.style.display = 'block';
         this.playerInstance.style.objectFit = 'fill';
         break;
       case 'fit':
@@ -318,8 +312,6 @@ export class FlashContainer {
         this.playerInstance.style.maxWidth = '100%';
         this.playerInstance.style.maxHeight = '100%';
         this.playerInstance.style.aspectRatio = 'unset';
-        this.playerInstance.style.display = 'block';
-        this.playerInstance.style.margin = 'auto';
         break;
     }
   }
