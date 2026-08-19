@@ -7,6 +7,7 @@
 import http from 'http';
 import https from 'https';
 import net from 'net';
+import zlib from 'zlib';
 import { URL } from 'url';
 import { spawn } from 'child_process';
 import { WebSocketServer, WebSocket } from 'ws';
@@ -18,6 +19,26 @@ let lastDetectedGameServer = {
   host: '15.235.193.106',
   port: 25565
 };
+
+/**
+ * Helper to decompress gzip/deflate/br responses seamlessly
+ */
+async function readTextResponse(res) {
+  let stream = res;
+  const encoding = res.headers ? res.headers['content-encoding'] : null;
+  if (encoding === 'gzip') {
+    stream = res.pipe(zlib.createGunzip());
+  } else if (encoding === 'deflate') {
+    stream = res.pipe(zlib.createInflate());
+  } else if (encoding === 'br') {
+    stream = res.pipe(zlib.createBrotliDecompress());
+  }
+  let text = '';
+  for await (const chunk of stream) {
+    text += chunk.toString('utf-8');
+  }
+  return text;
+}
 
 /**
  * Execute AppleScript cleanly via stdin
@@ -320,8 +341,7 @@ end tell`;
       if (syncResult.type === 'zing' && syncResult.data && syncResult.data.ret === 1) {
         const sessionUrl = syncResult.data.url;
         const { response: pageRes } = await fetchWithRedirects(sessionUrl);
-        let html = '';
-        for await (const chunk of pageRes) html += chunk.toString('utf-8');
+        const html = await readTextResponse(pageRes);
 
         const extracted = extractFlashFromHtml(html, sessionUrl);
 
@@ -398,8 +418,7 @@ end tell`;
     try {
       console.log(`[Bridge] Sniffing game URL: ${rawUrl}`);
       const { response: pageRes } = await fetchWithRedirects(rawUrl);
-      let html = '';
-      for await (const chunk of pageRes) html += chunk.toString('utf-8');
+      const html = await readTextResponse(pageRes);
 
       // 1. Extract SWF Path from Flash portals (Newgrounds, Kongregate, ArmorGames, Gunny...)
       let swf = '';
@@ -430,14 +449,11 @@ end tell`;
           return;
         }
 
-        // Fallback: load the webpage directly as an embedded web game
-        res.writeHead(200, { 'Content-Type': 'application/json' });
+        // Return error if no Flash (.swf) or valid HTML5 game embed is found
+        res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
-          ok: true,
-          type: 'html5',
-          gameUrl: rawUrl,
-          domain: new URL(rawUrl).hostname,
-          message: 'Tự động chạy trang web ở chế độ Web Gaming Canvas!'
+          ok: false,
+          error: 'Không tìm thấy tệp Flash (.swf) hoặc Web Game nhúng hợp lệ trên trang này. Vui lòng nhập link trực tiếp file .swf hoặc chọn từ tab Presets.'
         }));
         return;
       }
@@ -529,10 +545,7 @@ end tell`;
       
       // Automatically capture active game server IP/Port from ServerList.ashx
       if (pathname.endsWith('/ServerList.ashx') || pathname.endsWith('/LoginServerList.ashx')) {
-        let serverListXml = '';
-        for await (const chunk of proxyRes) {
-          serverListXml += chunk.toString('utf-8');
-        }
+        const serverListXml = await readTextResponse(proxyRes);
         const ipMatch = /IP=["']([^"']+)["']\s+Port=["']([0-9]+)["']/i.exec(serverListXml);
         if (ipMatch) {
           lastDetectedGameServer = { host: ipMatch[1], port: parseInt(ipMatch[2], 10) };
@@ -553,10 +566,7 @@ end tell`;
       const isClientConfigXml = /\/config[0-9]*\.xml/i.test(pathname);
 
       if (isClientConfigXml) {
-        let xmlContent = '';
-        for await (const chunk of proxyRes) {
-          xmlContent += chunk.toString('utf-8');
-        }
+        const xmlContent = await readTextResponse(proxyRes);
 
         // Universal XML Rewriter: replaces any https://domain.com/path with http://localhost:8081/host/domain.com/path
         let rewrittenXml = xmlContent

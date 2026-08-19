@@ -202,12 +202,16 @@ export class PlayerControls {
             this.showToast(`⚠️ Yêu cầu Đăng nhập: ${info.message}`, 6000);
             alert(`⚠️ CẢNH BÁO XÁC THỰC (LOGIN REQUIRED):\n\nĐường dẫn "${rawUrl}" là trang xác thực/đăng nhập của Zing ID (yêu cầu Cookie đăng nhập của tài khoản).\n\n👉 Để chơi Gunny Zing trên Web Player:\n1. Mở game trên trình duyệt và đăng nhập tài khoản Zing.\n2. Nhấn nút "⚡ Đồng bộ & Vào Game Ngay" tại Tab "Gunny Bridge" để vào thẳng game!`);
           } else {
-            this.showToast(`⚠️ ${info.message || 'Không tìm thấy tệp Flash (.swf)'}`, 5000);
+            this.showToast(`⚠️ ${info.message || 'Không tìm thấy tệp Flash (.swf) trong trang web này.'}`, 5000);
           }
         } else {
-          // Fallback direct load
-          const targetUrl = this.checkCorsProxy.checked ? this.bridge.getProxiedUrl(rawUrl) : rawUrl;
-          await this.runGame(targetUrl, { flashvars: this.getParsedFlashvars() });
+          // Direct load only for .swf files
+          if (rawUrl.toLowerCase().includes('.swf') || rawUrl.startsWith('data:') || rawUrl.startsWith('blob:')) {
+            const targetUrl = this.checkCorsProxy.checked ? this.bridge.getProxiedUrl(rawUrl) : rawUrl;
+            await this.runGame(targetUrl, { flashvars: this.getParsedFlashvars() });
+          } else {
+            this.showToast('⚠️ Vui lòng nhập link trực tiếp file Flash (.swf) hoặc chọn từ tab Presets.', 5000);
+          }
         }
       } catch (err) {
         this.showToast(`Lỗi phân tích link: ${err.message}`);

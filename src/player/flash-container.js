@@ -157,7 +157,7 @@ export class FlashContainer {
       const loadConfig = {
         parameters: customConfig.flashvars || {},
         allowScriptAccess: true,
-        openUrlMode: 'confirm',
+        openUrlMode: 'deny',
         socketProxy: (window.RufflePlayer && window.RufflePlayer.config && window.RufflePlayer.config.socketProxy) ? window.RufflePlayer.config.socketProxy : [],
         wmode: this.options.wmode,
         quality: this.options.quality,
@@ -352,9 +352,14 @@ export class FlashContainer {
 
   destroyCurrentPlayer() {
     this.stopFpsTracker();
+    if (this.container) {
+      this.container.innerHTML = '';
+    }
     if (this.playerInstance) {
       try {
-        this.playerInstance.remove();
+        if (typeof this.playerInstance.remove === 'function') {
+          this.playerInstance.remove();
+        }
       } catch (e) {}
       this.playerInstance = null;
     }
