@@ -1,9 +1,9 @@
 /**
  * Presets Library for Web Flash Player
- * Universal game definitions with dynamic proxy routing and customizable credentials
+ * Universal game configurations consuming centralized URLs registry
  */
 
-import { buildHostProxiedUrl } from '../config.js';
+import { GAME_URLS, SAMPLE_SWF_PATHS } from '../utils/urls.js';
 
 export const GAME_PRESETS = [
   {
@@ -17,12 +17,12 @@ export const GAME_PRESETS = [
     isGunny: true,
     isHoiUc: true,
     get swfUrl() {
-      return buildHostProxiedUrl('flash1.gunnyhoiuc.com:88', '/Loading.swf');
+      return GAME_URLS.getGunnyHoiUcSwf();
     },
     get flashvars() {
       return {
-        user: 'bughunter001',
-        config: buildHostProxiedUrl('flash1.gunnyhoiuc.com:88', '/config.xml')
+        user: this.account,
+        config: GAME_URLS.getGunnyHoiUcConfig()
       };
     },
     width: 1000,
@@ -37,15 +37,17 @@ export const GAME_PRESETS = [
     accountType: 'Private Auth',
     statusText: '🔑 Smart Gateway Token',
     description: 'Máy chủ Gunny Private hồi ức với bộ định tuyến Smart Socket Gateway và bảo mật tự động.',
-    get swfUrl() {
-      return buildHostProxiedUrl('123gn.net', '/flash3/Loading.swf');
-    },
     isGunny: true,
     isPrivate: true,
-    serverUrl: 'https://123gn.net/play/1001',
+    get serverUrl() {
+      return GAME_URLS.get123gnPlayUrl();
+    },
+    get swfUrl() {
+      return GAME_URLS.get123gnSwf();
+    },
     get flashvars() {
       return {
-        config: buildHostProxiedUrl('123gn.net', '/flash3/config3.xml')
+        config: GAME_URLS.get123gnConfig()
       };
     },
     width: 1000,
@@ -60,15 +62,17 @@ export const GAME_PRESETS = [
     accountType: 'Zing ID Account',
     statusText: '🔗 Đồng bộ từ Chrome',
     description: 'Máy chủ chính thức Zing Gunny. Tự động đồng bộ 1-click trực tiếp từ phiên đăng nhập trình duyệt.',
-    get swfUrl() {
-      return buildHostProxiedUrl('res737.gn.zing.vn', '/flash/Loading.swf');
-    },
     isGunny: true,
     isZing: true,
-    serverUrl: 'https://id-levelup.gn.zing.vn',
+    get serverUrl() {
+      return GAME_URLS.getZingAuthUrl();
+    },
+    get swfUrl() {
+      return GAME_URLS.getZingSwf();
+    },
     get flashvars() {
       return {
-        config: buildHostProxiedUrl('s737.gn.zing.vn', '/config.xml')
+        config: GAME_URLS.getZingConfig()
       };
     },
     width: 1000,
@@ -83,7 +87,9 @@ export const GAME_PRESETS = [
     accountType: 'Arcade Offline',
     statusText: '🎮 Chơi ngay',
     description: 'Game bắn súng Flash kinh điển nổi tiếng thế giới. Thử nghiệm đồ họa 60 FPS, âm thanh và bàn phím (A, S, Phím mũi tên).',
-    swfUrl: '/samples/alien_hominid.swf',
+    get swfUrl() {
+      return SAMPLE_SWF_PATHS.ALIEN_HOMINID;
+    },
     flashvars: {},
     width: 800,
     height: 600,
@@ -97,7 +103,9 @@ export const GAME_PRESETS = [
     accountType: 'Interactive Demo',
     statusText: '🎮 Chơi ngay',
     description: 'Game phiêu lưu tương tác âm nhạc và hiệu ứng vector Flash mượt mà.',
-    swfUrl: '/samples/flyguy.swf',
+    get swfUrl() {
+      return SAMPLE_SWF_PATHS.FLYGUY;
+    },
     flashvars: {},
     width: 800,
     height: 600,
@@ -111,7 +119,9 @@ export const GAME_PRESETS = [
     accountType: 'Graphics Demo',
     statusText: '🔮 Vector WebGL',
     description: 'Trình diễn hiệu ứng đồ họa Vector và WebGL shader của WebAssembly Flash Engine.',
-    swfUrl: '/samples/logo-anim.swf',
+    get swfUrl() {
+      return SAMPLE_SWF_PATHS.LOGO_ANIMATION;
+    },
     flashvars: {},
     width: 800,
     height: 600,
